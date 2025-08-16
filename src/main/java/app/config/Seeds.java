@@ -1,52 +1,70 @@
 package app.config;
 
 import domain.gateway.UserRepositoryPort;
-import domain.model.Role;
-import domain.model.User;
-import infrastructure.adapter.database.jpa.JpaRoleRepositoryAdapter;
-import infrastructure.adapter.database.jpa.JpaPermissionRepositoryAdapter;
 import domain.gateway.PasswordEncoderPort;
-
-import java.util.HashSet;
-import java.util.Set;
+import domain.usecase.RoleUseCase;
+import domain.usecase.PermissionUseCase;
+import domain.model.User;
+import domain.model.Role;
+import domain.model.Permission;
 
 public class Seeds {
 
-    public static void ensureInitialData(UserRepositoryPort users, PasswordEncoderPort encoder,
-                                         JpaRoleRepositoryAdapter roleRepo, JpaPermissionRepositoryAdapter permRepo, boolean jpaMode){
-        try{
-            if(!jpaMode) return;
-            // create permissions
-            if(permRepo.count()==0){
-                permRepo.save("CATALOG_READ");
-                permRepo.save("CATALOG_WRITE");
-                permRepo.save("INVENTORY_ASSIGN");
-                permRepo.save("USER_MANAGE");
-                permRepo.save("ROLE_MANAGE");
-            }
-            // create roles
-            if(roleRepo.count()==0){
-                Long adminRoleId = roleRepo.save("ADMINISTRADOR");
-                Long userRoleId = roleRepo.save("USUARIO");
-                Long advRoleId = roleRepo.save("USUARIO_AVANZADO");
-                // assign all perms to admin
-                for(String p : permRepo.findAllNames()){
-                    roleRepo.addPermission(adminRoleId, p);
-                }
-            }
-            // create admin user if not exists
-            if(!users.existsByUsername("ADMIN")){
-                User u = new User();
-                u.setUsername("ADMIN");
-                u.setPasswordHash(encoder.encode("admin123"));
-                u.setSystemUser(true);
-                Set<Role> roles = new HashSet<>();
-                roles.add(new Role(null, "ADMINISTRADOR"));
-                u.setRoles(roles);
-                users.save(u);
-            }
-        }catch(Exception ex){
-            System.out.println("Seed error: " + ex.getMessage());
+    public static void ensureInitialData(
+            UserRepositoryPort userRepository,
+            PasswordEncoderPort encoder,
+            RoleUseCase roleUseCase,
+            PermissionUseCase permissionUseCase,
+            boolean jpaMode) {
+
+        if (!jpaMode) {
+            // ⚠️ si estamos en modo memoria puedes decidir no sembrar datos
+            System.out.println("Skipping seeds (in-memory mode)");
+            return;
+        }
+
+        // === Crear permisos iniciales ===
+        if (permissionUseCase.count() == 0) {
+            permissionUseCase.create(new Permission("READ_CATEGORIA"));
+            permissionUseCase.create(new Permission("WRITE_CATEGORIA"));
+            permissionUseCase.create(new Permission("READ_PRODUCTO"));
+            permissionUseCase.create(new Permission("WRITE_PRODUCTO"));
+            System.out.println("🔑 Permisos iniciales creados");
+        }
+
+        // === Crear roles iniciales ===
+        if (roleUseCase.count() == 0) {
+            Role admin = new Role("ADMIN");
+            Role user = new Role("USER");
+
+            // asignar permisos al rol admin (unwrap Optional con orElseThrow)
+            Permission readCat = permissionUseCase.findByName("READ_CATEGORIA");
+            Permission writeCat = permissionUseCase.findByName("WRITE_CATEGORIA");
+            Permission readProd = permissionUseCase.findByName("READ_PRODUCTO");
+            Permission writeProd = permissionUseCase.findByName("WRITE_PRODUCTO");
+
+            admin.addPermission(readCat);
+            admin.addPermission(writeCat);
+            admin.addPermission(readProd);
+            admin.addPermission(writeProd);
+
+            roleUseCase.create(admin);
+            roleUseCase.create(user);
+
+            System.out.println("👤 Roles iniciales creados");
+        }
+
+        // === Crear usuario admin ===
+        if (userRepository.count() == 0) {
+            User adminUser = new User("admin", encoder.encode("admin123"));
+
+            Role adminRole = roleUseCase.findByName("ADMIN")
+                    .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
+
+            adminUser.addRole(adminRole);
+            userRepository.save(adminUser);
+
+            System.out.println("👤 Usuario admin creado");
         }
     }
 }

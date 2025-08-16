@@ -1,5 +1,6 @@
 package infrastructure.fx.controller;
 
+import app.config.ControllerFactory;
 import app.session.UserSession;
 import domain.model.User;
 import javafx.event.ActionEvent;
@@ -175,6 +176,9 @@ public class SidebarController {
     private void loadView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            // ✅ Asignar ControllerFactory para inyectar UseCases
+            loader.setControllerFactory(new ControllerFactory());
+
             Node view = loader.load();
             MainController.getInstance().setContent(view);
         } catch (IOException e) {

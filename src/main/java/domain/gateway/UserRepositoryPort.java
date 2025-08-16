@@ -15,4 +15,6 @@ public interface UserRepositoryPort {
     boolean existsByUsername(String username);
 
     java.util.Optional<User> findById(Long id);
+
+    long count();
 }

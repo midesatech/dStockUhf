@@ -3,7 +3,6 @@ package infrastructure.fx.controller.catalog;
 
 import domain.model.Categoria;
 import domain.usecase.CategoriaUseCase;
-import infrastructure.adapter.database.jpa.CategoriaRepositoryAdapter;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -11,9 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
-
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 
 public class CategoriasController {
 
@@ -23,17 +19,16 @@ public class CategoriasController {
     @FXML private TableColumn<Categoria, String> colNombre;
 
     private ObservableList<Categoria> categorias;
-    private CategoriaUseCase useCase;
+    private final CategoriaUseCase useCase;
 
     private Categoria categoriaSeleccionada;
 
+    public CategoriasController(CategoriaUseCase useCase) {
+        this.useCase = useCase;
+    }
+
     @FXML
     public void initialize() {
-        // 🔹 Configuración de JPA y UseCase
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("InventarioPU");
-        CategoriaRepositoryAdapter repo = new CategoriaRepositoryAdapter(emf);
-        useCase = new CategoriaUseCase(repo);
-
         // Configurar columnas
         colId.setCellValueFactory(data -> new SimpleLongProperty(data.getValue().getId()));
         colNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNombre()));

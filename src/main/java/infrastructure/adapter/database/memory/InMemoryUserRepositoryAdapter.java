@@ -46,4 +46,9 @@ public class InMemoryUserRepositoryAdapter implements UserRepositoryPort {
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(data.get(id));
     }
+
+    @Override
+    public long count() {
+        return data.size();
+    }
 }
