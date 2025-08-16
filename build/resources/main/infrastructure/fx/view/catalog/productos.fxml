@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.catalog.ProductosController">
+    <top>
+        <ToolBar>
+            <Button text="Nuevo" onAction="#nuevo"/>
+            <Button text="Guardar" onAction="#guardar"/>
+            <Button text="Eliminar" onAction="#eliminar"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Productos"/>
+        </ToolBar>
+    </top>
+    <left>
+        <VBox spacing="6">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="SKU"/>
+            <TextField fx:id="txtSku"/>
+            <Label text="Nombre"/>
+            <TextField fx:id="txtNombre"/>
+            <Label text="Categoría"/>
+            <ComboBox fx:id="cmbCategoria"/>
+            <Label text="Ubicación"/>
+            <ComboBox fx:id="cmbUbicacion"/>
+            <Label text="Empleado"/>
+            <ComboBox fx:id="cmbEmpleado"/>
+        </VBox>
+    </left>
+    <center>
+        <TableView fx:id="tbl">
+            <columns>
+                <TableColumn fx:id="colId" text="ID"/>
+                <TableColumn fx:id="colSku" text="SKU"/>
+                <TableColumn fx:id="colNombre" text="Nombre"/>
+                <TableColumn fx:id="colCategoria" text="Categoría"/>
+                <TableColumn fx:id="colUbicacion" text="Ubicación"/>
+                <TableColumn fx:id="colEmpleado" text="Empleado"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

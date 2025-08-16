@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.system.PermissionsController">
+    <top>
+        <ToolBar>
+            <Button text="Nuevo" onAction="#newPermission"/>
+            <Button text="Guardar" onAction="#savePermission"/>
+            <Button text="Eliminar" onAction="#deletePermission"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Permisos"/>
+        </ToolBar>
+    </top>
+    <left>
+        <VBox spacing="6">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <TextField fx:id="txtName" promptText="Nombre de permiso"/>
+        </VBox>
+    </left>
+    <center>
+        <TableView fx:id="tbl"/>
+    </center>
+</BorderPane>

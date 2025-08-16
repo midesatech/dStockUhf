@@ -1,0 +1,12 @@
+build
+build/
+logs
+logs/
+.gradle
+.gradle/
+.idea
+.vscode
+logs_
+logs_/
+.intellij
+

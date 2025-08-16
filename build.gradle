@@ -1,0 +1,35 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+repositories { mavenCentral() }
+
+dependencies {
+    implementation 'org.openjfx:javafx-controls:21.0.3'
+    implementation 'org.openjfx:javafx-fxml:21.0.3'
+
+    implementation 'org.mindrot:jbcrypt:0.4'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+    implementation 'org.hibernate.orm:hibernate-core:6.4.4.Final'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+
+    implementation 'org.slf4j:slf4j-simple:2.0.12'
+}
+
+javafx {
+    version = "21.0.3"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+application {
+    mainClass = 'app.MainApp'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}

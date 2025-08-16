@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.system.RolesController">
+    <top>
+        <ToolBar>
+            <Button text="Nuevo" onAction="#newRole"/>
+            <Button text="Guardar" onAction="#saveRole"/>
+            <Button text="Eliminar" onAction="#deleteRole"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Roles"/>
+        </ToolBar>
+    </top>
+    <left>
+        <VBox spacing="6">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <TextField fx:id="txtName" promptText="Nombre de rol"/>
+            <Label text="Permisos"/>
+            <ListView fx:id="lstPermissions" prefHeight="200.0"/>
+        </VBox>
+    </left>
+    <center>
+        <TableView fx:id="tbl"/>
+    </center>
+</BorderPane>
