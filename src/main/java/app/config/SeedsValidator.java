@@ -1,12 +1,9 @@
 package app.config;
 
-import app.config.AppBootstrap;
 import domain.model.User;
-import domain.model.Role;
-import domain.model.Permission;
-import domain.gateway.UserRepositoryPort;
 import domain.usecase.RoleUseCase;
 import domain.usecase.PermissionUseCase;
+import domain.usecase.UserUseCase;
 
 import java.util.Optional;
 
@@ -16,7 +13,7 @@ public class SeedsValidator {
         AppBootstrap.init(true);
 
         try {
-            UserRepositoryPort userRepo = AppBootstrap.users();
+            UserUseCase userRepo = AppBootstrap.users();
             RoleUseCase roleUseCase = AppBootstrap.roleUseCase();
             PermissionUseCase permUseCase = AppBootstrap.permissionUseCase();
 

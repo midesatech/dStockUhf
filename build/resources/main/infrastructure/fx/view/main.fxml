@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
 
+<?import javafx.scene.control.Button?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="infrastructure.fx.controller.MainController">
 
@@ -21,12 +22,12 @@
     </center>
 
     <!-- Barra de estado inferior -->
-    <!-- Barra de estado inferior -->
     <bottom>
         <HBox spacing="20" style="-fx-padding:6; -fx-background-color:#f1f1f1; -fx-border-color:#ccc; -fx-border-width:1 0 0 0;">
             <Label fx:id="lblUser" text="Usuario: ---"/>
             <Label fx:id="lblCapsStatus" text="CapsLock: ---"/>
             <Label fx:id="lblStatus" text="Listo"/>
+            <!-- <Button text="Cerrar sesión" onAction="#logout"/>-->
         </HBox>
     </bottom>
 </BorderPane>

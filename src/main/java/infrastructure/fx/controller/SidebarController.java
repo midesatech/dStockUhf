@@ -121,6 +121,9 @@ public class SidebarController {
         // 3.4 = Cambio de contraseña → siempre visible
         sysRoot.getChildren().add(makeMenuItem("Cambio de contraseña", "/infrastructure/fx/view/system/change_password.fxml", Icons.LOCK));
 
+        TreeItem<String> logoutItem = makeMenuItem("Cerrar sesión", null, Icons.EXIT, true);
+        sysRoot.getChildren().add(logoutItem);
+
         rootItem.getChildren().add(sysRoot);
 
         menuTree.setRoot(rootItem);
@@ -133,6 +136,8 @@ public class SidebarController {
                 Object ud = ((HBox) item.getGraphic()).getUserData();
                 if (ud instanceof String) {
                     loadView((String) ud);
+                } else if ("Cerrar sesión".equals(((Label)((HBox)item.getGraphic()).getChildren().get(1)).getText())) {
+                    MainController.getInstance().logout();
                 }
             }
         });
@@ -157,18 +162,26 @@ public class SidebarController {
     }
 
     private TreeItem<String> makeMenuItem(String label, String fxmlPath, String svgPath) {
+        return makeMenuItem(label, fxmlPath, svgPath, false);
+    }
+
+    private TreeItem<String> makeMenuItem(String label, String fxmlPath, String svgPath, boolean isLogout) {
         SVGPath icon = new SVGPath();
         icon.setContent(svgPath);
-        icon.setFill(Color.DIMGRAY);
+        icon.setFill(isLogout ? Color.DARKRED : Color.DIMGRAY);
         icon.setScaleX(0.6);
         icon.setScaleY(0.6);
 
         Label text = new Label(label);
-        text.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
+        text.setStyle(isLogout
+                ? "-fx-font-size: 13px; -fx-text-fill: #b71c1c; -fx-font-weight: bold;"
+                : "-fx-font-size: 13px; -fx-text-fill: #333;");
 
         HBox box = new HBox(8, icon, text);
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setUserData(fxmlPath); // aquí sí guardamos el FXML
+        if (fxmlPath != null) {
+            box.setUserData(fxmlPath);
+        }
 
         return new TreeItem<>(null, box);
     }
@@ -192,5 +205,11 @@ public class SidebarController {
         return u.getRoles().stream()
                 .flatMap(r -> r.getPermissions().stream())
                 .anyMatch(p -> perm.equalsIgnoreCase(p.getName()));
+    }
+
+    @FXML
+    private void logout() {
+        // Llamamos al MainController, que ya sabe reiniciar la sesión
+        MainController.getInstance().logout();
     }
 }

@@ -1,10 +1,16 @@
 
 package infrastructure.fx.controller;
 
+import app.session.UserSession;
+import domain.model.User;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 public class MainController {
     @FXML private StackPane contentArea;
@@ -21,6 +27,12 @@ public class MainController {
                 new javafx.animation.KeyFrame(javafx.util.Duration.millis(500), e -> checkCapsLock()));
         timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
         timeline.play();
+        User current = UserSession.getCurrent();
+        if (current != null) {
+            lblUser.setText("Usuario: " + current.getUsername());
+        } else {
+            lblUser.setText("Usuario: [no logueado]");
+        }
     }
 
     public MainController() {
@@ -52,5 +64,23 @@ public class MainController {
     // ✅ método para actualizar mensajes de estado
     public void setStatus(String message) {
         lblStatus.setText(message);
+    }
+
+    @FXML
+    public void logout() {
+        try {
+            // 1. Limpiar sesión
+            UserSession.clear();
+
+            // 2. Volver al login
+            Stage stage = (Stage) lblUser.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/infrastructure/fx/view/login.fxml"));
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Inventario - Login");
+        } catch (Exception e) {
+            e.printStackTrace();
+            setStatus("Error al cerrar sesión: " + e.getMessage());
+        }
     }
 }

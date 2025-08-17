@@ -2,12 +2,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.system.UsersController">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.system.UserController">
     <top>
         <ToolBar>
             <Button text="Nuevo" onAction="#newUser"/>
             <Button text="Guardar" onAction="#saveUser"/>
             <Button text="Eliminar" onAction="#deleteUser"/>
+            <Button text="Refrescar" onAction="#refresh"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label text="Usuarios"/>
         </ToolBar>

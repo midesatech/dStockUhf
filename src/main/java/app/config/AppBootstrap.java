@@ -1,13 +1,8 @@
 package app.config;
 
 import domain.gateway.PasswordEncoderPort;
-import domain.gateway.UserRepositoryPort;
-import domain.usecase.CategoriaUseCase;
-import domain.usecase.UbicacionUseCase;
-import domain.usecase.EmpleadoUseCase;
-import domain.usecase.ProductoUseCase;
-import domain.usecase.RoleUseCase;
-import domain.usecase.PermissionUseCase;
+import domain.gateway.UserRepository;
+import domain.usecase.*;
 import domain.gateway.AuthServicePort;
 import infrastructure.adapter.database.jpa.*;
 import infrastructure.adapter.database.memory.InMemoryUserRepositoryAdapter;
@@ -19,7 +14,7 @@ public class AppBootstrap {
     private static boolean jpaMode = false;
 
     // Core services
-    private static UserRepositoryPort userRepository;
+    private static UserRepository userRepository;
     private static PasswordEncoderPort encoder;
     private static AuthServicePort auth;
 
@@ -34,6 +29,7 @@ public class AppBootstrap {
     private static ProductoUseCase productoUseCase;
     private static RoleUseCase roleUseCase;
     private static PermissionUseCase permissionUseCase;
+    private static UserUseCase userUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
@@ -56,15 +52,17 @@ public class AppBootstrap {
 
             roleUseCase = new RoleUseCase(roleRepo);
             permissionUseCase = new PermissionUseCase(permRepo);
+
         } else {
             userRepository = new InMemoryUserRepositoryAdapter();
-            // ⚠️ si usas modo memoria, deberías crear también versiones in-memory para Role/Permission
         }
+
+        userUseCase = new UserUseCase(userRepository, encoder);
 
         auth = new SimpleAuthServiceAdapter(userRepository, encoder);
 
         // seeds (create roles/perms/users if not present)
-        Seeds.ensureInitialData(userRepository, encoder,
+        Seeds.ensureInitialData(userUseCase, encoder,
                 // eliminamos roleRepo y permRepo directos, ahora usamos los UseCases
                 roleUseCase, permissionUseCase, jpaMode);
     }
@@ -74,8 +72,8 @@ public class AppBootstrap {
     }
 
     // === Accessors ===
-    public static UserRepositoryPort users() {
-        return userRepository;
+    public static UserUseCase users() {
+        return userUseCase;
     }
 
     public static PasswordEncoderPort encoder() {

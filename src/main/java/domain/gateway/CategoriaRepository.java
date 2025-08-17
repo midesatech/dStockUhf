@@ -4,7 +4,7 @@ import domain.model.Categoria;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoriaGateway {
+public interface CategoriaRepository {
     Categoria save(Categoria c);
     List<Categoria> findAll();
     void deleteById(Long id);

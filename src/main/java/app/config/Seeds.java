@@ -1,17 +1,18 @@
 package app.config;
 
-import domain.gateway.UserRepositoryPort;
+import domain.gateway.UserRepository;
 import domain.gateway.PasswordEncoderPort;
 import domain.usecase.RoleUseCase;
 import domain.usecase.PermissionUseCase;
 import domain.model.User;
 import domain.model.Role;
 import domain.model.Permission;
+import domain.usecase.UserUseCase;
 
 public class Seeds {
 
     public static void ensureInitialData(
-            UserRepositoryPort userRepository,
+            UserUseCase userRepository,
             PasswordEncoderPort encoder,
             RoleUseCase roleUseCase,
             PermissionUseCase permissionUseCase,
@@ -56,13 +57,13 @@ public class Seeds {
 
         // === Crear usuario admin ===
         if (userRepository.count() == 0) {
-            User adminUser = new User("admin", encoder.encode("admin123"));
+            User adminUser = new User("admin", "admin123");
 
             Role adminRole = roleUseCase.findByName("ADMIN")
                     .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
 
             adminUser.addRole(adminRole);
-            userRepository.save(adminUser);
+            userRepository.save(adminUser, "admin123");
 
             System.out.println("👤 Usuario admin creado");
         }

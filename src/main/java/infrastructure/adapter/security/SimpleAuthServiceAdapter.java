@@ -3,14 +3,14 @@ package infrastructure.adapter.security;
 
 import domain.gateway.AuthServicePort;
 import domain.gateway.PasswordEncoderPort;
-import domain.gateway.UserRepositoryPort;
+import domain.gateway.UserRepository;
 import domain.model.User;
 
 public class SimpleAuthServiceAdapter implements AuthServicePort {
-    private final UserRepositoryPort users;
+    private final UserRepository users;
     private final PasswordEncoderPort enc;
 
-    public SimpleAuthServiceAdapter(UserRepositoryPort users, PasswordEncoderPort enc) {
+    public SimpleAuthServiceAdapter(UserRepository users, PasswordEncoderPort enc) {
         this.users = users;
         this.enc = enc;
     }

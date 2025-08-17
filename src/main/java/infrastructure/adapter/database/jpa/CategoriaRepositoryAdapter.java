@@ -1,6 +1,6 @@
 
 package infrastructure.adapter.database.jpa;
-import domain.gateway.CategoriaGateway;
+import domain.gateway.CategoriaRepository;
 import domain.model.Categoria;
 import infrastructure.adapter.database.mysql.entity.CategoriaEntity;
 import jakarta.persistence.EntityManagerFactory;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
-public class CategoriaRepositoryAdapter implements CategoriaGateway {
+public class CategoriaRepositoryAdapter implements CategoriaRepository {
     private final EntityManagerFactory emf;
     public CategoriaRepositoryAdapter(EntityManagerFactory emf){ this.emf = emf; }
 

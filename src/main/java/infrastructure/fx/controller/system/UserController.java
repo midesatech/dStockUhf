@@ -1,15 +1,15 @@
 
 package infrastructure.fx.controller.system;
 
-import app.config.AppBootstrap;
-import domain.gateway.UserRepositoryPort;
 import domain.model.User;
+import domain.usecase.UserUseCase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-public class UsersController {
+public class UserController {
     @FXML
     private TableView<User> tbl;
     @FXML
@@ -24,12 +24,19 @@ public class UsersController {
     private PasswordField txtPassword;
     @FXML
     private CheckBox chkSystemUser;
-    private final UserRepositoryPort users = AppBootstrap.users();
+    private final UserUseCase userUseCase;
     private final ObservableList<User> data = FXCollections.observableArrayList();
+
+    public UserController(UserUseCase userUseCase) {
+        this.userUseCase = userUseCase;
+    }
 
     @FXML
     public void initialize() {
-        if (tbl != null) tbl.setItems(data);
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colUser.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colSystem.setCellValueFactory(new PropertyValueFactory<>("systemUser"));
+        tbl.setItems(data);
         refresh();
     }
 
@@ -43,23 +50,24 @@ public class UsersController {
 
     @FXML
     public void saveUser() {
-        String u = txtUsername.getText();
-        if (u == null || u.isBlank()) {
-            show("Usuario requerido");
-            return;
+        try {
+            String username = txtUsername.getText();
+            String rawPassword = txtPassword.getText();
+
+            User user = userUseCase.findByUsername(username).orElse(new User());
+            user.setUsername(username);
+            user.setSystemUser(chkSystemUser.isSelected());
+
+            // ahora delegamos toda la lógica a UserUseCase
+            userUseCase.save(user, rawPassword);
+
+            refresh();
+            show("Guardado");
+            txtUsername.clear();
+            txtPassword.clear();
+        } catch (Exception ex) {
+            show(ex.getMessage());
         }
-        User found = users.findByUsername(u).orElse(new User());
-        found.setUsername(u);
-        if (!txtPassword.getText().isBlank()) {
-            found.setPasswordHash(AppBootstrap.encoder().encode(txtPassword.getText()));
-        } else if (found.getPasswordHash() == null) {
-            show("Contraseña requerida");
-            return;
-        }
-        found.setSystemUser(chkSystemUser.isSelected());
-        users.save(found);
-        refresh();
-        show("Guardado");
     }
 
     @FXML
@@ -70,18 +78,16 @@ public class UsersController {
             return;
         }
         try {
-            users.deleteById(sel.getId());
+            userUseCase.delete(sel.getId());
             refresh();
         } catch (Exception ex) {
             show(ex.getMessage());
         }
     }
 
-    private void refresh() {
-        data.clear();
-        for (long i = 1; i <= 50; i++) {
-            users.findById(i).ifPresent(data::add);
-        }
+    @FXML
+    public void refresh() {
+        data.setAll(userUseCase.listAll());
     }
 
     private void show(String m) {

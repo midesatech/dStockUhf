@@ -2,16 +2,17 @@
 package infrastructure.adapter.database.jpa;
 
 import domain.gateway.PasswordEncoderPort;
-import domain.gateway.UserRepositoryPort;
+import domain.gateway.UserRepository;
 import domain.model.User;
 import infrastructure.adapter.database.mysql.entity.UserEntity;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
+import java.util.List;
 import java.util.Optional;
 
-public class JpaUserRepositoryAdapter implements UserRepositoryPort {
+public class JpaUserRepositoryAdapter implements UserRepository {
     private final EntityManagerFactory emf;
     private final PasswordEncoderPort encoder;
 
@@ -90,6 +91,20 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
         try {
             return em.createQuery("select count(u) from UserEntity u", Long.class)
                     .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<User> findAll() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("select u from UserEntity u", UserEntity.class)
+                    .getResultList()
+                    .stream()
+                    .map(EntityMappers::toDomain)
+                    .toList();
         } finally {
             em.close();
         }

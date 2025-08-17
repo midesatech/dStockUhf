@@ -1,14 +1,14 @@
 
 package infrastructure.adapter.database.memory;
 
-import domain.gateway.UserRepositoryPort;
+import domain.gateway.UserRepository;
 import domain.model.Role;
 import domain.model.User;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class InMemoryUserRepositoryAdapter implements UserRepositoryPort {
+public class InMemoryUserRepositoryAdapter implements UserRepository {
     private final Map<Long, User> data = new HashMap<>();
     private final AtomicLong seq = new AtomicLong(1);
 
@@ -50,5 +50,10 @@ public class InMemoryUserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public long count() {
         return data.size();
+    }
+
+    @Override
+    public List<User> findAll() {
+        return List.of();
     }
 }

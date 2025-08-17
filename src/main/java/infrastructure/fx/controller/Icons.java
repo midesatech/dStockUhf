@@ -11,4 +11,5 @@ public class Icons {
     public static final String SHIELD = "M12 2l8 4v6c0 5-3.6 9.4-8 10-4.4-.6-8-5-8-10V6l8-4z";
     public static final String KEY = "M15 7a4 4 0 1 0-4 4l-4 4v4h4l4-4";
     public static final String LOCK = "M17 8h-1V6a4 4 0 1 0-8 0v2H7v10h10V8z";
+    public static final String EXIT = "M6 19c0 1.1.9 2 2 2h8v-2H8V5h8V3H8c-1.1 0-2 .9-2 2v14zm12-7-4-4v3H9v2h5v3l4-4z";
 }

@@ -3,9 +3,10 @@ package domain.gateway;
 
 import domain.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface UserRepositoryPort {
+public interface UserRepository {
     Optional<User> findByUsername(String username);
 
     User save(User user);
@@ -17,4 +18,6 @@ public interface UserRepositoryPort {
     java.util.Optional<User> findById(Long id);
 
     long count();
+
+    List<User> findAll();
 }

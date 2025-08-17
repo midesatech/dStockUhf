@@ -26,5 +26,10 @@
         <!-- Árbol de navegación -->
         <TreeView fx:id="menuTree"
                   style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+        <!-- Botón cerrar sesión
+        <Button text="⎋ Cerrar sesión"
+                onAction="#logout"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>-->
+
     </VBox>
 </VBox>

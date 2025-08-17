@@ -1,16 +1,16 @@
 
 package domain.usecase;
 
-import domain.gateway.CategoriaGateway;
+import domain.gateway.CategoriaRepository;
 import domain.model.Categoria;
 
 import java.util.List;
 import java.util.Optional;
 
 public class CategoriaUseCase {
-    private final CategoriaGateway repo;
+    private final CategoriaRepository repo;
 
-    public CategoriaUseCase(CategoriaGateway repo) {
+    public CategoriaUseCase(CategoriaRepository repo) {
         this.repo = repo;
     }
 
