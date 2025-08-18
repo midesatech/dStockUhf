@@ -1,13 +1,17 @@
 
 package infrastructure.fx.controller.system;
 
+import domain.model.Role;
 import domain.model.User;
+import domain.usecase.RoleUseCase;
 import domain.usecase.UserUseCase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.Set;
 
 public class UserController {
     @FXML
@@ -24,11 +28,16 @@ public class UserController {
     private PasswordField txtPassword;
     @FXML
     private CheckBox chkSystemUser;
+    @FXML
+    private ListView<Role> lstRoles;
     private final UserUseCase userUseCase;
     private final ObservableList<User> data = FXCollections.observableArrayList();
+    private final ObservableList<Role> allRoles = FXCollections.observableArrayList();
+    private final RoleUseCase roleUseCase;
 
-    public UserController(UserUseCase userUseCase) {
+    public UserController(UserUseCase userUseCase, RoleUseCase roleUseCase) {
         this.userUseCase = userUseCase;
+        this.roleUseCase = roleUseCase;
     }
 
     @FXML
@@ -37,6 +46,28 @@ public class UserController {
         colUser.setCellValueFactory(new PropertyValueFactory<>("username"));
         colSystem.setCellValueFactory(new PropertyValueFactory<>("systemUser"));
         tbl.setItems(data);
+
+        // Cargar roles disponibles
+        allRoles.setAll(roleUseCase.listAll());
+        lstRoles.setItems(allRoles);
+        lstRoles.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        // Evento al seleccionar usuario en tabla → llenar formulario
+        tbl.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
+            if (sel != null) {
+                txtUsername.setText(sel.getUsername());
+                chkSystemUser.setSelected(sel.isSystemUser());
+                txtPassword.clear();
+
+                lstRoles.getSelectionModel().clearSelection();
+                for (Role r : sel.getRoles()) {
+                    lstRoles.getSelectionModel().select(r);
+                }
+            } else {
+                newUser();
+            }
+        });
+
         refresh();
     }
 
@@ -45,6 +76,7 @@ public class UserController {
         txtUsername.clear();
         txtPassword.clear();
         chkSystemUser.setSelected(false);
+        lstRoles.getSelectionModel().clearSelection();
         tbl.getSelectionModel().clearSelection();
     }
 
@@ -57,14 +89,13 @@ public class UserController {
             User user = userUseCase.findByUsername(username).orElse(new User());
             user.setUsername(username);
             user.setSystemUser(chkSystemUser.isSelected());
+            user.setRoles(Set.copyOf(lstRoles.getSelectionModel().getSelectedItems()));
 
-            // ahora delegamos toda la lógica a UserUseCase
             userUseCase.save(user, rawPassword);
 
             refresh();
             show("Guardado");
-            txtUsername.clear();
-            txtPassword.clear();
+            newUser();
         } catch (Exception ex) {
             show(ex.getMessage());
         }

@@ -11,6 +11,7 @@ import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JpaUserRepositoryAdapter implements UserRepository {
     private final EntityManagerFactory emf;
@@ -25,8 +26,16 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     public Optional<User> findByUsername(String username) {
         EntityManager em = emf.createEntityManager();
         try {
-            UserEntity ue = em.createQuery("select u from UserEntity u where upper(u.username)=upper(:u)", UserEntity.class).setParameter("u", username).getResultStream().findFirst().orElse(null);
-            return Optional.ofNullable(EntityMappers.toDomain(ue));
+            UserEntity ue = em.createQuery(
+                            "select u from UserEntity u where upper(u.username)=upper(:u)",
+                            UserEntity.class
+                    )
+                    .setParameter("u", username)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+
+            return Optional.ofNullable(EntityMappers.toDomain(ue)); // 🔹 con roles+permisos completos
         } finally {
             em.close();
         }
@@ -38,11 +47,29 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
+
             UserEntity e = EntityMappers.toEntity(user);
+
+            // 🔹 Limpio roles previos (por si viene un update con roles distintos)
+            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                e.setRoles(
+                        user.getRoles().stream()
+                                .map(r -> em.getReference(
+                                        infrastructure.adapter.database.mysql.entity.RoleEntity.class,
+                                        r.getId()
+                                ))
+                                .collect(Collectors.toSet())
+                );
+            } else {
+                e.setRoles(null);
+            }
+
             UserEntity merged = em.merge(e);
             tx.commit();
+
             user.setId(merged.getId());
-            return user;
+            return EntityMappers.toDomain(merged);
+
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
             throw ex;
@@ -58,8 +85,13 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         try {
             tx.begin();
             UserEntity e = em.find(UserEntity.class, id);
-            if (e != null && e.isSystemUser()) throw new IllegalStateException("No se puede eliminar el usuario ADMIN");
+
+            if (e != null && e.isSystemUser()) {
+                throw new IllegalStateException("No se puede eliminar el usuario ADMIN");
+            }
+
             if (e != null) em.remove(e);
+
             tx.commit();
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
@@ -79,7 +111,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         EntityManager em = emf.createEntityManager();
         try {
             UserEntity e = em.find(UserEntity.class, id);
-            return Optional.ofNullable(EntityMappers.toDomain(e));
+            return Optional.ofNullable(EntityMappers.toDomain(e)); // 🔹 completo
         } finally {
             em.close();
         }
@@ -104,6 +136,20 @@ public class JpaUserRepositoryAdapter implements UserRepository {
                     .getResultList()
                     .stream()
                     .map(EntityMappers::toDomain)
+                    .toList();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<User> findAllLight() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("select u from UserEntity u", UserEntity.class)
+                    .getResultList()
+                    .stream()
+                    .map(EntityMappers::toDomainLight) // 🔹 liviano: roles sin permisos
                     .toList();
         } finally {
             em.close();

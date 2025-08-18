@@ -1,6 +1,7 @@
 
 package infrastructure.adapter.database.mysql.entity;
 
+import domain.model.User;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -17,6 +18,8 @@ public class RoleEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<PermissionEntity> permissions = new HashSet<>();
+    @ManyToMany(mappedBy = "roles")
+    private Set<UserEntity> users = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -40,5 +43,13 @@ public class RoleEntity {
 
     public void setPermissions(Set<PermissionEntity> permissions) {
         this.permissions = permissions;
+    }
+
+    public Set<UserEntity> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<UserEntity> users) {
+        this.users = users;
     }
 }

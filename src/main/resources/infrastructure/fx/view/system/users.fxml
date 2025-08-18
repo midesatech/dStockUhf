@@ -21,6 +21,8 @@
             <TextField fx:id="txtUsername" promptText="Usuario"/>
             <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
             <CheckBox fx:id="chkSystemUser" text="Usuario sistema"/>
+            <Label text="Roles"/>
+            <ListView fx:id="lstRoles" prefHeight="120"/>
         </VBox>
     </left>
     <center>

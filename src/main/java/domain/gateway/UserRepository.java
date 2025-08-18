@@ -20,4 +20,6 @@ public interface UserRepository {
     long count();
 
     List<User> findAll();
+
+    List<User> findAllLight();
 }

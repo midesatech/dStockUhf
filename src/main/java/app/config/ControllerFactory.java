@@ -26,7 +26,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == UserController.class) {
-            return new UserController(AppBootstrap.users());
+            return new UserController(AppBootstrap.users(), AppBootstrap.roleUseCase());
         }
 
         if (type == ChangePasswordController.class) {

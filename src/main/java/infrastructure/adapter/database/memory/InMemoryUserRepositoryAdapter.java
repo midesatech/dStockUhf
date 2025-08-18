@@ -56,4 +56,9 @@ public class InMemoryUserRepositoryAdapter implements UserRepository {
     public List<User> findAll() {
         return List.of();
     }
+
+    @Override
+    public List<User> findAllLight() {
+        return List.of();
+    }
 }

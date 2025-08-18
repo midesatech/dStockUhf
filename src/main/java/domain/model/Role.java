@@ -79,8 +79,14 @@ public class Role {
     }
 
     // --- para debug ---
+    //@Override
+    //public String toString() {
+    //    return "Role{id=" + id + ", name='" + name + "', permissions=" + permissions + '}';
+    //}
+
     @Override
     public String toString() {
-        return "Role{id=" + id + ", name='" + name + "', permissions=" + permissions + '}';
+        return name;
     }
+
 }
