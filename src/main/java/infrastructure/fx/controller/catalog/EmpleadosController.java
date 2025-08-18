@@ -1,16 +1,156 @@
 
 package infrastructure.fx.controller.catalog;
-import app.config.AppBootstrap;
+
 import domain.model.Empleado;
+import domain.model.TipoDocumento;
+import domain.model.TipoSangre;
 import domain.usecase.EmpleadoUseCase;
-import javafx.collections.FXCollections; import javafx.collections.ObservableList; import javafx.fxml.FXML; import javafx.scene.control.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.time.LocalDate;
+
 public class EmpleadosController {
-    @FXML private TableView<Empleado> tbl; @FXML private TextField txtCodigo; @FXML private TextField txtNombre;
+    @FXML private TableView<Empleado> tbl;
+    @FXML private TableColumn<Empleado, Long> colId;
+    @FXML private TableColumn<Empleado, String> colCodigo;
+    @FXML private TableColumn<Empleado, String> colNombre;
+    @FXML private TableColumn<Empleado, TipoDocumento> colDocType;
+    @FXML private TableColumn<Empleado, String> colNumDoc;
+    @FXML private TableColumn<Empleado, LocalDate> colNacimiento;
+    @FXML private TableColumn<Empleado, TipoSangre> colBlood;
+    @FXML private TableColumn<Empleado, String> colEmail;
+    @FXML private TableColumn<Empleado, String> colTelefono;
+
+    @FXML private TextField txtCodigo;
+    @FXML private TextField txtNombre;
+    @FXML private ComboBox<TipoDocumento> cmbDocType;
+    @FXML private TextField txtNumDoc;
+    @FXML private DatePicker dpNacimiento;
+    @FXML private ComboBox<TipoSangre> cmbBloodType;
+    @FXML private TextField txtEmail;
+    @FXML private TextField txtTelefono;
+
     private final ObservableList<Empleado> data = FXCollections.observableArrayList();
-    private EmpleadoUseCase useCase;
-    @FXML public void initialize(){ useCase = AppBootstrap.isJpaMode()? new EmpleadoUseCase(new infrastructure.adapter.database.jpa.EmpleadoRepositoryAdapter(infrastructure.persistence.JPAUtil.getEmf())): null; if(tbl!=null) tbl.setItems(data); refresh(); }
-    public void refresh(){ data.clear(); if(useCase!=null) data.addAll(useCase.listar()); }
-    @FXML public void nuevo(){ txtCodigo.clear(); txtNombre.clear(); tbl.getSelectionModel().clearSelection(); }
-    @FXML public void guardar(){ try{ if(useCase==null) throw new IllegalStateException("Use JPA mode"); useCase.crear(txtCodigo.getText(), txtNombre.getText()); refresh(); new Alert(Alert.AlertType.INFORMATION,"Guardado").showAndWait(); }catch(Exception ex){ new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait(); } }
-    @FXML public void eliminar(){ Empleado s = tbl.getSelectionModel().getSelectedItem(); if(s==null){ new Alert(Alert.AlertType.INFORMATION,"Seleccione"); return;} try{ useCase.eliminar(s.getId()); refresh(); new Alert(Alert.AlertType.INFORMATION,"Eliminado").showAndWait(); }catch(Exception ex){ new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait(); } }
+    private final EmpleadoUseCase useCase;
+
+    // Inyectado vía ControllerFactory/AppBootstrap
+    public EmpleadosController(EmpleadoUseCase useCase) {
+        this.useCase = useCase;
+    }
+
+    @FXML
+    public void initialize() {
+        // Combos
+        cmbDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
+        cmbBloodType.setItems(FXCollections.observableArrayList(TipoSangre.values()));
+
+        // Tabla
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("fullName"));
+        colDocType.setCellValueFactory(new PropertyValueFactory<>("tipoDocumento"));
+        colNumDoc.setCellValueFactory(new PropertyValueFactory<>("numeroDocumento"));
+        colNacimiento.setCellValueFactory(new PropertyValueFactory<>("fechaNacimiento"));
+        colBlood.setCellValueFactory(new PropertyValueFactory<>("tipoSanguineo"));
+        colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+        colTelefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
+
+        tbl.setItems(data);
+        refresh();
+
+        // Selección → carga en formulario
+        tbl.getSelectionModel().selectedItemProperty().addListener((obs, o, sel) -> loadForm(sel));
+    }
+
+    private void loadForm(Empleado e) {
+        if (e == null) {
+            nuevo();
+            return;
+        }
+        txtCodigo.setText(nullToEmpty(e.getCodigo()));
+        txtNombre.setText(nullToEmpty(e.getFullName()));
+        cmbDocType.setValue(e.getTipoDocumento());
+        txtNumDoc.setText(nullToEmpty(e.getNumeroDocumento()));
+        dpNacimiento.setValue(e.getFechaNacimiento());
+        cmbBloodType.setValue(e.getTipoSanguineo());
+        txtEmail.setText(nullToEmpty(e.getEmail()));
+        txtTelefono.setText(nullToEmpty(e.getTelefono()));
+    }
+
+    private String nullToEmpty(String s) { return s == null ? "" : s; }
+
+    @FXML public void nuevo() {
+        tbl.getSelectionModel().clearSelection();
+        txtCodigo.clear();
+        txtNombre.clear();
+        cmbDocType.getSelectionModel().clearSelection();
+        txtNumDoc.clear();
+        dpNacimiento.setValue(null);
+        cmbBloodType.getSelectionModel().clearSelection();
+        txtEmail.clear();
+        txtTelefono.clear();
+    }
+
+    @FXML public void guardar() {
+        try {
+            Empleado sel = tbl.getSelectionModel().getSelectedItem();
+            Long id = sel != null ? sel.getId() : null;
+
+            Empleado e = new Empleado();
+            e.setId(id);
+            e.setCodigo(blankToNull(txtCodigo.getText()));
+            e.setFullName(txtNombre.getText());
+            e.setTipoDocumento(cmbDocType.getValue());
+            e.setNumeroDocumento(txtNumDoc.getText());
+            e.setFechaNacimiento(dpNacimiento.getValue());
+            e.setTipoSanguineo(cmbBloodType.getValue());
+            e.setEmail(blankToNull(txtEmail.getText()));
+            e.setTelefono(blankToNull(txtTelefono.getText()));
+
+            Empleado saved = useCase.save(e);
+
+            if (id == null) data.add(saved); // si es nuevo, añade a la tabla
+            refresh(); // asegura sincronía
+            show("Guardado");
+            // Opcional: volver a seleccionar el registro
+            tbl.getSelectionModel().select(saved);
+
+        } catch (Exception ex) {
+            show(ex.getMessage());
+        }
+    }
+
+    private String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s.trim();
+    }
+
+    @FXML public void eliminar() {
+        Empleado sel = tbl.getSelectionModel().getSelectedItem();
+        if (sel == null) { show("Seleccione un empleado"); return; }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar empleado seleccionado?", ButtonType.OK, ButtonType.CANCEL);
+        confirm.showAndWait().ifPresent(bt -> {
+            if (bt == ButtonType.OK) {
+                try {
+                    useCase.eliminar(sel.getId());
+                    data.remove(sel);
+                    nuevo();
+                } catch (Exception ex) {
+                    show(ex.getMessage());
+                }
+            }
+        });
+    }
+
+    @FXML public void refresh() {
+        data.setAll(useCase.listar());
+    }
+
+    private void show(String m) {
+        new Alert(Alert.AlertType.INFORMATION, m).showAndWait();
+    }
 }

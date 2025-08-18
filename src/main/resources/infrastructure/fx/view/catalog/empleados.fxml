@@ -2,7 +2,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.catalog.EmpleadosController">
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.catalog.EmpleadosController">
+
     <top>
         <ToolBar>
             <Button text="Nuevo" onAction="#nuevo"/>
@@ -12,23 +15,49 @@
             <Label text="Empleados"/>
         </ToolBar>
     </top>
+
     <left>
         <VBox spacing="6">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <Label text="Código"/>
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+            <Label text="Código (TAG UHF)"/>
             <TextField fx:id="txtCodigo"/>
-            <Label text="Nombre"/>
+
+            <Label text="Nombre completo"/>
             <TextField fx:id="txtNombre"/>
+
+            <Label text="Tipo de documento"/>
+            <ComboBox fx:id="cmbDocType"/>
+
+            <Label text="Número de documento"/>
+            <TextField fx:id="txtNumDoc"/>
+
+            <Label text="Fecha de nacimiento"/>
+            <DatePicker fx:id="dpNacimiento"/>
+
+            <Label text="Grupo sanguíneo"/>
+            <ComboBox fx:id="cmbBloodType"/>
+
+            <Label text="Email (opcional)"/>
+            <TextField fx:id="txtEmail"/>
+
+            <Label text="Teléfono (opcional)"/>
+            <TextField fx:id="txtTelefono"/>
         </VBox>
     </left>
+
     <center>
         <TableView fx:id="tbl">
             <columns>
-                <TableColumn fx:id="colId" text="ID"/>
-                <TableColumn fx:id="colCodigo" text="Código"/>
-                <TableColumn fx:id="colNombre" text="Nombre"/>
+                <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
+                <TableColumn fx:id="colCodigo" text="Código" prefWidth="120"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
+                <TableColumn fx:id="colDocType" text="Doc" prefWidth="70"/>
+                <TableColumn fx:id="colNumDoc" text="Número" prefWidth="140"/>
+                <TableColumn fx:id="colNacimiento" text="Nacimiento" prefWidth="110"/>
+                <TableColumn fx:id="colBlood" text="Sangre" prefWidth="80"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
+                <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="120"/>
             </columns>
         </TableView>
     </center>
