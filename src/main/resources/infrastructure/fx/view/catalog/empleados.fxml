@@ -23,8 +23,11 @@
             <Label text="Código (TAG UHF)"/>
             <TextField fx:id="txtCodigo"/>
 
-            <Label text="Nombre completo"/>
+            <Label text="Nombre"/>
             <TextField fx:id="txtNombre"/>
+
+            <Label text="Apellido"/>
+            <TextField fx:id="txtApellido"/>
 
             <Label text="Tipo de documento"/>
             <ComboBox fx:id="cmbDocType"/>
@@ -52,6 +55,7 @@
                 <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
                 <TableColumn fx:id="colCodigo" text="Código" prefWidth="120"/>
                 <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
+                <TableColumn fx:id="colApellido" text="Apelldio" prefWidth="200"/>
                 <TableColumn fx:id="colDocType" text="Doc" prefWidth="70"/>
                 <TableColumn fx:id="colNumDoc" text="Número" prefWidth="140"/>
                 <TableColumn fx:id="colNacimiento" text="Nacimiento" prefWidth="110"/>

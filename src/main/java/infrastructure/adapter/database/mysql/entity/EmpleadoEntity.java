@@ -19,6 +19,9 @@ public class EmpleadoEntity {
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
+    @Column(name = "last_name", nullable = false, length = 150)
+    private String lastName;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "doc_type", nullable = false, length = 5)
     private TipoDocumento docType;
@@ -46,6 +49,8 @@ public class EmpleadoEntity {
     public void setCodigo(String codigo) { this.codigo = codigo; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
     public TipoDocumento getDocType() { return docType; }
     public void setDocType(TipoDocumento docType) { this.docType = docType; }
     public String getDocNumber() { return docNumber; }

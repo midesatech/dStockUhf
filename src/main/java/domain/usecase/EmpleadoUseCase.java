@@ -31,6 +31,7 @@ public class EmpleadoUseCase {
 
         // Normalizaciones (opcionales)
         e.setFullName(e.getFullName().trim());
+        e.setLastName(e.getLastName().trim());
         if (e.getEmail() != null && e.getEmail().isBlank()) e.setEmail(null);
         if (e.getTelefono() != null && e.getTelefono().isBlank()) e.setTelefono(null);
         if (e.getCodigo() != null && e.getCodigo().isBlank()) e.setCodigo(null);

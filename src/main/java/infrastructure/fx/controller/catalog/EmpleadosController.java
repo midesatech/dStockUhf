@@ -18,6 +18,7 @@ public class EmpleadosController {
     @FXML private TableColumn<Empleado, Long> colId;
     @FXML private TableColumn<Empleado, String> colCodigo;
     @FXML private TableColumn<Empleado, String> colNombre;
+    @FXML private TableColumn<Empleado, String> colApellido;
     @FXML private TableColumn<Empleado, TipoDocumento> colDocType;
     @FXML private TableColumn<Empleado, String> colNumDoc;
     @FXML private TableColumn<Empleado, LocalDate> colNacimiento;
@@ -27,6 +28,7 @@ public class EmpleadosController {
 
     @FXML private TextField txtCodigo;
     @FXML private TextField txtNombre;
+    @FXML private TextField txtApellido;
     @FXML private ComboBox<TipoDocumento> cmbDocType;
     @FXML private TextField txtNumDoc;
     @FXML private DatePicker dpNacimiento;
@@ -52,6 +54,7 @@ public class EmpleadosController {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("fullName"));
+        colApellido.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         colDocType.setCellValueFactory(new PropertyValueFactory<>("tipoDocumento"));
         colNumDoc.setCellValueFactory(new PropertyValueFactory<>("numeroDocumento"));
         colNacimiento.setCellValueFactory(new PropertyValueFactory<>("fechaNacimiento"));
@@ -73,6 +76,7 @@ public class EmpleadosController {
         }
         txtCodigo.setText(nullToEmpty(e.getCodigo()));
         txtNombre.setText(nullToEmpty(e.getFullName()));
+        txtApellido.setText(nullToEmpty(e.getLastName()));
         cmbDocType.setValue(e.getTipoDocumento());
         txtNumDoc.setText(nullToEmpty(e.getNumeroDocumento()));
         dpNacimiento.setValue(e.getFechaNacimiento());
@@ -87,6 +91,7 @@ public class EmpleadosController {
         tbl.getSelectionModel().clearSelection();
         txtCodigo.clear();
         txtNombre.clear();
+        txtApellido.clear();
         cmbDocType.getSelectionModel().clearSelection();
         txtNumDoc.clear();
         dpNacimiento.setValue(null);
@@ -104,6 +109,7 @@ public class EmpleadosController {
             e.setId(id);
             e.setCodigo(blankToNull(txtCodigo.getText()));
             e.setFullName(txtNombre.getText());
+            e.setLastName(txtApellido.getText());
             e.setTipoDocumento(cmbDocType.getValue());
             e.setNumeroDocumento(txtNumDoc.getText());
             e.setFechaNacimiento(dpNacimiento.getValue());

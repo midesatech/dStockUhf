@@ -7,6 +7,7 @@ public class Empleado {
     private Long id;
     private String codigo;              // TAG UHF (opcional)
     private String fullName;            // requerido
+    private String lastName;            // requerido
     private TipoDocumento tipoDocumento; // requerido
     private String numeroDocumento;     // requerido (puede tener letras)
     private LocalDate fechaNacimiento;  // requerido
@@ -16,18 +17,19 @@ public class Empleado {
 
     public Empleado() {}
 
-    public Empleado(Long id, String codigo, String fullName) {
-        this.id = id; this.codigo = codigo; this.fullName = fullName;
+    public Empleado(Long id, String codigo, String fullName, String lastName) {
+        this.id = id; this.codigo = codigo; this.fullName = fullName; this.lastName = lastName;
     }
 
     // Constructor completo (útil para tests)
-    public Empleado(Long id, String codigo, String fullName,
+    public Empleado(Long id, String codigo, String fullName, String lastName,
                     TipoDocumento tipoDocumento, String numeroDocumento,
                     LocalDate fechaNacimiento, TipoSangre tipoSanguineo,
                     String email, String telefono) {
         this.id = id;
         this.codigo = codigo;
         this.fullName = fullName;
+        this.lastName = lastName;
         this.tipoDocumento = tipoDocumento;
         this.numeroDocumento = numeroDocumento;
         this.fechaNacimiento = fechaNacimiento;
@@ -43,6 +45,8 @@ public class Empleado {
     public void setCodigo(String codigo) { this.codigo = codigo; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
     public TipoDocumento getTipoDocumento() { return tipoDocumento; }
     public void setTipoDocumento(TipoDocumento tipoDocumento) { this.tipoDocumento = tipoDocumento; }
     public String getNumeroDocumento() { return numeroDocumento; }

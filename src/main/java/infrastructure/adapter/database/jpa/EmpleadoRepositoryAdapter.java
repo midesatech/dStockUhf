@@ -3,8 +3,6 @@ package infrastructure.adapter.database.jpa;
 
 import domain.gateway.EmpleadoGateway;
 import domain.model.Empleado;
-import domain.model.TipoDocumento;
-import domain.model.TipoSangre;
 import infrastructure.adapter.database.mysql.entity.EmpleadoEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -28,6 +26,7 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
                 e.getId(),
                 e.getCodigo(),
                 e.getFullName(),
+                e.getLastName(),
                 e.getDocType(),
                 e.getDocNumber(),
                 e.getBirthDate(),
@@ -40,6 +39,7 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
     private static void copyToEntity(Empleado src, EmpleadoEntity dst) {
         dst.setCodigo(trimOrNull(src.getCodigo()));
         dst.setFullName(src.getFullName() != null ? src.getFullName().trim() : null);
+        dst.setLastName(src.getLastName() != null ? src.getLastName().trim() : null);
         dst.setDocType(src.getTipoDocumento());
         dst.setDocNumber(src.getNumeroDocumento() != null ? src.getNumeroDocumento().trim() : null);
         dst.setBirthDate(src.getFechaNacimiento());
