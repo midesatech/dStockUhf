@@ -1,14 +1,12 @@
-build
+# Directories ignored by default
 build/
-build/*
-logs
-logs/
-.gradle
 .gradle/
-.gradle/*
-.idea
-.vscode
-logs_
-logs_/
-.intellij
 
+# IDE-specific directories and files
+.idea/
+.vscode/
+.intellij
+*.iml
+
+# Log files
+*.log
