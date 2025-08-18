@@ -1,12 +1,67 @@
-# Directories ignored by default
-build/
-.gradle/
+#--------------------#
+# Java and Build Tools #
+#--------------------#
 
-# IDE-specific directories and files
-.idea/
-.vscode/
-.intellij
-*.iml
+# Compiled class files
+*.class
+
+# Jar, War, Ear files
+*.jar
+*.war
+*.ear
 
 # Log files
 *.log
+logs/
+
+# Directories and files from build systems
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+
+# SBT
+.sbt/
+.cache/
+project/target/
+project/project/
+*.sbt
+
+# IDE-specific directories and files
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+tmp/
+
+#--------------------#
+# JavaFX Specific    #
+#--------------------#
+
+# Files created by jpackage for native images
+# These are temporary files and the final output of the build
+# The specific folder name might vary, so it's good to be generic.
+# Common names are 'dist', 'release', or specific to jpackage.
+dist/
+release/
+*.dmg
+*.exe
+*.msi
+*.deb
+*.rpm
+
+# Other packaging tools (e.g., inno, wix)
+installer/
