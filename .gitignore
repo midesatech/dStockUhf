@@ -5,6 +5,7 @@ logs
 logs/
 .gradle
 .gradle/
+.gradle/*
 .idea
 .vscode
 logs_
