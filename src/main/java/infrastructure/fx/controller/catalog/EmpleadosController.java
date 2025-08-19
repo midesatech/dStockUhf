@@ -1,10 +1,12 @@
 
 package infrastructure.fx.controller.catalog;
 
+import domain.exception.DuplicateFieldException;
 import domain.model.Empleado;
 import domain.model.TipoDocumento;
 import domain.model.TipoSangre;
 import domain.usecase.EmpleadoUseCase;
+import infrastructure.fx.component.YearPickerDate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,10 +33,16 @@ public class EmpleadosController {
     @FXML private TextField txtApellido;
     @FXML private ComboBox<TipoDocumento> cmbDocType;
     @FXML private TextField txtNumDoc;
-    @FXML private DatePicker dpNacimiento;
+    @FXML private YearPickerDate dpNacimiento;
     @FXML private ComboBox<TipoSangre> cmbBloodType;
     @FXML private TextField txtEmail;
     @FXML private TextField txtTelefono;
+
+    @FXML private TextField filtroCodigo;
+    @FXML private TextField filtroNombre;
+    @FXML private TextField filtroApellido;
+    @FXML private ComboBox<TipoDocumento> filtroDocType;
+    @FXML private TextField filtroNumDoc;
 
     private final ObservableList<Empleado> data = FXCollections.observableArrayList();
     private final EmpleadoUseCase useCase;
@@ -49,7 +57,7 @@ public class EmpleadosController {
         // Combos
         cmbDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
         cmbBloodType.setItems(FXCollections.observableArrayList(TipoSangre.values()));
-
+        filtroDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
         // Tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
@@ -124,8 +132,10 @@ public class EmpleadosController {
             show("Guardado");
             // Opcional: volver a seleccionar el registro
             tbl.getSelectionModel().select(saved);
+        } catch (DuplicateFieldException ex) {
+            show("Error", ex.getMessage(), Alert.AlertType.WARNING);
 
-        } catch (Exception ex) {
+    } catch (Exception ex) {
             show(ex.getMessage());
         }
     }
@@ -158,5 +168,35 @@ public class EmpleadosController {
 
     private void show(String m) {
         new Alert(Alert.AlertType.INFORMATION, m).showAndWait();
+    }
+
+    private void show(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void buscar() {
+        var results = useCase.buscar(
+                filtroDocType.getValue(),
+                filtroNumDoc.getText(),
+                filtroNombre.getText(),
+                filtroApellido.getText(),
+                filtroCodigo.getText()
+        );
+        tbl.getItems().setAll(results);
+    }
+
+    @FXML
+    private void limpiarFiltros() {
+        filtroCodigo.clear();
+        filtroNombre.clear();
+        filtroApellido.clear();
+        filtroDocType.getSelectionModel().clearSelection();
+        filtroNumDoc.clear();
+        tbl.getItems().setAll(useCase.listar()); // volver a cargar todo
     }
 }

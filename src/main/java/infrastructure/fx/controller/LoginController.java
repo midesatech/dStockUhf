@@ -40,7 +40,9 @@ public class LoginController {
             MainController mainController = loader.getController();
             mainController.setUsuario(u.getUsername());
 
-            stage.setScene(new Scene(root, 1000, 650));
+            stage.setScene(new Scene(root, 1024, 768));
+            stage.setMinWidth(1366);  // evita que se encoja demasiado
+            stage.setMinHeight(760);
             stage.setTitle("Inventario - " + u.getUsername());
         } catch (Exception ex) {
             lblMsg.setText(ex.getMessage());

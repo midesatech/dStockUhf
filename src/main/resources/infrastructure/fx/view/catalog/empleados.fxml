@@ -2,22 +2,49 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import infrastructure.fx.component.YearPickerDate?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="infrastructure.fx.controller.catalog.EmpleadosController">
 
     <top>
-        <ToolBar>
-            <Button text="Nuevo" onAction="#nuevo"/>
-            <Button text="Guardar" onAction="#guardar"/>
-            <Button text="Eliminar" onAction="#eliminar"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label text="Empleados"/>
-        </ToolBar>
+        <VBox>
+            <!-- Barra de acciones -->
+            <ToolBar>
+                <Button text="Nuevo" onAction="#nuevo"/>
+                <Button text="Guardar" onAction="#guardar"/>
+                <Button text="Eliminar" onAction="#eliminar"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Empleados"/>
+            </ToolBar>
+
+            <!-- Barra de filtros -->
+            <HBox spacing="8">
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="Código:"/>
+                <TextField fx:id="filtroCodigo" prefWidth="100"/>
+
+                <Label text="Nombre:"/>
+                <TextField fx:id="filtroNombre" prefWidth="120"/>
+
+                <Label text="Apellido:"/>
+                <TextField fx:id="filtroApellido" prefWidth="120"/>
+
+                <Label text="Tipo Doc:"/>
+                <ComboBox fx:id="filtroDocType" prefWidth="100"/>
+
+                <Label text="Número:"/>
+                <TextField fx:id="filtroNumDoc" prefWidth="120"/>
+
+                <Button text="Buscar" onAction="#buscar"/>
+                <Button text="Limpiar" onAction="#limpiarFiltros"/>
+            </HBox>
+        </VBox>
     </top>
 
     <left>
-        <VBox spacing="6">
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="6" prefWidth="250">
             <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
             <Label text="Código (TAG UHF)"/>
@@ -36,7 +63,7 @@
             <TextField fx:id="txtNumDoc"/>
 
             <Label text="Fecha de nacimiento"/>
-            <DatePicker fx:id="dpNacimiento"/>
+            <YearPickerDate fx:id="dpNacimiento"/>
 
             <Label text="Grupo sanguíneo"/>
             <ComboBox fx:id="cmbBloodType"/>
@@ -46,16 +73,17 @@
 
             <Label text="Teléfono (opcional)"/>
             <TextField fx:id="txtTelefono"/>
-        </VBox>
+            </VBox>
+        </ScrollPane>
     </left>
 
     <center>
-        <TableView fx:id="tbl">
+        <TableView fx:id="tbl" prefWidth="700" prefHeight="400">
             <columns>
-                <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                 <TableColumn fx:id="colCodigo" text="Código" prefWidth="120"/>
                 <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
-                <TableColumn fx:id="colApellido" text="Apelldio" prefWidth="200"/>
+                <TableColumn fx:id="colApellido" text="Apellido" prefWidth="200"/>
                 <TableColumn fx:id="colDocType" text="Doc" prefWidth="70"/>
                 <TableColumn fx:id="colNumDoc" text="Número" prefWidth="140"/>
                 <TableColumn fx:id="colNacimiento" text="Nacimiento" prefWidth="110"/>

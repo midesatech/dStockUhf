@@ -27,7 +27,7 @@ public class SidebarController {
     @FXML private TreeView<String> menuTree;
 
     private boolean collapsed = false;
-    private static final double EXPANDED_WIDTH = 260;
+    private static final double EXPANDED_WIDTH = 240;
     private static final double COLLAPSED_WIDTH = 56;
 
     @FXML
@@ -101,14 +101,14 @@ public class SidebarController {
         rootItem.getChildren().add(catRoot);
 
         // 2. Administración de inventario (2.1)
-        TreeItem<String> invRoot = makeMenuCategory("Administración de inventario", Icons.SETTINGS);
+        TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {
             invRoot.getChildren().add(makeMenuItem("Ubicación de productos", "/infrastructure/fx/view/catalog/ubicacion_productos.fxml", Icons.LINK));
         }
         rootItem.getChildren().add(invRoot);
 
         // 3. Administración del sistema (3.1..3.4)
-        TreeItem<String> sysRoot = makeMenuCategory("Administración del sistema", Icons.SHIELD);
+        TreeItem<String> sysRoot = makeMenuCategory("Administración", Icons.SHIELD);
         if (isAdmin || hasPermission(u, "ROLE_MANAGE")) {
             sysRoot.getChildren().add(makeMenuItem("Roles", "/infrastructure/fx/view/system/roles.fxml", Icons.SHIELD));
         }

@@ -3,6 +3,7 @@ package infrastructure.adapter.database.jpa;
 
 import domain.gateway.EmpleadoGateway;
 import domain.model.Empleado;
+import domain.model.TipoDocumento;
 import infrastructure.adapter.database.mysql.entity.EmpleadoEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -79,6 +80,12 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
 
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
+            // Verificar si es por clave duplicada
+            if (ex.getCause() != null && ex.getCause().getMessage().contains("Duplicate entry")) {
+                throw new domain.exception.DuplicateFieldException(
+                        "Ya existe un empleado con este número de documento"
+                );
+            }
             throw ex;
         } finally {
             em.close();
@@ -122,6 +129,54 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
         try {
             EmpleadoEntity e = em.find(EmpleadoEntity.class, id);
             return Optional.ofNullable(toDomain(e));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<Empleado> search(TipoDocumento tipoDocumento, String numeroDocumento, String nombre, String apellido, String codigo) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT e FROM EmpleadoEntity e WHERE 1=1 ");
+
+            if (tipoDocumento != null) {
+                jpql.append("AND e.docType = :tipoDocumento ");
+            }
+            if (numeroDocumento != null && !numeroDocumento.isBlank()) {
+                jpql.append("AND e.docNumber LIKE :numeroDocumento ");
+            }
+            if (nombre != null && !nombre.isBlank()) {
+                jpql.append("AND e.fullName LIKE :nombre ");
+            }
+            if (apellido != null && !apellido.isBlank()) {
+                jpql.append("AND e.lastName LIKE :apellido ");
+            }
+            if (codigo != null && !codigo.isBlank()) {
+                jpql.append("AND e.codigo LIKE :codigo ");
+            }
+
+            var query = em.createQuery(jpql.toString(), EmpleadoEntity.class);
+
+            if (tipoDocumento != null) {
+                query.setParameter("tipoDocumento", tipoDocumento);
+            }
+            if (numeroDocumento != null && !numeroDocumento.isBlank()) {
+                query.setParameter("numeroDocumento", "%" + numeroDocumento + "%");
+            }
+            if (nombre != null && !nombre.isBlank()) {
+                query.setParameter("nombre", "%" + nombre + "%");
+            }
+            if (apellido != null && !apellido.isBlank()) {
+                query.setParameter("apellido", "%" + apellido + "%");
+            }
+            if (codigo != null && !codigo.isBlank()) {
+                query.setParameter("codigo", "%" + codigo + "%");
+            }
+
+            return query.getResultList().stream()
+                    .map(EmpleadoRepositoryAdapter::toDomain)
+                    .collect(Collectors.toList());
         } finally {
             em.close();
         }

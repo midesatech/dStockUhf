@@ -3,6 +3,7 @@ package domain.usecase;
 
 import domain.gateway.EmpleadoGateway;
 import domain.model.Empleado;
+import domain.model.TipoDocumento;
 
 import java.util.List;
 
@@ -42,4 +43,8 @@ public class EmpleadoUseCase {
     public List<Empleado> listar() { return repo.findAll(); }
 
     public void eliminar(Long id) { repo.deleteById(id); }
+
+    public List<Empleado> buscar(TipoDocumento tipoDocumento, String numeroDocumento, String nombre, String apellido, String codigo) {
+        return repo.search(tipoDocumento, numeroDocumento, nombre, apellido, codigo);
+    }
 }
