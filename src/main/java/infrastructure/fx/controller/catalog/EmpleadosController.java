@@ -16,33 +16,58 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.time.LocalDate;
 
 public class EmpleadosController {
-    @FXML private TableView<Empleado> tbl;
-    @FXML private TableColumn<Empleado, Long> colId;
-    @FXML private TableColumn<Empleado, String> colCodigo;
-    @FXML private TableColumn<Empleado, String> colNombre;
-    @FXML private TableColumn<Empleado, String> colApellido;
-    @FXML private TableColumn<Empleado, TipoDocumento> colDocType;
-    @FXML private TableColumn<Empleado, String> colNumDoc;
-    @FXML private TableColumn<Empleado, LocalDate> colNacimiento;
-    @FXML private TableColumn<Empleado, TipoSangre> colBlood;
-    @FXML private TableColumn<Empleado, String> colEmail;
-    @FXML private TableColumn<Empleado, String> colTelefono;
+    @FXML
+    private TableView<Empleado> tbl;
+    @FXML
+    private TableColumn<Empleado, Long> colId;
+    @FXML
+    private TableColumn<Empleado, String> colCodigo;
+    @FXML
+    private TableColumn<Empleado, String> colNombre;
+    @FXML
+    private TableColumn<Empleado, String> colApellido;
+    @FXML
+    private TableColumn<Empleado, TipoDocumento> colDocType;
+    @FXML
+    private TableColumn<Empleado, String> colNumDoc;
+    @FXML
+    private TableColumn<Empleado, LocalDate> colNacimiento;
+    @FXML
+    private TableColumn<Empleado, TipoSangre> colBlood;
+    @FXML
+    private TableColumn<Empleado, String> colEmail;
+    @FXML
+    private TableColumn<Empleado, String> colTelefono;
 
-    @FXML private TextField txtCodigo;
-    @FXML private TextField txtNombre;
-    @FXML private TextField txtApellido;
-    @FXML private ComboBox<TipoDocumento> cmbDocType;
-    @FXML private TextField txtNumDoc;
-    @FXML private YearPickerDate dpNacimiento;
-    @FXML private ComboBox<TipoSangre> cmbBloodType;
-    @FXML private TextField txtEmail;
-    @FXML private TextField txtTelefono;
+    @FXML
+    private TextField txtCodigo;
+    @FXML
+    private TextField txtNombre;
+    @FXML
+    private TextField txtApellido;
+    @FXML
+    private ComboBox<TipoDocumento> cmbDocType;
+    @FXML
+    private TextField txtNumDoc;
+    @FXML
+    private YearPickerDate dpNacimiento;
+    @FXML
+    private ComboBox<TipoSangre> cmbBloodType;
+    @FXML
+    private TextField txtEmail;
+    @FXML
+    private TextField txtTelefono;
 
-    @FXML private TextField filtroCodigo;
-    @FXML private TextField filtroNombre;
-    @FXML private TextField filtroApellido;
-    @FXML private ComboBox<TipoDocumento> filtroDocType;
-    @FXML private TextField filtroNumDoc;
+    @FXML
+    private TextField filtroCodigo;
+    @FXML
+    private TextField filtroNombre;
+    @FXML
+    private TextField filtroApellido;
+    @FXML
+    private ComboBox<TipoDocumento> filtroDocType;
+    @FXML
+    private TextField filtroNumDoc;
 
     private final ObservableList<Empleado> data = FXCollections.observableArrayList();
     private final EmpleadoUseCase useCase;
@@ -93,9 +118,12 @@ public class EmpleadosController {
         txtTelefono.setText(nullToEmpty(e.getTelefono()));
     }
 
-    private String nullToEmpty(String s) { return s == null ? "" : s; }
+    private String nullToEmpty(String s) {
+        return s == null ? "" : s;
+    }
 
-    @FXML public void nuevo() {
+    @FXML
+    public void nuevo() {
         tbl.getSelectionModel().clearSelection();
         txtCodigo.clear();
         txtNombre.clear();
@@ -108,7 +136,8 @@ public class EmpleadosController {
         txtTelefono.clear();
     }
 
-    @FXML public void guardar() {
+    @FXML
+    public void guardar() {
         try {
             Empleado sel = tbl.getSelectionModel().getSelectedItem();
             Long id = sel != null ? sel.getId() : null;
@@ -134,8 +163,7 @@ public class EmpleadosController {
             tbl.getSelectionModel().select(saved);
         } catch (DuplicateFieldException ex) {
             show("Error", ex.getMessage(), Alert.AlertType.WARNING);
-
-    } catch (Exception ex) {
+        } catch (Exception ex) {
             show(ex.getMessage());
         }
     }
@@ -144,9 +172,13 @@ public class EmpleadosController {
         return (s == null || s.isBlank()) ? null : s.trim();
     }
 
-    @FXML public void eliminar() {
+    @FXML
+    public void eliminar() {
         Empleado sel = tbl.getSelectionModel().getSelectedItem();
-        if (sel == null) { show("Seleccione un empleado"); return; }
+        if (sel == null) {
+            show("Seleccione un empleado");
+            return;
+        }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar empleado seleccionado?", ButtonType.OK, ButtonType.CANCEL);
         confirm.showAndWait().ifPresent(bt -> {
@@ -162,7 +194,9 @@ public class EmpleadosController {
         });
     }
 
-    @FXML public void refresh() {
+    @FXML
+    public void refresh() {
+        data.clear();
         data.setAll(useCase.listar());
     }
 

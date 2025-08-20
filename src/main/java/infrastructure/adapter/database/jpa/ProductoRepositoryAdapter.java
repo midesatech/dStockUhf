@@ -39,10 +39,6 @@ public class ProductoRepositoryAdapter implements ProductoGateway {
                 UbicacionEntity ue = em.find(UbicacionEntity.class, p.getUbicacion().getId());
                 e.setUbicacion(ue);
             }
-            if (p.getResponsable() != null) {
-                EmpleadoEntity re = em.find(EmpleadoEntity.class, p.getResponsable().getId());
-                e.setEmpleado(re);
-            }
             em.persist(e);
             tx.commit();
             return toDomain(e);
@@ -98,8 +94,6 @@ public class ProductoRepositoryAdapter implements ProductoGateway {
             p.setCategoria(new domain.model.Categoria(e.getCategoria().getId(), e.getCategoria().getNombre()));
         if (e.getUbicacion() != null)
             p.setUbicacion(new domain.model.Ubicacion(e.getUbicacion().getId(), e.getUbicacion().getNombre()));
-        if (e.getEmpleado() != null)
-            p.setResponsable(new domain.model.Empleado(e.getEmpleado().getId(), e.getEmpleado().getCodigo(), e.getEmpleado().getFullName(), e.getEmpleado().getLastName()));
         return p;
     }
 }

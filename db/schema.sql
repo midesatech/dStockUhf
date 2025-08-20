@@ -7,6 +7,14 @@ CREATE TABLE IF NOT EXISTS user_roles (user_id BIGINT NOT NULL, role_id BIGINT N
 CREATE TABLE IF NOT EXISTS categorias (id BIGINT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(255) NOT NULL);
 
 CREATE TABLE IF NOT EXISTS ubicaciones (id BIGINT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(150) NOT NULL UNIQUE);
+
+CREATE TABLE IF NOT EXISTS tags_uhf (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  epc VARCHAR(64) NOT NULL UNIQUE,
+  tipo ENUM('EMPLEADO', 'EQUIPO') NOT NULL,
+  activo BOOLEAN NOT NULL DEFAULT 1
+);
+
 CREATE TABLE IF NOT EXISTS empleados (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   codigo VARCHAR(64) UNIQUE,
@@ -22,3 +30,28 @@ CREATE TABLE IF NOT EXISTS empleados (
   phone VARCHAR(25)
 );
 CREATE TABLE IF NOT EXISTS productos (id BIGINT PRIMARY KEY AUTO_INCREMENT, sku VARCHAR(100) UNIQUE, nombre VARCHAR(200) NOT NULL, categoria_id BIGINT, ubicacion_id BIGINT, empleado_id BIGINT, FOREIGN KEY (categoria_id) REFERENCES categorias(id), FOREIGN KEY (ubicacion_id) REFERENCES ubicaciones(id), FOREIGN KEY (empleado_id) REFERENCES empleados(id));
+
+ALTER TABLE empleados ADD COLUMN tag_id BIGINT UNIQUE;
+ALTER TABLE empleados ADD CONSTRAINT fk_empleado_tag FOREIGN KEY (tag_id) REFERENCES tags_uhf(id);
+
+ALTER TABLE productos ADD COLUMN tag_id BIGINT UNIQUE;
+ALTER TABLE productos ADD CONSTRAINT fk_producto_tag FOREIGN KEY (tag_id) REFERENCES tags_uhf(id);
+
+CREATE TABLE IF NOT EXISTS lectores_uhf (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  codigo VARCHAR(64) NOT NULL UNIQUE, -- Identificador único (se usará en JSON)
+  descripcion VARCHAR(255),
+  ubicacion_id BIGINT NOT NULL,
+  FOREIGN KEY (ubicacion_id) REFERENCES ubicaciones(id)
+);
+
+CREATE TABLE IF NOT EXISTS detecciones_tags (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  lector_id BIGINT NOT NULL,
+  tag_id BIGINT NOT NULL,
+  fecha_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  intensidad INT, -- RSSI opcional
+  estado ENUM('OK', 'FUERA_DE_LUGAR') DEFAULT 'OK',
+  FOREIGN KEY (lector_id) REFERENCES lectores_uhf(id),
+  FOREIGN KEY (tag_id) REFERENCES tags_uhf(id)
+);

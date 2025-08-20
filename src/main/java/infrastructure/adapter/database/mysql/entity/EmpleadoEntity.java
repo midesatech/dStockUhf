@@ -42,6 +42,10 @@ public class EmpleadoEntity {
     @Column(length = 25)
     private String phone;
 
+    @OneToOne
+    @JoinColumn(name = "tag_id", unique = true)
+    private TagUHFEntity tag;
+
     // getters/setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -63,4 +67,6 @@ public class EmpleadoEntity {
     public void setEmail(String email) { this.email = email; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+    public TagUHFEntity getTag() { return tag; }
+    public void setTag(TagUHFEntity tag) { this.tag = tag; }
 }

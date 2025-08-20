@@ -9,6 +9,7 @@
             <Button text="Nuevo" onAction="#nuevo"/>
             <Button text="Guardar" onAction="#guardar"/>
             <Button text="Eliminar" onAction="#eliminar"/>
+            <Button text="Refrescar" onAction="#refresh"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label text="Ubicaciones"/>
         </ToolBar>
@@ -25,8 +26,8 @@
     <center>
         <TableView fx:id="tbl">
             <columns>
-                <TableColumn fx:id="colId" text="ID"/>
-                <TableColumn fx:id="colNombre" text="Nombre"/>
+                <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="250"/>
             </columns>
         </TableView>
     </center>

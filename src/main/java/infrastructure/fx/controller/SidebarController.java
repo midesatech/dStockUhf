@@ -94,6 +94,9 @@ public class SidebarController {
         if (isAdmin || hasPermission(u, "CATALOG_READ")) {
             catRoot.getChildren().add(makeMenuItem("Categorías", "/infrastructure/fx/view/catalog/categorias.fxml", Icons.CATEGORY));
             catRoot.getChildren().add(makeMenuItem("Ubicaciones", "/infrastructure/fx/view/catalog/ubicaciones.fxml", Icons.MAP));
+            catRoot.getChildren().add(
+                    makeMenuItem("Lectores", "/infrastructure/fx/view/catalog/lectores.fxml", Icons.ANTENNA)
+            );
             catRoot.getChildren().add(makeMenuItem("Sub ubicación", "/infrastructure/fx/view/catalog/sububicacion.fxml", Icons.LINK));
             catRoot.getChildren().add(makeMenuItem("Producto", "/infrastructure/fx/view/catalog/productos.fxml", Icons.BOX));
             catRoot.getChildren().add(makeMenuItem("Empleados", "/infrastructure/fx/view/catalog/empleados.fxml", Icons.USER));

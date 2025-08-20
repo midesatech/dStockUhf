@@ -4,6 +4,8 @@ import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.CategoriasController;
 import infrastructure.fx.controller.catalog.EmpleadosController;
+import infrastructure.fx.controller.catalog.LectoresController;
+import infrastructure.fx.controller.catalog.UbicacionesController;
 import infrastructure.fx.controller.system.ChangePasswordController;
 import infrastructure.fx.controller.system.RolesController;
 import infrastructure.fx.controller.system.UserController;
@@ -38,6 +40,13 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
             return new EmpleadosController(AppBootstrap.empleadoUseCase());
         }
 
+        if (type == UbicacionesController.class) {
+            return new UbicacionesController(AppBootstrap.ubicacionUseCase());
+        }
+
+        if (type == LectoresController.class) {
+            return new LectoresController(AppBootstrap.lectorUHFUseCase(), AppBootstrap.ubicacionUseCase());
+        }
 
 
         // otros controladores que necesiten dependencias

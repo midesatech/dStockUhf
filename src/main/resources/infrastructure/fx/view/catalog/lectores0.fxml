@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.catalog.LectoresController">
+    <top>
+        <VBox spacing="8">
+            <ToolBar>
+                <Button text="Nuevo" onAction="#nuevo"/>
+                <Button text="Guardar" onAction="#guardar"/>
+                <Button text="Eliminar" onAction="#eliminar"/>
+                <Button text="Refrescar" onAction="#refresh"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Lectores UHF" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+            </ToolBar>
+
+            <!-- Barra de filtros -->
+            <TitledPane text="Filtros de búsqueda" expanded="true">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                    <Label text="Código:"/>
+                    <TextField fx:id="filtroCodigo" prefWidth="120"/>
+                    <Label text="Ubicación:"/>
+                    <ComboBox fx:id="filtroUbicacion" prefWidth="150"/>
+                    <Button text="Buscar" onAction="#buscar"/>
+                    <Button text="Limpiar" onAction="#limpiarFiltros"/>
+                </HBox>
+            </TitledPane>
+        </VBox>
+    </top>
+
+    <left>
+        <TitledPane text="Formulario de lector" expanded="true">
+            <VBox spacing="6">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Código"/>
+                <TextField fx:id="txtCodigo"/>
+
+                <Label text="Descripción"/>
+                <TextField fx:id="txtDescripcion"/>
+
+                <Label text="Ubicación"/>
+                <ComboBox fx:id="cmbUbicacion"/>
+            </VBox>
+        </TitledPane>
+    </left>
+    <center>
+        <TableView fx:id="tbl">
+            <columns>
+                <TableColumn fx:id="colId" text="ID"/>
+                <TableColumn fx:id="colCodigo" text="Código" prefWidth="90"/>
+                <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="170"/>
+                <TableColumn fx:id="colUbicacion" text="Ubicación" prefWidth="170"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

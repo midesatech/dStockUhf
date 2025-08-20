@@ -14,6 +14,7 @@
                 <Button text="Nuevo" onAction="#nuevo"/>
                 <Button text="Guardar" onAction="#guardar"/>
                 <Button text="Eliminar" onAction="#eliminar"/>
+                <Button text="Refrescar" onAction="#refresh"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label text="Empleados"/>
             </ToolBar>
@@ -44,8 +45,8 @@
 
     <left>
         <ScrollPane fitToWidth="true">
-            <VBox spacing="6" prefWidth="250">
-            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            <VBox spacing="6" prefWidth="219">
+            <padding><Insets top="7" right="7" bottom="7" left="7"/></padding>
 
             <Label text="Código (TAG UHF)"/>
             <TextField fx:id="txtCodigo"/>
@@ -80,14 +81,14 @@
     <center>
         <TableView fx:id="tbl" prefWidth="700" prefHeight="400">
             <columns>
-                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-                <TableColumn fx:id="colCodigo" text="Código" prefWidth="120"/>
-                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
-                <TableColumn fx:id="colApellido" text="Apellido" prefWidth="200"/>
-                <TableColumn fx:id="colDocType" text="Doc" prefWidth="70"/>
-                <TableColumn fx:id="colNumDoc" text="Número" prefWidth="140"/>
-                <TableColumn fx:id="colNacimiento" text="Nacimiento" prefWidth="110"/>
-                <TableColumn fx:id="colBlood" text="Sangre" prefWidth="80"/>
+                <TableColumn fx:id="colId" text="ID" prefWidth="81"/>
+                <TableColumn fx:id="colCodigo" text="Código" prefWidth="200"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="165"/>
+                <TableColumn fx:id="colApellido" text="Apellido" prefWidth="165"/>
+                <TableColumn fx:id="colDocType" text="Doc" prefWidth="40"/>
+                <TableColumn fx:id="colNumDoc" text="Número" />
+                <TableColumn fx:id="colNacimiento" text="Nacimiento" prefWidth="90"/>
+                <TableColumn fx:id="colBlood" text="RH" prefWidth="40"/>
                 <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
                 <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="120"/>
             </columns>

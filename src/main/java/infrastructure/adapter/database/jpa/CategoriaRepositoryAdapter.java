@@ -35,8 +35,11 @@ public class CategoriaRepositoryAdapter implements CategoriaRepository {
     public List<Categoria> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            List<CategoriaEntity> list = em.createQuery("select c from CategoriaEntity c", CategoriaEntity.class).getResultList();
-            return list.stream().map(e -> new Categoria(e.getId(), e.getNombre())).collect(Collectors.toList());
+            List<CategoriaEntity> list = em.createQuery("select c from CategoriaEntity c", CategoriaEntity.class)
+                    .getResultList();
+            return list.stream()
+                    .map(e -> new Categoria(e.getId(), e.getNombre()))
+                    .collect(Collectors.toList());
         } finally { em.close(); }
     }
 

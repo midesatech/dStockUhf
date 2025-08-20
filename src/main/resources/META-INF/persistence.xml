@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
-  <persistence-unit name="InventarioPU">
+  <persistence-unit name="InventarioPU" >
+    <!-- Seguridad -->
     <class>infrastructure.adapter.database.mysql.entity.UserEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.RoleEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.PermissionEntity</class>
+
+    <!-- Inventario -->
     <class>infrastructure.adapter.database.mysql.entity.CategoriaEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.UbicacionEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.EmpleadoEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.ProductoEntity</class>
+    <class>infrastructure.adapter.database.mysql.entity.TagUHFEntity</class>
+    <class>infrastructure.adapter.database.mysql.entity.LectorUHFEntity</class>
+    <class>infrastructure.adapter.database.mysql.entity.DeteccionTag</class>
 
     <properties>
       <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>

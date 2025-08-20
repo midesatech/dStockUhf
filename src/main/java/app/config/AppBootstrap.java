@@ -21,6 +21,7 @@ public class AppBootstrap {
     //Repositories adapters
     private static JpaRoleRepositoryAdapter roleRepo;
     private static JpaPermissionRepositoryAdapter permRepo;
+    private static LectorUHFRepositoryAdapter lectorUHFRepo;
 
     // UseCases
     private static CategoriaUseCase categoriaUseCase;
@@ -30,6 +31,7 @@ public class AppBootstrap {
     private static RoleUseCase roleUseCase;
     private static PermissionUseCase permissionUseCase;
     private static UserUseCase userUseCase;
+    private static LectorUHFUseCase lectorUHFUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
@@ -44,6 +46,8 @@ public class AppBootstrap {
             userRepository = new JpaUserRepositoryAdapter(JPAUtil.getEmf(), encoder);
             roleRepo = new JpaRoleRepositoryAdapter(JPAUtil.getEmf());
             permRepo = new JpaPermissionRepositoryAdapter(JPAUtil.getEmf());
+            lectorUHFRepo = new LectorUHFRepositoryAdapter(JPAUtil.getEmf());
+
 
             categoriaUseCase = new CategoriaUseCase(new CategoriaRepositoryAdapter(JPAUtil.getEmf()));
             ubicacionUseCase = new UbicacionUseCase(new UbicacionRepositoryAdapter(JPAUtil.getEmf()));
@@ -52,6 +56,7 @@ public class AppBootstrap {
 
             roleUseCase = new RoleUseCase(roleRepo);
             permissionUseCase = new PermissionUseCase(permRepo);
+            lectorUHFUseCase = new LectorUHFUseCase(lectorUHFRepo);
 
         } else {
             userRepository = new InMemoryUserRepositoryAdapter();
@@ -110,5 +115,9 @@ public class AppBootstrap {
 
     public static boolean isJpaMode() {
         return jpaMode;
+    }
+
+    public static LectorUHFUseCase lectorUHFUseCase() {
+        return lectorUHFUseCase;
     }
 }
