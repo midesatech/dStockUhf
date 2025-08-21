@@ -1,13 +1,15 @@
 package app.config;
 
-import domain.gateway.PasswordEncoderPort;
-import domain.gateway.UserRepository;
+import domain.gateway.*;
 import domain.usecase.*;
-import domain.gateway.AuthServicePort;
+import domain.usecase.tag.*;
 import infrastructure.adapter.database.jpa.*;
 import infrastructure.adapter.database.memory.InMemoryUserRepositoryAdapter;
 import infrastructure.adapter.security.BCryptPasswordEncoderAdapter;
 import infrastructure.adapter.security.SimpleAuthServiceAdapter;
+import infrastructure.adapter.serial.SerialFactory;
+import infrastructure.adapter.serial.SerialPortAdapter;
+import infrastructure.adapter.serial.TagOperationsAdapter;
 import infrastructure.persistence.JPAUtil;
 
 public class AppBootstrap {
@@ -17,6 +19,9 @@ public class AppBootstrap {
     private static UserRepository userRepository;
     private static PasswordEncoderPort encoder;
     private static AuthServicePort auth;
+    private static SerialFactory serialFactory;
+    private static SerialPort serialPort;
+    private static TagOperationsPort tagOperationsPort;
 
     //Repositories adapters
     private static JpaRoleRepositoryAdapter roleRepo;
@@ -32,10 +37,16 @@ public class AppBootstrap {
     private static PermissionUseCase permissionUseCase;
     private static UserUseCase userUseCase;
     private static LectorUHFUseCase lectorUHFUseCase;
+    private static TagOperationsUseCase tagOperationsUseCase;
+    private static SerialUseCase serialUseCase;
+    private static SerialCommunicationUseCase serialCommunicationUseCase;
+    private static ReaderUseCase readerUseCase;
+    private static OperationsUseCase operationsUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
         encoder = new BCryptPasswordEncoderAdapter();
+        serialFactory = new SerialFactory();
 
         if (useJpa) {
             // ensure DB exists (uses defaults from persistence.xml)
@@ -70,6 +81,13 @@ public class AppBootstrap {
         Seeds.ensureInitialData(userUseCase, encoder,
                 // eliminamos roleRepo y permRepo directos, ahora usamos los UseCases
                 roleUseCase, permissionUseCase, jpaMode);
+
+        serialPort = new SerialPortAdapter(serialFactory);
+        tagOperationsPort = new TagOperationsAdapter(serialPort);
+        serialCommunicationUseCase = new SerialCommunicationUseCase(serialPort);
+        tagOperationsUseCase = new TagOperationsUseCase(tagOperationsPort);
+        operationsUseCase = new OperationsUseCase(tagOperationsUseCase, serialCommunicationUseCase);
+        readerUseCase = new ReaderUseCase(operationsUseCase);
     }
 
     public static void shutdown() {
@@ -119,5 +137,9 @@ public class AppBootstrap {
 
     public static LectorUHFUseCase lectorUHFUseCase() {
         return lectorUHFUseCase;
+    }
+
+    public static ReaderUseCase readerUseCase() {
+        return readerUseCase;
     }
 }

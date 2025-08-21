@@ -1,8 +1,11 @@
 
 package infrastructure.fx.controller;
 
+import app.config.AppBootstrap;
 import app.session.UserSession;
 import domain.model.User;
+import domain.usecase.tag.ReaderUseCase;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -11,14 +14,22 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MainController {
     @FXML private StackPane contentArea;
     @FXML private Label lblUser;
     @FXML private Label lblCapsStatus;
     @FXML private Label lblStatus;
+    @FXML private Label lblLector;
 
     private static MainController instance;
+    private ReaderUseCase readerUseCase;
+
+    private static final Logger infLog = LogManager.getLogger("infLogger");
+    private static final Logger errLog = LogManager.getLogger("errLogger");
+
 
     @FXML
     public void initialize() {
@@ -33,6 +44,15 @@ public class MainController {
         } else {
             lblUser.setText("Usuario: [no logueado]");
         }
+        setReaderUseCase(AppBootstrap.readerUseCase());
+        loadReaders();
+    }
+
+    public void setReaderUseCase(ReaderUseCase readerUseCase) {
+        this.readerUseCase = readerUseCase;
+        this.readerUseCase.messageProperty().addListener((observable, oldMessage, newMessage) -> {
+            lblLector.setText(newMessage);
+        });
     }
 
     public MainController() {
@@ -83,4 +103,28 @@ public class MainController {
             setStatus("Error al cerrar sesión: " + e.getMessage());
         }
     }
+
+    private void loadReaders() {
+        startReaderDetection();
+    }
+
+    public void startReaderDetection() {
+        Worker.State currentState = this.readerUseCase.getState();
+        if (currentState == Worker.State.READY) {
+            infLog.info("Starting reader task (first run or after reset)...");
+            this.readerUseCase.start();
+        } else if (currentState == Worker.State.RUNNING) {
+            infLog.info("Reader task is already running.");
+        } else {
+            infLog.info("Reader task is in state {}. Restarting...", currentState);
+            this.readerUseCase.restart();
+        }
+    }
+
+    public void stopReaderDetection() {
+        if (this.readerUseCase!=null && this.readerUseCase.isRunning()) {
+            this.readerUseCase.cancel();
+        }
+    }
+
 }

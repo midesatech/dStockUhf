@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.stock.TagUHFController">
+    <top>
+        <ToolBar>
+            <Button text="Nuevo" onAction="#nuevo"/>
+            <Button text="Guardar" onAction="#guardar"/>
+            <Button text="Eliminar" onAction="#eliminar"/>
+            <Button text="Refrescar" onAction="#refresh"/>
+            <Button text="Detectar TAG" onAction="#detectarTag"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="TAG UHF"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <SplitPane orientation="VERTICAL">
+            <VBox spacing="10" padding="10">
+                <GridPane hgap="10" vgap="10">
+                    <Label text="EPC:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtEpc" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="250"/>
+
+                    <Label text="Tipo:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cmbTipo" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="200"/>
+
+                    <Label text="Activo:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <CheckBox fx:id="chkActivo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <TableView fx:id="tabla">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID"/>
+                    <TableColumn fx:id="colEpc" text="EPC"/>
+                    <TableColumn fx:id="colTipo" text="Tipo"/>
+                    <TableColumn fx:id="colActivo" text="Activo"/>
+                </columns>
+            </TableView>
+        </SplitPane>
+    </center>
+</BorderPane>
