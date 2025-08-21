@@ -20,7 +20,7 @@ public class TagUHFEntity {
     private boolean activo = true;
 
     public enum Tipo {
-        EMPLEADO, EQUIPO
+        EMPLEADO, EQUIPMENT
     }
 
     // Getters & Setters

@@ -2,10 +2,7 @@ package app.config;
 
 import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
-import infrastructure.fx.controller.catalog.CategoriasController;
-import infrastructure.fx.controller.catalog.EmpleadosController;
-import infrastructure.fx.controller.catalog.LectoresController;
-import infrastructure.fx.controller.catalog.UbicacionesController;
+import infrastructure.fx.controller.catalog.*;
 import infrastructure.fx.controller.system.ChangePasswordController;
 import infrastructure.fx.controller.system.RolesController;
 import infrastructure.fx.controller.system.UserController;
@@ -46,6 +43,10 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
 
         if (type == LectoresController.class) {
             return new LectoresController(AppBootstrap.lectorUHFUseCase(), AppBootstrap.ubicacionUseCase());
+        }
+
+        if (type == EquipmentController.class) {
+            return new EquipmentController(AppBootstrap.equipmentUseCase(), AppBootstrap.categoriaUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
 

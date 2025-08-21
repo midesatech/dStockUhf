@@ -8,7 +8,7 @@ public class TagUHF {
     private boolean activo;
 
     public enum Tipo {
-        EMPLEADO, EQUIPO
+        EMPLEADO, EQUIPMENT
     }
 
     public TagUHF(Long id, String epc, Tipo tipo, boolean activo) {

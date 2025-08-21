@@ -10,7 +10,7 @@
     <class>infrastructure.adapter.database.mysql.entity.CategoriaEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.UbicacionEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.EmpleadoEntity</class>
-    <class>infrastructure.adapter.database.mysql.entity.ProductoEntity</class>
+    <class>infrastructure.adapter.database.mysql.entity.EquipmentEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.TagUHFEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.LectorUHFEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.DeteccionTag</class>

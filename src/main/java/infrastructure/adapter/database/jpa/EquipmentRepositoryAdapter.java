@@ -1,12 +1,12 @@
 
 package infrastructure.adapter.database.jpa;
 
-import domain.gateway.ProductoGateway;
-import domain.model.Producto;
-import infrastructure.adapter.database.mysql.entity.ProductoEntity;
+import domain.gateway.EquipmentGateway;
+import domain.model.Categoria;
+import domain.model.Equipment;
+import infrastructure.adapter.database.mysql.entity.EquipmentEntity;
 import infrastructure.adapter.database.mysql.entity.CategoriaEntity;
 import infrastructure.adapter.database.mysql.entity.UbicacionEntity;
-import infrastructure.adapter.database.mysql.entity.EmpleadoEntity;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -15,20 +15,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
-public class ProductoRepositoryAdapter implements ProductoGateway {
+public class EquipmentRepositoryAdapter implements EquipmentGateway {
     private final EntityManagerFactory emf;
 
-    public ProductoRepositoryAdapter(EntityManagerFactory emf) {
+    public EquipmentRepositoryAdapter(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
     @Override
-    public Producto save(Producto p) {
+    public Equipment save(Equipment p) {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            ProductoEntity e = new ProductoEntity();
+            EquipmentEntity e = new EquipmentEntity();
             e.setSku(p.getSku());
             e.setNombre(p.getNombre());
             if (p.getCategoria() != null) {
@@ -51,10 +51,14 @@ public class ProductoRepositoryAdapter implements ProductoGateway {
     }
 
     @Override
-    public List<Producto> findAll() {
+    public List<Equipment> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("select p from ProductoEntity p", ProductoEntity.class).getResultList().stream().map(ProductoRepositoryAdapter::toDomain).collect(Collectors.toList());
+            return em.createQuery("select p from EquipmentEntity p", EquipmentEntity.class)
+                    .getResultList()
+                    .stream()
+                    .map(EquipmentRepositoryAdapter::toDomain)
+                    .collect(Collectors.toList());
         } finally {
             em.close();
         }
@@ -66,7 +70,7 @@ public class ProductoRepositoryAdapter implements ProductoGateway {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            ProductoEntity e = em.find(ProductoEntity.class, id);
+            EquipmentEntity e = em.find(EquipmentEntity.class, id);
             if (e != null) em.remove(e);
             tx.commit();
         } catch (Exception ex) {
@@ -78,22 +82,46 @@ public class ProductoRepositoryAdapter implements ProductoGateway {
     }
 
     @Override
-    public Optional<Producto> findById(Long id) {
+    public Optional<Equipment> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            ProductoEntity e = em.find(ProductoEntity.class, id);
+            EquipmentEntity e = em.find(EquipmentEntity.class, id);
             return Optional.ofNullable(e == null ? null : toDomain(e));
         } finally {
             em.close();
         }
     }
 
-    private static Producto toDomain(ProductoEntity e) {
-        Producto p = new Producto(e.getId(), e.getSku(), e.getNombre());
+    private static Equipment toDomain(EquipmentEntity e) {
+        Equipment p = new Equipment(e.getId(), e.getSku(), e.getNombre());
         if (e.getCategoria() != null)
             p.setCategoria(new domain.model.Categoria(e.getCategoria().getId(), e.getCategoria().getNombre()));
         if (e.getUbicacion() != null)
             p.setUbicacion(new domain.model.Ubicacion(e.getUbicacion().getId(), e.getUbicacion().getNombre()));
         return p;
+    }
+
+    @Override
+    public List<Equipment> buscar(String sku, String nombre, Categoria cat) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            String jpql = "SELECT e FROM EquipmentEntity e WHERE 1=1";
+            if (sku != null && !sku.isBlank()) jpql += " AND e.sku LIKE :sku";
+            if (nombre != null && !nombre.isBlank()) jpql += " AND e.nombre LIKE :nombre";
+            if (cat != null) jpql += " AND e.categoria.id = :catId";
+
+            var q = em.createQuery(jpql, EquipmentEntity.class);
+
+            if (sku != null && !sku.isBlank()) q.setParameter("sku", "%" + sku + "%");
+            if (nombre != null && !nombre.isBlank()) q.setParameter("nombre", "%" + nombre + "%");
+            if (cat != null) q.setParameter("catId", cat.getId());
+
+            return q.getResultList()
+                    .stream()
+                    .map(EquipmentRepositoryAdapter::toDomain)
+                    .collect(Collectors.toList());
+        } finally {
+            em.close();
+        }
     }
 }

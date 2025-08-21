@@ -2,15 +2,32 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.catalog.ProductosController">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="infrastructure.fx.controller.catalog.EquipmentController">
     <top>
+        <VBox spacing="8">
         <ToolBar>
             <Button text="Nuevo" onAction="#nuevo"/>
             <Button text="Guardar" onAction="#guardar"/>
             <Button text="Eliminar" onAction="#eliminar"/>
+            <Button text="Refrescar" onAction="#refresh"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label text="Productos"/>
+            <Label text="Equipos"/>
         </ToolBar>
+        <!-- Barra de filtros -->
+        <TitledPane text="Filtros de búsqueda" expanded="true">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="SKU:"/>
+                <TextField fx:id="filtroSku" prefWidth="120"/>
+                <Label text="Nombre:"/>
+                <TextField fx:id="filtroNombre" prefWidth="150"/>
+                <Label text="Categoría:"/>
+                <ComboBox fx:id="filtroCategoria" prefWidth="150"/>
+                <Button text="Buscar" onAction="#buscar"/>
+                <Button text="Limpiar" onAction="#limpiarFiltros"/>
+            </HBox>
+        </TitledPane>
+        </VBox>
     </top>
     <left>
         <VBox spacing="6">
@@ -25,8 +42,6 @@
             <ComboBox fx:id="cmbCategoria"/>
             <Label text="Ubicación"/>
             <ComboBox fx:id="cmbUbicacion"/>
-            <Label text="Empleado"/>
-            <ComboBox fx:id="cmbEmpleado"/>
         </VBox>
     </left>
     <center>
@@ -37,7 +52,6 @@
                 <TableColumn fx:id="colNombre" text="Nombre"/>
                 <TableColumn fx:id="colCategoria" text="Categoría"/>
                 <TableColumn fx:id="colUbicacion" text="Ubicación"/>
-                <TableColumn fx:id="colEmpleado" text="Empleado"/>
             </columns>
         </TableView>
     </center>

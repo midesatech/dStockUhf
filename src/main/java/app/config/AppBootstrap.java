@@ -27,7 +27,7 @@ public class AppBootstrap {
     private static CategoriaUseCase categoriaUseCase;
     private static UbicacionUseCase ubicacionUseCase;
     private static EmpleadoUseCase empleadoUseCase;
-    private static ProductoUseCase productoUseCase;
+    private static EquipmentUseCase equipmentUseCase;
     private static RoleUseCase roleUseCase;
     private static PermissionUseCase permissionUseCase;
     private static UserUseCase userUseCase;
@@ -52,7 +52,7 @@ public class AppBootstrap {
             categoriaUseCase = new CategoriaUseCase(new CategoriaRepositoryAdapter(JPAUtil.getEmf()));
             ubicacionUseCase = new UbicacionUseCase(new UbicacionRepositoryAdapter(JPAUtil.getEmf()));
             empleadoUseCase = new EmpleadoUseCase(new EmpleadoRepositoryAdapter(JPAUtil.getEmf()));
-            productoUseCase = new ProductoUseCase(new ProductoRepositoryAdapter(JPAUtil.getEmf()));
+            equipmentUseCase = new EquipmentUseCase(new EquipmentRepositoryAdapter(JPAUtil.getEmf()));
 
             roleUseCase = new RoleUseCase(roleRepo);
             permissionUseCase = new PermissionUseCase(permRepo);
@@ -101,8 +101,8 @@ public class AppBootstrap {
         return empleadoUseCase;
     }
 
-    public static ProductoUseCase productoUseCase() {
-        return productoUseCase;
+    public static EquipmentUseCase equipmentUseCase() {
+        return equipmentUseCase;
     }
 
     public static RoleUseCase roleUseCase() {
