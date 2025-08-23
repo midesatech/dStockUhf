@@ -74,7 +74,7 @@ public class Constants {
     }
 
     public static List<byte[]> getFirmwares() {
-        return List.of(getFirmware(), GET_FIRMWARE);
+        return List.of(GET_FIRMWARE, getFirmware());
     }
 
     public static byte[] getReadCommand(byte mem, byte[] password, byte word, byte count) {

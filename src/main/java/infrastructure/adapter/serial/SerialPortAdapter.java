@@ -93,6 +93,12 @@ public class SerialPortAdapter implements SerialPort {
         // so we'll use the default read method. In a real implementation,
         // you might want to add timeout support to the Serial interface.
         logger.debug("Reading data with {}ms timeout (using default read)", timeoutMs);
-        return readData();
+        if (serial != null) {
+            byte[] data = serial.read(timeoutMs);
+            logger.debug("Read {} bytes from serial port", data.length);
+            return data;
+        }
+        logger.warn("Cannot read data: serial interface not available");
+        return new byte[0];
     }
 } 

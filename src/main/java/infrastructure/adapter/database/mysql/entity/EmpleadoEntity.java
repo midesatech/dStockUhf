@@ -1,18 +1,17 @@
 
 package infrastructure.adapter.database.mysql.entity;
 
-import domain.model.TipoDocumento;
-import domain.model.TipoSangre;
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "empleados")
 public class EmpleadoEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 🔹 Si 'codigo' es solo un EPC, deberías eliminarlo y usar TagUHFEntity.epc
     @Column(unique = true, length = 64)
     private String codigo;
 
@@ -23,8 +22,8 @@ public class EmpleadoEntity {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "doc_type", nullable = false, length = 5)
-    private TipoDocumento docType;
+    @Column(name = "doc_type", nullable = false, length = 20)
+    private domain.model.TipoDocumento docType;
 
     @Column(name = "doc_number", nullable = false, length = 30, unique = true)
     private String docNumber;
@@ -33,8 +32,8 @@ public class EmpleadoEntity {
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "blood_type", nullable = false, length = 6)
-    private TipoSangre bloodType;
+    @Column(name = "blood_type", nullable = false, length = 4)
+    private domain.model.TipoSangre bloodType;
 
     @Column(length = 120)
     private String email;
@@ -42,7 +41,7 @@ public class EmpleadoEntity {
     @Column(length = 25)
     private String phone;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "tag_id", unique = true)
     private TagUHFEntity tag;
 
@@ -55,14 +54,14 @@ public class EmpleadoEntity {
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
-    public TipoDocumento getDocType() { return docType; }
-    public void setDocType(TipoDocumento docType) { this.docType = docType; }
+    public domain.model.TipoDocumento getDocType() { return docType; }
+    public void setDocType(domain.model.TipoDocumento docType) { this.docType = docType; }
     public String getDocNumber() { return docNumber; }
     public void setDocNumber(String docNumber) { this.docNumber = docNumber; }
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
-    public TipoSangre getBloodType() { return bloodType; }
-    public void setBloodType(TipoSangre bloodType) { this.bloodType = bloodType; }
+    public domain.model.TipoSangre getBloodType() { return bloodType; }
+    public void setBloodType(domain.model.TipoSangre bloodType) { this.bloodType = bloodType; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPhone() { return phone; }

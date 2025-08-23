@@ -11,4 +11,5 @@ public interface TagUHFRepository {
     void deleteById(Long id);
     Optional<TagUHF> findById(Long id);
     TagUHF update(TagUHF tag);
+    Optional<TagUHF> findByEpc(String epc);
 }

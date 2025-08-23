@@ -106,7 +106,7 @@ public class SidebarController {
         // 2. Administración de inventario (2.1)
         TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {
-            invRoot.getChildren().add(makeMenuItem("Ubicación de productos", "/infrastructure/fx/view/catalog/ubicacion_productos.fxml", Icons.LINK));
+            invRoot.getChildren().add(makeMenuItem("Asignación de TAG", "/infrastructure/fx/view/stock/taguhf.fxml", Icons.LINK));
         }
         rootItem.getChildren().add(invRoot);
 

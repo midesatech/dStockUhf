@@ -33,7 +33,7 @@ public class TagOperationsAdapter implements TagOperationsPort {
             logger.info("Sending firmware command: {}", Utils.byteArrayToHexString(firmware));
             
             serialPort.sendData(firmware);
-            byte[] response = serialPort.readData();
+            byte[] response = serialPort.readData(15);
             
             logger.info("Received firmware response: {}", Utils.byteArrayToHexString(response));
             

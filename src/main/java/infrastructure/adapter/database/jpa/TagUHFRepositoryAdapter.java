@@ -1,7 +1,9 @@
 package infrastructure.adapter.database.jpa;
 
 import domain.gateway.TagUHFRepository;
+import domain.model.Equipment;
 import domain.model.TagUHF;
+import infrastructure.adapter.database.mysql.entity.EquipmentEntity;
 import infrastructure.adapter.database.mysql.entity.TagUHFEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -78,6 +80,23 @@ public class TagUHFRepositoryAdapter implements TagUHFRepository {
             TagUHFEntity e = em.find(TagUHFEntity.class, id);
             return Optional.ofNullable(e == null ? null :
                     new TagUHF(e.getId(), e.getEpc(), TagUHF.Tipo.valueOf(e.getTipo().name()), e.isActivo()));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Optional<TagUHF> findByEpc(String epc) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            var query = em.createQuery(
+                    "SELECT e FROM TagUHFEntity e WHERE e.epc = :epc",
+                    TagUHFEntity.class);
+            query.setParameter("epc", epc);
+            List<TagUHFEntity> result = query.getResultList();
+            return result.isEmpty() ? Optional.empty() :
+                    Optional.of(
+                    new TagUHF(result.get(0).getId(), result.get(0).getEpc(), TagUHF.Tipo.valueOf(result.get(0).getTipo().name()), result.get(0).isActivo()));
         } finally {
             em.close();
         }

@@ -35,4 +35,22 @@ public class EquipmentUseCase {
     public List<Equipment> buscar(String sku, String nombre, Categoria cat) {
         return repo.buscar(sku, nombre, cat);
     }
+
+    // 🔹 NUEVO: asignar EPC
+    public Equipment asignarEpc(Long equipoId, String epc) {
+        Equipment eq = repo.findById(equipoId)
+                .orElseThrow(() -> new IllegalArgumentException("Equipo no encontrado"));
+
+        if (eq.getEpc() != null && !eq.getEpc().isBlank()) {
+            throw new IllegalStateException("Equipo ya tiene un EPC asignado");
+        }
+
+        eq.setEpc(epc);
+        return repo.save(eq);
+    }
+
+    public Equipment buscarPorEpc(String epc) {
+        return repo.findByEpc(epc)
+                .orElse(null);
+    }
 }

@@ -3,6 +3,7 @@ package app.config;
 import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.*;
+import infrastructure.fx.controller.stock.TagUHFController;
 import infrastructure.fx.controller.system.ChangePasswordController;
 import infrastructure.fx.controller.system.RolesController;
 import infrastructure.fx.controller.system.UserController;
@@ -49,6 +50,9 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
             return new EquipmentController(AppBootstrap.equipmentUseCase(), AppBootstrap.categoriaUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
+        if (type == TagUHFController.class) {
+            return new TagUHFController(AppBootstrap.tagUhfUsecase(), AppBootstrap.empleadoUseCase(), AppBootstrap.equipmentUseCase());
+        }
 
         // otros controladores que necesiten dependencias
         throw new IllegalArgumentException("No controller mapping for " + type);

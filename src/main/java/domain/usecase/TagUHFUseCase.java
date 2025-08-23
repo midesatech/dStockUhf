@@ -33,4 +33,9 @@ public class TagUHFUseCase {
     public void deleteById(Long id) {
         repo.deleteById(id);
     }
+
+    public Optional<TagUHF> findByEpc(String epc) {
+        if (epc == null || epc.isBlank()) return Optional.empty();
+        return repo.findByEpc(epc.trim());
+    }
 }

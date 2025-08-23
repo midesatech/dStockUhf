@@ -27,6 +27,7 @@ public class AppBootstrap {
     private static JpaRoleRepositoryAdapter roleRepo;
     private static JpaPermissionRepositoryAdapter permRepo;
     private static LectorUHFRepositoryAdapter lectorUHFRepo;
+    private static TagUHFRepositoryAdapter tagUHFRepositoryAdapter;
 
     // UseCases
     private static CategoriaUseCase categoriaUseCase;
@@ -42,6 +43,7 @@ public class AppBootstrap {
     private static SerialCommunicationUseCase serialCommunicationUseCase;
     private static ReaderUseCase readerUseCase;
     private static OperationsUseCase operationsUseCase;
+    private static TagUHFUseCase tagUHFUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
@@ -68,7 +70,7 @@ public class AppBootstrap {
             roleUseCase = new RoleUseCase(roleRepo);
             permissionUseCase = new PermissionUseCase(permRepo);
             lectorUHFUseCase = new LectorUHFUseCase(lectorUHFRepo);
-
+            tagUHFRepositoryAdapter = new TagUHFRepositoryAdapter(JPAUtil.getEmf());
         } else {
             userRepository = new InMemoryUserRepositoryAdapter();
         }
@@ -88,6 +90,7 @@ public class AppBootstrap {
         tagOperationsUseCase = new TagOperationsUseCase(tagOperationsPort);
         operationsUseCase = new OperationsUseCase(tagOperationsUseCase, serialCommunicationUseCase);
         readerUseCase = new ReaderUseCase(operationsUseCase);
+        tagUHFUseCase = new TagUHFUseCase(tagUHFRepositoryAdapter);
     }
 
     public static void shutdown() {
@@ -141,5 +144,9 @@ public class AppBootstrap {
 
     public static ReaderUseCase readerUseCase() {
         return readerUseCase;
+    }
+
+    public static TagUHFUseCase tagUhfUsecase() {
+        return tagUHFUseCase;
     }
 }

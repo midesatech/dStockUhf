@@ -17,4 +17,6 @@ public interface EquipmentGateway {
     Optional<Equipment> findById(Long id);
 
     List<Equipment> buscar(String sku, String nombre, Categoria cat);
+    // 🔹 NUEVO: buscar equipo por EPC
+    Optional<Equipment> findByEpc(String epc);
 }

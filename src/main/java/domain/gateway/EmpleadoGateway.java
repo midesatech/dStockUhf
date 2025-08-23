@@ -17,4 +17,6 @@ public interface EmpleadoGateway {
     Optional<Empleado> findById(Long id);
 
     List<Empleado> search(TipoDocumento tipoDocumento, String numeroDocumento, String nombre, String apellido, String codigo);
+
+    Optional<Empleado> findByEpc(String epc);
 }

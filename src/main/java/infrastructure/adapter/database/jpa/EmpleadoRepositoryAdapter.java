@@ -4,7 +4,7 @@ package infrastructure.adapter.database.jpa;
 import domain.gateway.EmpleadoGateway;
 import domain.model.Empleado;
 import domain.model.TipoDocumento;
-import infrastructure.adapter.database.mysql.entity.EmpleadoEntity;
+import infrastructure.adapter.database.mysql.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -20,38 +20,6 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
         this.emf = emf;
     }
 
-    // ==== mapeos ====
-    private static Empleado toDomain(EmpleadoEntity e) {
-        if (e == null) return null;
-        return new Empleado(
-                e.getId(),
-                e.getCodigo(),
-                e.getFullName(),
-                e.getLastName(),
-                e.getDocType(),
-                e.getDocNumber(),
-                e.getBirthDate(),
-                e.getBloodType(),
-                e.getEmail(),
-                e.getPhone()
-        );
-    }
-
-    private static void copyToEntity(Empleado src, EmpleadoEntity dst) {
-        dst.setCodigo(trimOrNull(src.getCodigo()));
-        dst.setFullName(src.getFullName() != null ? src.getFullName().trim() : null);
-        dst.setLastName(src.getLastName() != null ? src.getLastName().trim() : null);
-        dst.setDocType(src.getTipoDocumento());
-        dst.setDocNumber(src.getNumeroDocumento() != null ? src.getNumeroDocumento().trim() : null);
-        dst.setBirthDate(src.getFechaNacimiento());
-        dst.setBloodType(src.getTipoSanguineo());
-        dst.setEmail(trimOrNull(lowerOrNull(src.getEmail())));
-        dst.setPhone(trimOrNull(src.getTelefono()));
-    }
-
-    private static String trimOrNull(String s) { return s == null ? null : s.trim(); }
-    private static String lowerOrNull(String s) { return s == null ? null : s.toLowerCase(); }
-
     @Override
     public Empleado save(Empleado e) {
         EntityManager em = emf.createEntityManager();
@@ -59,33 +27,40 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
         try {
             tx.begin();
 
-            EmpleadoEntity entity;
-            if (e.getId() != null) {
-                entity = em.find(EmpleadoEntity.class, e.getId());
-                if (entity == null) throw new IllegalArgumentException("Empleado no encontrado");
-            } else {
-                entity = new EmpleadoEntity();
-            }
+            EmpleadoEntity entity = (e.getId() != null)
+                    ? em.find(EmpleadoEntity.class, e.getId())
+                    : new EmpleadoEntity();
 
-            copyToEntity(e, entity);
+            // 🔹 mapeo de atributos directos
+            entity.setCodigo(e.getCodigo());
+            entity.setFullName(e.getFullName());
+            entity.setLastName(e.getLastName());
+            entity.setDocType(e.getDocType());
+            entity.setDocNumber(e.getDocNumber());
+            entity.setBirthDate(e.getBirthDate());
+            entity.setBloodType(e.getBloodType());
+            entity.setEmail(e.getEmail());
+            entity.setPhone(e.getPhone());
+
+            // 🔹 EPC -> TagUHFEntity (TIPO = EMPLEADO)
+            if (e.getEpc() != null && !e.getEpc().isBlank()) {
+                TagUHFEntity tag = TagUHFRepositoryHelper.findOrCreateByEpc(
+                        em, e.getEpc().trim(), TagUHFEntity.Tipo.EMPLEADO
+                );                entity.setTag(tag);
+            } else {
+                entity.setTag(null);
+            }
 
             if (entity.getId() == null) {
                 em.persist(entity);
             } else {
-                // entity ya está managed; opcionalmente em.merge(entity);
+                entity = em.merge(entity);
             }
 
             tx.commit();
             return toDomain(entity);
-
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
-            // Verificar si es por clave duplicada
-            if (ex.getCause() != null && ex.getCause().getMessage().contains("Duplicate entry")) {
-                throw new domain.exception.DuplicateFieldException(
-                        "Ya existe un empleado con este número de documento"
-                );
-            }
             throw ex;
         } finally {
             em.close();
@@ -96,7 +71,7 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
     public List<Empleado> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("select e from EmpleadoEntity e", EmpleadoEntity.class)
+            return em.createQuery("SELECT e FROM EmpleadoEntity e", EmpleadoEntity.class)
                     .getResultList()
                     .stream()
                     .map(EmpleadoRepositoryAdapter::toDomain)
@@ -112,8 +87,8 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            EmpleadoEntity e = em.find(EmpleadoEntity.class, id);
-            if (e != null) em.remove(e);
+            EmpleadoEntity entity = em.find(EmpleadoEntity.class, id);
+            if (entity != null) em.remove(entity);
             tx.commit();
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
@@ -127,58 +102,70 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
     public Optional<Empleado> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            EmpleadoEntity e = em.find(EmpleadoEntity.class, id);
-            return Optional.ofNullable(toDomain(e));
+            EmpleadoEntity entity = em.find(EmpleadoEntity.class, id);
+            return Optional.ofNullable(entity == null ? null : toDomain(entity));
         } finally {
             em.close();
         }
     }
 
     @Override
-    public List<Empleado> search(TipoDocumento tipoDocumento, String numeroDocumento, String nombre, String apellido, String codigo) {
+    public List<Empleado> search(TipoDocumento tipoDocumento, String numeroDocumento,
+                                 String nombre, String apellido, String codigo) {
         EntityManager em = emf.createEntityManager();
         try {
-            StringBuilder jpql = new StringBuilder("SELECT e FROM EmpleadoEntity e WHERE 1=1 ");
+            String jpql = "SELECT e FROM EmpleadoEntity e WHERE 1=1";
+            if (tipoDocumento != null) jpql += " AND e.docType = :docType";
+            if (numeroDocumento != null && !numeroDocumento.isBlank()) jpql += " AND e.docNumber LIKE :docNumber";
+            if (nombre != null && !nombre.isBlank()) jpql += " AND e.fullName LIKE :nombre";
+            if (apellido != null && !apellido.isBlank()) jpql += " AND e.lastName LIKE :apellido";
+            if (codigo != null && !codigo.isBlank()) jpql += " AND e.codigo LIKE :codigo";
 
-            if (tipoDocumento != null) {
-                jpql.append("AND e.docType = :tipoDocumento ");
-            }
-            if (numeroDocumento != null && !numeroDocumento.isBlank()) {
-                jpql.append("AND e.docNumber LIKE :numeroDocumento ");
-            }
-            if (nombre != null && !nombre.isBlank()) {
-                jpql.append("AND e.fullName LIKE :nombre ");
-            }
-            if (apellido != null && !apellido.isBlank()) {
-                jpql.append("AND e.lastName LIKE :apellido ");
-            }
-            if (codigo != null && !codigo.isBlank()) {
-                jpql.append("AND e.codigo LIKE :codigo ");
-            }
+            var q = em.createQuery(jpql, EmpleadoEntity.class);
+            if (tipoDocumento != null) q.setParameter("docType", tipoDocumento);
+            if (numeroDocumento != null && !numeroDocumento.isBlank()) q.setParameter("docNumber", "%" + numeroDocumento + "%");
+            if (nombre != null && !nombre.isBlank()) q.setParameter("nombre", "%" + nombre + "%");
+            if (apellido != null && !apellido.isBlank()) q.setParameter("apellido", "%" + apellido + "%");
+            if (codigo != null && !codigo.isBlank()) q.setParameter("codigo", "%" + codigo + "%");
 
-            var query = em.createQuery(jpql.toString(), EmpleadoEntity.class);
-
-            if (tipoDocumento != null) {
-                query.setParameter("tipoDocumento", tipoDocumento);
-            }
-            if (numeroDocumento != null && !numeroDocumento.isBlank()) {
-                query.setParameter("numeroDocumento", "%" + numeroDocumento + "%");
-            }
-            if (nombre != null && !nombre.isBlank()) {
-                query.setParameter("nombre", "%" + nombre + "%");
-            }
-            if (apellido != null && !apellido.isBlank()) {
-                query.setParameter("apellido", "%" + apellido + "%");
-            }
-            if (codigo != null && !codigo.isBlank()) {
-                query.setParameter("codigo", "%" + codigo + "%");
-            }
-
-            return query.getResultList().stream()
+            return q.getResultList().stream()
                     .map(EmpleadoRepositoryAdapter::toDomain)
                     .collect(Collectors.toList());
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public Optional<Empleado> findByEpc(String epc) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            var query = em.createQuery(
+                    "SELECT e FROM EmpleadoEntity e JOIN e.tag t WHERE t.epc = :epc",
+                    EmpleadoEntity.class);
+            query.setParameter("epc", epc);
+            List<EmpleadoEntity> result = query.getResultList();
+            return result.isEmpty() ? Optional.empty() : Optional.of(toDomain(result.get(0)));
+        } finally {
+            em.close();
+        }
+    }
+
+    // 🔹 Mapper Entity -> Domain
+    private static Empleado toDomain(EmpleadoEntity entity) {
+        Empleado e = new Empleado();
+        e.setId(entity.getId());
+        e.setCodigo(entity.getCodigo());   // ← se mantiene
+        e.setFullName(entity.getFullName());
+        e.setLastName(entity.getLastName());
+        e.setDocType(entity.getDocType());
+        e.setDocNumber(entity.getDocNumber());
+        e.setBirthDate(entity.getBirthDate());
+        e.setBloodType(entity.getBloodType());
+        e.setEmail(entity.getEmail());
+        e.setPhone(entity.getPhone());
+        if (entity.getTag() != null)
+            e.setEpc(entity.getTag().getEpc()); // ← epc desde TagUHF
+        return e;
     }
 }

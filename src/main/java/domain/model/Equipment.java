@@ -7,6 +7,7 @@ public class Equipment {
     private String nombre;
     private Categoria categoria;
     private Ubicacion ubicacion;
+    private String epc;
 
     public Equipment() {
     }
@@ -56,4 +57,18 @@ public class Equipment {
     public void setUbicacion(Ubicacion ubicacion) {
         this.ubicacion = ubicacion;
     }
+
+    public String getEpc() {
+        return epc;
+    }
+
+    public void setEpc(String epc) {
+        this.epc = epc;
+    }
+
+    @Override
+    public String toString() {
+        return sku.concat("-").concat(nombre);
+    }
+
 }

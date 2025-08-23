@@ -107,15 +107,15 @@ public class EmpleadosController {
             nuevo();
             return;
         }
-        txtCodigo.setText(nullToEmpty(e.getCodigo()));
+        txtCodigo.setText(nullToEmpty(e.getEpc()));
         txtNombre.setText(nullToEmpty(e.getFullName()));
         txtApellido.setText(nullToEmpty(e.getLastName()));
-        cmbDocType.setValue(e.getTipoDocumento());
-        txtNumDoc.setText(nullToEmpty(e.getNumeroDocumento()));
-        dpNacimiento.setValue(e.getFechaNacimiento());
-        cmbBloodType.setValue(e.getTipoSanguineo());
+        cmbDocType.setValue(e.getDocType());
+        txtNumDoc.setText(nullToEmpty(e.getDocNumber()));
+        dpNacimiento.setValue(e.getBirthDate());
+        cmbBloodType.setValue(e.getBloodType());
         txtEmail.setText(nullToEmpty(e.getEmail()));
-        txtTelefono.setText(nullToEmpty(e.getTelefono()));
+        txtTelefono.setText(nullToEmpty(e.getPhone()));
     }
 
     private String nullToEmpty(String s) {
@@ -144,15 +144,15 @@ public class EmpleadosController {
 
             Empleado e = new Empleado();
             e.setId(id);
-            e.setCodigo(blankToNull(txtCodigo.getText()));
+            e.setEpc(blankToNull(txtCodigo.getText()));
             e.setFullName(txtNombre.getText());
             e.setLastName(txtApellido.getText());
-            e.setTipoDocumento(cmbDocType.getValue());
-            e.setNumeroDocumento(txtNumDoc.getText());
-            e.setFechaNacimiento(dpNacimiento.getValue());
-            e.setTipoSanguineo(cmbBloodType.getValue());
+            e.setDocType(cmbDocType.getValue());
+            e.setDocNumber(txtNumDoc.getText());
+            e.setBirthDate(dpNacimiento.getValue());
+            e.setBloodType(cmbBloodType.getValue());
             e.setEmail(blankToNull(txtEmail.getText()));
-            e.setTelefono(blankToNull(txtTelefono.getText()));
+            e.setPhone(blankToNull(txtTelefono.getText()));
 
             Empleado saved = useCase.save(e);
 

@@ -55,7 +55,46 @@ public class SerialAmdImpl implements Serial {
                     debLog.debug("Count: {}", i);
                     break;
                 }
-                Thread.sleep(20);
+                Thread.sleep(30);
+                len = serialPort.bytesAvailable();
+                response = new byte[len];
+            }
+
+            int hay = serialPort.readBytes(response, len);
+            ret = java.util.Arrays.copyOfRange(response, 0, hay);
+
+            debLog.debug("Bytes2 " + hay + " " + response.length);
+            debLog.debug("Cadena " + Utils.byteArrayToHexString(ret));
+            debLog.debug("Bytes3 " + hay + " " + response.length);
+
+            return ret;
+        } catch (Exception ex) {
+            errorLog.error(" ==>> SERIAL READ FAILED : " + ex.getMessage());
+            debLog.debug(" ==>> SERIAL READ FAILED : " + ex.getMessage());
+        }
+
+        return ret;
+    }
+
+    @Override
+    public byte[] read(int timeout) {
+        byte[] ret = new byte[0];
+        byte[] response;
+
+        try {
+            int len = 0;
+            len = serialPort.bytesAvailable();
+            debLog.debug("Bytes to read: {}", len);
+            response = new byte[len];
+
+            for (int i = 0; i < 30; i++) {
+                if (len > 0 && response[0] != 0x00) {
+                    debLog.debug("Count: {}", i);
+                    break;
+                } else {
+                    debLog.debug("Response: {}", Utils.byteArrayToHexString(response));
+                }
+                Thread.sleep(timeout);
                 len = serialPort.bytesAvailable();
                 response = new byte[len];
             }
