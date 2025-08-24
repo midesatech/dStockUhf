@@ -38,6 +38,7 @@ public class TagUHFController {
     @FXML private TableColumn<TagUHF, Boolean> colActivo;
     @FXML private ComboBox<Object> cmbAsignacion;
     @FXML private TextField txtFiltroEpc;
+    @FXML private TableColumn<TagUHF, String> colAsignado;
 
     private final ObservableList<TagUHF> data = FXCollections.observableArrayList();
     private final TagUHFUseCase useCase;
@@ -69,6 +70,32 @@ public class TagUHFController {
         colEpc.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getEpc()));
         colTipo.setCellValueFactory(c -> new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getTipo()));
         colActivo.setCellValueFactory(c -> new javafx.beans.property.SimpleBooleanProperty(c.getValue().isActivo()));
+        colAsignado.setCellValueFactory(c -> {
+            TagUHF tag = c.getValue();
+            String epc = tag.getEpc();
+            String display = "";
+            try {
+                if (tag.getTipo() == TagUHF.Tipo.EMPLEADO) {
+                    display = empleadoUseCase.findByEpc(epc)
+                            .map(emp -> emp.getFullName() + " " + emp.getLastName())
+                            .orElse("");
+                } else if (tag.getTipo() == TagUHF.Tipo.EQUIPMENT) {
+                    display = equipmentUseCase.findByEpc(epc)
+                            .map(eq -> {
+                                String sku = (eq.getSku() == null ? "" : eq.getSku());
+                                String nombre = (eq.getNombre() == null ? "" : eq.getNombre());
+                                String sep = (!sku.isBlank() && !nombre.isBlank()) ? " - " : "";
+                                return sku + sep + nombre;
+                            })
+                            .orElse("");
+                }
+            } catch (Exception ex) {
+                // swallow and show empty to keep the table robust
+                display = "";
+            }
+            return new javafx.beans.property.SimpleStringProperty(display);
+        });
+
 
         cmbTipo.setItems(FXCollections.observableArrayList(TagUHF.Tipo.values()));
         tabla.setItems(data);

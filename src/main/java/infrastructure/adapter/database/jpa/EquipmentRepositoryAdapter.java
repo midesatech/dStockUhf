@@ -142,11 +142,15 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
         EntityManager em = emf.createEntityManager();
         try {
             var query = em.createQuery(
-                    "SELECT e FROM EquipmentEntity e JOIN e.tag t WHERE t.epc = :epc",
+                    "SELECT e FROM EquipmentEntity e " +
+                            "JOIN e.tag t " +
+                            "WHERE t.epc = :epc",
                     EquipmentEntity.class);
             query.setParameter("epc", epc);
             List<EquipmentEntity> result = query.getResultList();
-            return result.isEmpty() ? Optional.empty() : Optional.of(toDomain(result.get(0)));
+            return query.getResultStream()
+                    .findFirst()
+                    .map(EquipmentRepositoryAdapter::toDomain);
         } finally {
             em.close();
         }

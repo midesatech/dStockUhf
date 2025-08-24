@@ -5,7 +5,17 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "empleados")
+@Table(
+        name = "empleados",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_empleados_doc_number", columnNames = "doc_number"),
+                @UniqueConstraint(name = "uk_empleados_codigo",     columnNames = "codigo")
+        },
+        indexes = {
+                @Index(name = "idx_empleados_last_name", columnList = "last_name"),
+                @Index(name = "idx_empleados_doc_type",  columnList = "doc_type")
+        }
+)
 public class EmpleadoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,8 +51,14 @@ public class EmpleadoEntity {
     @Column(length = 25)
     private String phone;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "tag_id", unique = true)
+    @OneToOne(fetch = FetchType.LAZY,
+            optional = true,
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH })
+    @JoinColumn(
+            name = "tag_id",
+            unique = true,
+            foreignKey = @ForeignKey(name = "fk_empleados_tag") // DDL for ON DELETE below in SQL
+    )
     private TagUHFEntity tag;
 
     // getters/setters

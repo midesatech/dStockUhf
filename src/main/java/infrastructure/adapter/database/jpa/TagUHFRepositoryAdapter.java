@@ -1,9 +1,7 @@
 package infrastructure.adapter.database.jpa;
 
 import domain.gateway.TagUHFRepository;
-import domain.model.Equipment;
 import domain.model.TagUHF;
-import infrastructure.adapter.database.mysql.entity.EquipmentEntity;
 import infrastructure.adapter.database.mysql.entity.TagUHFEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

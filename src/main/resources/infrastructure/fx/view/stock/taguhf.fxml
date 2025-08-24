@@ -53,6 +53,7 @@
                     <TableColumn fx:id="colId" text="ID"/>
                     <TableColumn fx:id="colEpc" text="EPC"/>
                     <TableColumn fx:id="colTipo" text="Tipo"/>
+                    <TableColumn fx:id="colAsignado" text="Asignado a"/>
                     <TableColumn fx:id="colActivo" text="Activo"/>
                 </columns>
             </TableView>

@@ -141,11 +141,14 @@ public class EmpleadoRepositoryAdapter implements EmpleadoGateway {
         EntityManager em = emf.createEntityManager();
         try {
             var query = em.createQuery(
-                    "SELECT e FROM EmpleadoEntity e JOIN e.tag t WHERE t.epc = :epc",
+                    "SELECT e FROM EmpleadoEntity e " +
+                            "JOIN e.tag t " +
+                            "WHERE t.epc = :epc",
                     EmpleadoEntity.class);
             query.setParameter("epc", epc);
-            List<EmpleadoEntity> result = query.getResultList();
-            return result.isEmpty() ? Optional.empty() : Optional.of(toDomain(result.get(0)));
+            return query.getResultStream()
+                    .findFirst()
+                    .map(EmpleadoRepositoryAdapter::toDomain);
         } finally {
             em.close();
         }

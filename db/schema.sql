@@ -62,3 +62,56 @@ CREATE TABLE IF NOT EXISTS detecciones_tags (
   FOREIGN KEY (lector_id) REFERENCES lectores_uhf(id),
   FOREIGN KEY (tag_id) REFERENCES tags_uhf(id)
 );
+
+ALTER TABLE taguhf
+  ADD CONSTRAINT uk_taguhf_epc UNIQUE KEY (epc);
+
+ALTER TABLE empleados
+  ADD CONSTRAINT fk_empleados_tag
+    FOREIGN KEY (tag_id) REFERENCES taguhf(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  ADD CONSTRAINT uk_empleados_tag UNIQUE KEY (tag_id);
+
+ALTER TABLE equipment
+  ADD CONSTRAINT fk_equipment_tag
+    FOREIGN KEY (tag_id) REFERENCES taguhf(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  ADD CONSTRAINT uk_equipment_tag UNIQUE KEY (tag_id);
+
+
+
+CREATE TABLE tag_assignment (
+  tag_id       BIGINT NOT NULL,
+  empleado_id  BIGINT NULL,
+  equipment_id BIGINT NULL,
+  CONSTRAINT pk_tag_assignment PRIMARY KEY (tag_id),
+  CONSTRAINT fk_ta_tag       FOREIGN KEY (tag_id) REFERENCES taguhf(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ta_empleado  FOREIGN KEY (empleado_id)  REFERENCES empleados(id)  ON DELETE SET NULL,
+  CONSTRAINT fk_ta_equipment FOREIGN KEY (equipment_id) REFERENCES equipment(id) ON DELETE SET NULL,
+  -- exactly one of empleado_id or equipment_id must be non-null
+  CONSTRAINT ck_ta_one_side CHECK (
+    (empleado_id IS NOT NULL) <> (equipment_id IS NOT NULL)
+  )
+);
+
+ALTER TABLE empleados
+  DROP INDEX uk_empleados_codigo,        -- only if an anonymous unique exists; skip if already named
+  ADD  CONSTRAINT uk_empleados_codigo     UNIQUE KEY (codigo),
+  DROP INDEX doc_number,                  -- same note as above; skip if not present
+  ADD  CONSTRAINT uk_empleados_doc_number UNIQUE KEY (doc_number);
+
+-- Drop existing FK if present and recreate with ON DELETE SET NULL / ON UPDATE CASCADE
+ALTER TABLE empleados
+  DROP FOREIGN KEY fk_empleados_tag;
+
+ALTER TABLE empleados
+  ADD CONSTRAINT fk_empleados_tag
+    FOREIGN KEY (tag_id) REFERENCES taguhf(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE;
+
+-- Ensure one-to-one inside empleados
+ALTER TABLE empleados
+  ADD CONSTRAINT uk_empleados_tag UNIQUE KEY (tag_id);
