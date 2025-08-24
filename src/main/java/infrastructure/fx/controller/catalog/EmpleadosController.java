@@ -88,12 +88,12 @@ public class EmpleadosController {
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         colApellido.setCellValueFactory(new PropertyValueFactory<>("lastName"));
-        colDocType.setCellValueFactory(new PropertyValueFactory<>("tipoDocumento"));
-        colNumDoc.setCellValueFactory(new PropertyValueFactory<>("numeroDocumento"));
-        colNacimiento.setCellValueFactory(new PropertyValueFactory<>("fechaNacimiento"));
-        colBlood.setCellValueFactory(new PropertyValueFactory<>("tipoSanguineo"));
+        colDocType.setCellValueFactory(new PropertyValueFactory<>("docType"));
+        colNumDoc.setCellValueFactory(new PropertyValueFactory<>("docNumber"));
+        colNacimiento.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
+        colBlood.setCellValueFactory(new PropertyValueFactory<>("bloodType"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
-        colTelefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
+        colTelefono.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
         tbl.setItems(data);
         refresh();
