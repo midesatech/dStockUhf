@@ -51,7 +51,10 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == TagUHFController.class) {
-            return new TagUHFController(AppBootstrap.tagUhfUsecase(), AppBootstrap.empleadoUseCase(), AppBootstrap.equipmentUseCase());
+            return new TagUHFController(AppBootstrap.tagUhfUsecase(),
+                    AppBootstrap.empleadoUseCase(),
+                    AppBootstrap.equipmentUseCase(),
+                    AppBootstrap.readTagUseCase());
         }
 
         // otros controladores que necesiten dependencias

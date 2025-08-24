@@ -1,8 +1,10 @@
 package app.config;
 
 import domain.gateway.*;
+import domain.model.tag.ESerialMode;
 import domain.usecase.*;
 import domain.usecase.tag.*;
+import help.SerialConstants;
 import infrastructure.adapter.database.jpa.*;
 import infrastructure.adapter.database.memory.InMemoryUserRepositoryAdapter;
 import infrastructure.adapter.security.BCryptPasswordEncoderAdapter;
@@ -11,8 +13,20 @@ import infrastructure.adapter.serial.SerialFactory;
 import infrastructure.adapter.serial.SerialPortAdapter;
 import infrastructure.adapter.serial.TagOperationsAdapter;
 import infrastructure.persistence.JPAUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Properties;
 
 public class AppBootstrap {
+    private static final Logger infLog = LogManager.getLogger("infLogger");
+    private static final Logger logger = LogManager.getLogger(AppBootstrap.class);
+    private static final Logger errLog = LogManager.getLogger("errLogger");
+
     private static boolean jpaMode = false;
 
     // Core services
@@ -44,11 +58,14 @@ public class AppBootstrap {
     private static ReaderUseCase readerUseCase;
     private static OperationsUseCase operationsUseCase;
     private static TagUHFUseCase tagUHFUseCase;
+    private static ReadTagUseCase readTagUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
         encoder = new BCryptPasswordEncoderAdapter();
         serialFactory = new SerialFactory();
+
+        Optional<AppConfig> appConfig = loadProperties();
 
         if (useJpa) {
             // ensure DB exists (uses defaults from persistence.xml)
@@ -91,6 +108,70 @@ public class AppBootstrap {
         operationsUseCase = new OperationsUseCase(tagOperationsUseCase, serialCommunicationUseCase);
         readerUseCase = new ReaderUseCase(operationsUseCase);
         tagUHFUseCase = new TagUHFUseCase(tagUHFRepositoryAdapter);
+        readTagUseCase = new ReadTagUseCase(operationsUseCase);
+        appConfig.ifPresent(config -> {
+            readerUseCase.setAppConfig(config);
+            readTagUseCase.setAppConfig(config);
+        });
+    }
+
+    private static Optional<AppConfig> loadProperties() {
+        Properties prop = new Properties();
+
+        String externalPath = "application.properties"; // Puedes poner ruta absoluta si quieres
+
+        try (InputStream externalInput = new FileInputStream(externalPath)) {
+            prop.load(externalInput);
+            infLog.info("Loaded external application.properties from: " + externalPath);
+        } catch (IOException ex) {
+            errLog.warn("External application.properties not found or failed to load. Trying internal resource.");
+
+            // Intentar cargar el interno
+            try (InputStream internalInput = AppBootstrap.class.getClassLoader().getResourceAsStream("application.properties")) {
+                if (internalInput == null) {
+                    errLog.fatal("Sorry, unable to find application.properties (neither external nor internal).");
+                    return Optional.empty();
+                }
+                prop.load(internalInput);
+                infLog.info("Loaded internal application.properties from JAR.");
+            } catch (IOException e) {
+                errLog.fatal("Error loading internal application.properties: " + e.getMessage());
+                e.printStackTrace();
+                return Optional.empty();
+            }
+        }
+
+        try {
+
+            String comPort = prop.getProperty("app.comPort");
+            int timeOutEnrolar = Optional.ofNullable(prop.getProperty("app.timeoutEnrolar"))
+                    .map(Integer::parseInt)
+                    .orElse(10000);
+
+            int db = Optional.ofNullable(prop.getProperty("app.db"))
+                    .map(Integer::parseInt)
+                    .orElse(SerialConstants.DEFAULT_BAUD_RATE);
+
+            int mode = Optional.ofNullable(prop.getProperty("app.mode"))
+                    .map(Integer::parseInt)
+                    .orElse(0);
+
+            String stage = Optional.ofNullable(prop.getProperty("app.stage"))
+                    .orElse("99");
+
+            String device = Optional.ofNullable(prop.getProperty("app.device"))
+                    .orElse("999");
+
+            SerialConfig serialConfig = new SerialConfig(comPort, timeOutEnrolar, db, ESerialMode.fromValue(mode));
+
+            return Optional.of(new AppConfig(serialConfig, stage, device));
+
+        } catch (Exception e) {
+            errLog.fatal("Error parsing properties: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 
     public static void shutdown() {
@@ -149,4 +230,9 @@ public class AppBootstrap {
     public static TagUHFUseCase tagUhfUsecase() {
         return tagUHFUseCase;
     }
+
+    public static ReadTagUseCase readTagUseCase() {
+        return readTagUseCase;
+    }
+
 }

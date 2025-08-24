@@ -6,6 +6,7 @@ import domain.model.Empleado;
 import domain.model.TipoDocumento;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EmpleadoUseCase {
     private final EmpleadoGateway repo;
@@ -60,9 +61,8 @@ public class EmpleadoUseCase {
         return repo.save(e);
     }
 
-    public Empleado buscarPorEpc(String epc) {
-        return repo.findByEpc(epc)
-                .orElse(null);
+    public Optional<Empleado> findByEpc(String epc) {
+        return repo.findByEpc(epc);
     }
 
 }

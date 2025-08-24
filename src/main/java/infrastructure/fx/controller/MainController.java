@@ -23,6 +23,7 @@ public class MainController {
     @FXML private Label lblCapsStatus;
     @FXML private Label lblStatus;
     @FXML private Label lblLector;
+    @FXML private Label lblTagDetection;
 
     private static MainController instance;
     private ReaderUseCase readerUseCase;
@@ -84,6 +85,10 @@ public class MainController {
     // ✅ método para actualizar mensajes de estado
     public void setStatus(String message) {
         lblStatus.setText(message);
+    }
+
+    public void setTagDetectionStatus(String message) {
+        lblTagDetection.setText(message);
     }
 
     @FXML

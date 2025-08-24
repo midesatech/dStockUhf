@@ -28,6 +28,7 @@
             <Label fx:id="lblCapsStatus" text="CapsLock: ---"/>
             <Label fx:id="lblStatus" text="Listo"/>
             <Label fx:id="lblLector" text="Lector"/>
+            <Label fx:id="lblTagDetection" text=""/>
             <!-- <Button text="Cerrar sesión" onAction="#logout"/>-->
         </HBox>
     </bottom>

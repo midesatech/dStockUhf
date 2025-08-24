@@ -56,7 +56,11 @@ public class RxDto {
     }
 
     public String getHexEpc() {
-        return HexFormat.of().formatHex(epc).replaceAll(HEX_FMT, "$1 ").trim().toUpperCase();
+        return HexFormat.of()
+                .formatHex(epc)
+                //.replaceAll(HEX_FMT, "$1 ")
+                .trim()
+                .toUpperCase();
     }
 
     public byte[] getCrc() {

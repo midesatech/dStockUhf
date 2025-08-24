@@ -6,6 +6,7 @@ import domain.model.Categoria;
 import domain.model.Equipment;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EquipmentUseCase {
     private final EquipmentGateway repo;
@@ -49,8 +50,7 @@ public class EquipmentUseCase {
         return repo.save(eq);
     }
 
-    public Equipment buscarPorEpc(String epc) {
-        return repo.findByEpc(epc)
-                .orElse(null);
+    public Optional<Equipment> findByEpc(String epc) {
+        return repo.findByEpc(epc);
     }
 }

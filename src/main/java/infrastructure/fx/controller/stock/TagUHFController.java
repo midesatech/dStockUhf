@@ -1,16 +1,29 @@
 package infrastructure.fx.controller.stock;
 
+import app.config.AppConfig;
 import domain.model.Empleado;
 import domain.model.Equipment;
 import domain.model.TagUHF;
+import domain.model.tag.ESerialMode;
+import domain.model.tag.ErrorCode;
+import domain.model.tag.ReadWriteResult;
+import domain.model.tag.RxDto;
 import domain.usecase.EmpleadoUseCase;
 import domain.usecase.EquipmentUseCase;
 import domain.usecase.TagUHFUseCase;
+import domain.usecase.tag.ReadTagUseCase;
+import infrastructure.fx.controller.MainController;
+import infrastructure.logging.LogMessages;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class TagUHFController {
@@ -30,15 +43,24 @@ public class TagUHFController {
     private final TagUHFUseCase useCase;
     private final EmpleadoUseCase empleadoUseCase;
     private final EquipmentUseCase equipmentUseCase;
+    private final ReadTagUseCase readTagUseCase;
 
     private TagUHF seleccionado;
 
+    private boolean isBackGroundActivate = false;
+    private static final String ACTIVATE = "Activar    ";
+    private static final String DEACTIVATE = "Activado ";
+
+    private static final Logger logger = LogManager.getLogger(TagUHFController.class);
+
     public TagUHFController(TagUHFUseCase useCase,
                             EmpleadoUseCase empleadoUseCase,
-                            EquipmentUseCase equipmentUseCase) {
+                            EquipmentUseCase equipmentUseCase,
+                            ReadTagUseCase readTagUseCase) {
         this.useCase = useCase;
         this.empleadoUseCase = empleadoUseCase;
         this.equipmentUseCase = equipmentUseCase;
+        this.readTagUseCase = readTagUseCase;
     }
 
     @FXML
@@ -67,10 +89,53 @@ public class TagUHFController {
                 txtEpc.setText(newSel.getEpc());
                 cmbTipo.setValue(newSel.getTipo());
                 chkActivo.setSelected(newSel.isActivo());
+                // 🔹 Seleccionar en cmbAsignacion según el tipo
+                if (newSel.getTipo() == TagUHF.Tipo.EMPLEADO) {
+                    cmbAsignacion.setItems(FXCollections.observableArrayList(empleadoUseCase.listar()));
+                    empleadoUseCase.findByEpc(newSel.getEpc()).ifPresent(emp -> cmbAsignacion.setValue(emp));
+                } else if (newSel.getTipo() == TagUHF.Tipo.EQUIPMENT) {
+                    cmbAsignacion.setItems(FXCollections.observableArrayList(equipmentUseCase.listar()));
+                    equipmentUseCase.findByEpc(newSel.getEpc()).ifPresent(eq -> cmbAsignacion.setValue(eq));
+                } else {
+                    cmbAsignacion.getItems().clear();
+                }
+
             }
         });
 
         refresh();
+        setReadTagUseCaseProperties();
+    }
+
+    private void setReadTagUseCaseProperties() {
+        this.readTagUseCase.messageProperty()
+                .addListener((observable, oldMessage, newMessage) -> {
+                    new Alert(Alert.AlertType.INFORMATION, newMessage).show();
+        });
+
+        this.readTagUseCase.setOnSucceeded(event -> {
+            ReadWriteResult result = readTagUseCase.getValue(); // <-- result from createTask()
+            System.out.println("Tag read result: " + result);
+
+            if (Objects.nonNull(result)) {
+                switch (result.getErrorCode()) {
+                    case OK:
+                        this.txtEpc.setText(result.getData().getHexEpc());
+                        break;
+                }
+                if (result.isShowMessage()) {
+                    new Alert(Alert.AlertType.INFORMATION, result.getMessage()).show();
+                }
+            }
+            deactivateBackgroundTagDetection();
+
+        });
+
+        // Optional: attach error handler
+        this.readTagUseCase.setOnFailed(event -> {
+            Throwable ex = readTagUseCase.getException();
+            ex.printStackTrace();
+        });
     }
 
     @FXML
@@ -78,7 +143,9 @@ public class TagUHFController {
         seleccionado = null;
         txtEpc.clear();
         cmbTipo.getSelectionModel().clearSelection();
+        cmbAsignacion.getSelectionModel().clearSelection();
         cmbAsignacion.getItems().clear();
+        cmbAsignacion.setValue(null);
         chkActivo.setSelected(true);
     }
 
@@ -150,16 +217,75 @@ public class TagUHFController {
 
     @FXML
     public void detectarTag() {
-        try {
-            String epcDetectado = "";// readerService.readEPC();
-            if (epcDetectado != null && !epcDetectado.isBlank()) {
-                txtEpc.setText(epcDetectado);
-                new Alert(Alert.AlertType.INFORMATION, "TAG detectado: " + epcDetectado).show();
+        handleTagDetection();
+    }
+
+    public void handleTagDetection() {
+            if (!isBackGroundActivate) {
+                setSaveAction(DEACTIVATE, false);
+                activateBackgroundTagDetection();
             } else {
-                new Alert(Alert.AlertType.WARNING, "No se detectó ningún TAG").show();
+                setSaveAction(ACTIVATE, true);
+                deactivateBackgroundTagDetection();
             }
-        } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Error leyendo TAG: " + e.getMessage()).show();
+     }
+
+    private void setSaveAction(String message, boolean activate) {
+        MainController.getInstance().setTagDetectionStatus(message);
+        isBackGroundActivate = !activate;
+    }
+
+    private void deactivateBackgroundTagDetection() {
+        Worker.State currentState = readTagUseCase.getState();
+        if (currentState == Worker.State.RUNNING) {
+            readTagUseCase.cancel();
+        }
+        setSaveAction(ACTIVATE, true);
+        txtEpc.getScene().setCursor(Cursor.DEFAULT);
+    }
+
+    private void activateBackgroundTagDetection() {
+        //poneMensaje("Detección activada: Esperando TAG");
+        txtEpc.getScene().setCursor(Cursor.WAIT);
+        startTagDetection(1L);
+    }
+
+    public void startTagDetection(Long order) {
+        if (readTagUseCase.getSerialMode() == ESerialMode.NO) {
+            setSaveAction(ACTIVATE, true);
+            deactivateBackgroundTagDetection();
+            new Alert(Alert.AlertType.ERROR, "Error: Lector no seleccionado").show();
+            return;
+        }
+        findTagTask(order);
+    }
+
+    private void findTagTask(Long numOrder) {
+        Worker.State currentState = readTagUseCase.getState();
+        if (currentState == Worker.State.READY) {
+            logger.info(LogMessages.fromComponent("TagUHFController", LogMessages.EPC_READ_STARTED));
+            readTagUseCase.start();
+        } else if (currentState == Worker.State.RUNNING) {
+            logger.info(LogMessages.fromComponent("TagUHFController", LogMessages.TASK_ALREADY_RUNNING));
+        } else {
+            logger.info(LogMessages.fromComponent("TagUHFController", LogMessages.TASK_RESTARTING));
+            readTagUseCase.restart();
         }
     }
+
+    private void processResult(ReadWriteResult result) {
+        if (Objects.nonNull(result) && result.isShowMessage()) {
+            new Alert(Alert.AlertType.ERROR, result.getMessage()).show();
+        }
+        setSaveAction(ACTIVATE, true);
+        if (result.getErrorCode().equals(ErrorCode.OK)) {
+            //this.txtIdOrdenFabricacion.setText("");
+            //startNotification();
+        }
+    }
+
+    private boolean isValidRx(RxDto rxDto) {
+        return Objects.nonNull(rxDto) && rxDto.getIsValid();
+    }
+
 }
