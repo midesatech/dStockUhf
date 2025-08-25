@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +33,6 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
                     : new EmployeeEntity();
 
             // 🔹 mapeo de atributos directos
-            entity.setCodigo(e.getCodigo());
             entity.setFullName(e.getFullName());
             entity.setLastName(e.getLastName());
             entity.setDocType(e.getDocType());
@@ -111,22 +111,35 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
 
     @Override
     public List<Employee> search(TipoDocumento tipoDocumento, String numeroDocumento,
-                                 String nombre, String apellido, String codigo) {
+                                 String nombre, String apellido, String epc) {
         EntityManager em = emf.createEntityManager();
         try {
-            String jpql = "SELECT e FROM EmployeeEntity e WHERE 1=1";
-            if (tipoDocumento != null) jpql += " AND e.docType = :docType";
-            if (numeroDocumento != null && !numeroDocumento.isBlank()) jpql += " AND e.docNumber LIKE :docNumber";
-            if (nombre != null && !nombre.isBlank()) jpql += " AND e.fullName LIKE :nombre";
-            if (apellido != null && !apellido.isBlank()) jpql += " AND e.lastName LIKE :apellido";
-            if (codigo != null && !codigo.isBlank()) jpql += " AND e.codigo LIKE :codigo";
+            StringBuilder jpql = new StringBuilder("SELECT e FROM EmployeeEntity e LEFT JOIN FETCH e.tag t WHERE 1=1");
+            List<Object[]> params = new ArrayList<>();
 
-            var q = em.createQuery(jpql, EmployeeEntity.class);
-            if (tipoDocumento != null) q.setParameter("docType", tipoDocumento);
-            if (numeroDocumento != null && !numeroDocumento.isBlank()) q.setParameter("docNumber", "%" + numeroDocumento + "%");
-            if (nombre != null && !nombre.isBlank()) q.setParameter("nombre", "%" + nombre + "%");
-            if (apellido != null && !apellido.isBlank()) q.setParameter("apellido", "%" + apellido + "%");
-            if (codigo != null && !codigo.isBlank()) q.setParameter("codigo", "%" + codigo + "%");
+            if (tipoDocumento != null) {
+                jpql.append(" AND e.docType = :td");
+                params.add(new Object[]{"td", tipoDocumento});
+            }
+            if (numeroDocumento != null && !numeroDocumento.isBlank()) {
+                jpql.append(" AND e.docNumber LIKE :nd");
+                params.add(new Object[]{"nd", "%" + numeroDocumento + "%"});
+            }
+            if (nombre != null && !nombre.isBlank()) {
+                jpql.append(" AND LOWER(e.fullName) LIKE :nm");
+                params.add(new Object[]{"nm", "%" + nombre.toLowerCase() + "%"});
+            }
+            if (apellido != null && !apellido.isBlank()) {
+                jpql.append(" AND LOWER(e.lastName) LIKE :ap");
+                params.add(new Object[]{"ap", "%" + apellido.toLowerCase() + "%"});
+            }
+            if (epc != null && !epc.isBlank()) {
+                jpql.append(" AND t.epc LIKE :epc");
+                params.add(new Object[]{"epc", "%" + epc + "%"});
+            }
+
+            var q = em.createQuery(jpql.toString(), EmployeeEntity.class);
+            for (Object[] p : params) q.setParameter((String)p[0], p[1]);
 
             return q.getResultList().stream()
                     .map(EmployeeRepositoryAdapter::toDomain)
@@ -156,9 +169,9 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
 
     // 🔹 Mapper Entity -> Domain
     private static Employee toDomain(EmployeeEntity entity) {
+        if (entity == null) return null;
         Employee e = new Employee();
         e.setId(entity.getId());
-        e.setCodigo(entity.getCodigo());   // ← se mantiene
         e.setFullName(entity.getFullName());
         e.setLastName(entity.getLastName());
         e.setDocType(entity.getDocType());
@@ -168,7 +181,7 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
         e.setEmail(entity.getEmail());
         e.setPhone(entity.getPhone());
         if (entity.getTag() != null)
-            e.setEpc(entity.getTag().getEpc()); // ← epc desde TagUHF
+            e.setEpc(entity.getTag().getEpc());
         return e;
     }
 }

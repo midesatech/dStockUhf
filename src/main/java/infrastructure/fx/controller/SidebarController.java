@@ -97,7 +97,6 @@ public class SidebarController {
             catRoot.getChildren().add(
                     makeMenuItem("Lectores", "/infrastructure/fx/view/catalog/reader.fxml", Icons.ANTENNA)
             );
-            catRoot.getChildren().add(makeMenuItem("Sub ubicación", "/infrastructure/fx/view/catalog/sububicacion.fxml", Icons.LINK));
             catRoot.getChildren().add(makeMenuItem("Equipos", "/infrastructure/fx/view/catalog/equipment.fxml", Icons.BOX));
             catRoot.getChildren().add(makeMenuItem("Empleados", "/infrastructure/fx/view/catalog/employee.fxml", Icons.USER));
         }

@@ -5,7 +5,6 @@ import java.time.LocalDate;
 
 public class Employee {
     private Long id;
-    private String codigo;
     private String epc;              // TAG UHF (opcional)
     private String fullName;            // requerido
     private String lastName;            // requerido
@@ -60,15 +59,6 @@ public class Employee {
     public void setEmail(String email) { this.email = email; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
     @Override
     public String toString() {
         return fullName.concat(" ").concat(lastName);
