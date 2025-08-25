@@ -85,7 +85,7 @@ public class EmployeeController {
         filtroDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
         // Tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
+        colCodigo.setCellValueFactory(new PropertyValueFactory<>("epc"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         colApellido.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         colDocType.setCellValueFactory(new PropertyValueFactory<>("docType"));
