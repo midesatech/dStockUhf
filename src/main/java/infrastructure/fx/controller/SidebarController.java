@@ -92,21 +92,21 @@ public class SidebarController {
         // 1. Catálogos (subitems 1.1..1.5)
         TreeItem<String> catRoot = makeMenuCategory("Catálogos", Icons.BOOK);
         if (isAdmin || hasPermission(u, "CATALOG_READ")) {
-            catRoot.getChildren().add(makeMenuItem("Categorías", "/infrastructure/fx/view/catalog/categorias.fxml", Icons.CATEGORY));
-            catRoot.getChildren().add(makeMenuItem("Ubicaciones", "/infrastructure/fx/view/catalog/ubicaciones.fxml", Icons.MAP));
+            catRoot.getChildren().add(makeMenuItem("Categorías", "/infrastructure/fx/view/catalog/category.fxml", Icons.CATEGORY));
+            catRoot.getChildren().add(makeMenuItem("Ubicaciones", "/infrastructure/fx/view/catalog/location.fxml", Icons.MAP));
             catRoot.getChildren().add(
-                    makeMenuItem("Lectores", "/infrastructure/fx/view/catalog/lectores.fxml", Icons.ANTENNA)
+                    makeMenuItem("Lectores", "/infrastructure/fx/view/catalog/reader.fxml", Icons.ANTENNA)
             );
             catRoot.getChildren().add(makeMenuItem("Sub ubicación", "/infrastructure/fx/view/catalog/sububicacion.fxml", Icons.LINK));
             catRoot.getChildren().add(makeMenuItem("Equipos", "/infrastructure/fx/view/catalog/equipment.fxml", Icons.BOX));
-            catRoot.getChildren().add(makeMenuItem("Empleados", "/infrastructure/fx/view/catalog/empleados.fxml", Icons.USER));
+            catRoot.getChildren().add(makeMenuItem("Empleados", "/infrastructure/fx/view/catalog/employee.fxml", Icons.USER));
         }
         rootItem.getChildren().add(catRoot);
 
         // 2. Administración de inventario (2.1)
         TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {
-            invRoot.getChildren().add(makeMenuItem("Asignación de TAG", "/infrastructure/fx/view/stock/taguhf.fxml", Icons.LINK));
+            invRoot.getChildren().add(makeMenuItem("Asignación de TAG", "/infrastructure/fx/view/stock/uhftag.fxml", Icons.LINK));
         }
         rootItem.getChildren().add(invRoot);
 

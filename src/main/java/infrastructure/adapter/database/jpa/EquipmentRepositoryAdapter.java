@@ -2,6 +2,7 @@
 package infrastructure.adapter.database.jpa;
 
 import domain.gateway.EquipmentGateway;
+import domain.model.Category;
 import domain.model.Equipment;
 import infrastructure.adapter.database.mysql.entity.*;
 import jakarta.persistence.EntityManagerFactory;
@@ -34,14 +35,14 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
             e.setNombre(equipment.getNombre());
 
             if (equipment.getCategoria() != null) {
-                CategoriaEntity ce = em.find(CategoriaEntity.class, equipment.getCategoria().getId());
+                CategoryEntity ce = em.find(CategoryEntity.class, equipment.getCategoria().getId());
                 e.setCategoria(ce);
             } else {
                 e.setCategoria(null);
             }
 
             if (equipment.getUbicacion() != null) {
-                UbicacionEntity ue = em.find(UbicacionEntity.class, equipment.getUbicacion().getId());
+                LocationEntity ue = em.find(LocationEntity.class, equipment.getUbicacion().getId());
                 e.setUbicacion(ue);
             } else {
                 e.setUbicacion(null);
@@ -49,8 +50,8 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
 
             // EPC -> TagUHFEntity (TIPO = EQUIPMENT)
             if (equipment.getEpc() != null && !equipment.getEpc().isBlank()) {
-                TagUHFEntity tag = TagUHFRepositoryHelper.findOrCreateByEpc(
-                        em, equipment.getEpc().trim(), TagUHFEntity.Tipo.EQUIPMENT
+                UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
+                        em, equipment.getEpc().trim(), UHFTagEntity.Tipo.EQUIPMENT
                 );
                 e.setTag(tag);
             } else {
@@ -116,7 +117,7 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
     }
 
     @Override
-    public List<Equipment> buscar(String sku, String nombre, domain.model.Categoria cat) {
+    public List<Equipment> buscar(String sku, String nombre, Category cat) {
         EntityManager em = emf.createEntityManager();
         try {
             String jpql = "SELECT e FROM EquipmentEntity e WHERE 1=1";
@@ -159,7 +160,7 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
     private static Equipment toDomain(EquipmentEntity e) {
         Equipment p = new Equipment(e.getId(), e.getSku(), e.getNombre());
         if (e.getCategoria() != null)
-            p.setCategoria(new domain.model.Categoria(e.getCategoria().getId(), e.getCategoria().getNombre()));
+            p.setCategoria(new Category(e.getCategoria().getId(), e.getCategoria().getNombre()));
         if (e.getUbicacion() != null)
             p.setUbicacion(new domain.model.Ubicacion(e.getUbicacion().getId(), e.getUbicacion().getNombre()));
         if (e.getTag() != null)

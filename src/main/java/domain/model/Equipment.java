@@ -5,7 +5,7 @@ public class Equipment {
     private Long id;
     private String sku;
     private String nombre;
-    private Categoria categoria;
+    private Category category;
     private Ubicacion ubicacion;
     private String epc;
 
@@ -42,12 +42,12 @@ public class Equipment {
         this.nombre = nombre;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+    public Category getCategoria() {
+        return category;
     }
 
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
+    public void setCategoria(Category category) {
+        this.category = category;
     }
 
     public Ubicacion getUbicacion() {

@@ -2,7 +2,7 @@
 package infrastructure.fx.controller.catalog;
 
 import domain.model.Ubicacion;
-import domain.usecase.UbicacionUseCase;
+import domain.usecase.LocationUseCase;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -20,9 +20,9 @@ public class UbicacionesController {
     @FXML
     private TextField txtNombre;
     private final ObservableList<Ubicacion> data = FXCollections.observableArrayList();
-    private final UbicacionUseCase useCase;
+    private final LocationUseCase useCase;
 
-    public UbicacionesController(UbicacionUseCase useCase) {
+    public UbicacionesController(LocationUseCase useCase) {
         this.useCase = useCase;
     }
 

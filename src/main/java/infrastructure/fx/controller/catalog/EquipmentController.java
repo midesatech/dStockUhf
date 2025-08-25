@@ -2,11 +2,11 @@
 package infrastructure.fx.controller.catalog;
 
 import app.config.AppBootstrap;
-import domain.model.Categoria;
+import domain.model.Category;
 import domain.model.Ubicacion;
 import domain.model.Equipment;
 import domain.usecase.CategoriaUseCase;
-import domain.usecase.UbicacionUseCase;
+import domain.usecase.LocationUseCase;
 import domain.usecase.EquipmentUseCase;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -23,7 +23,7 @@ public class EquipmentController {
     @FXML
     private TextField txtNombre;
     @FXML
-    private ComboBox<Categoria> cmbCategoria;
+    private ComboBox<Category> cmbCategoria;
     @FXML
     private ComboBox<Ubicacion> cmbUbicacion;
     @FXML
@@ -41,16 +41,16 @@ public class EquipmentController {
     @FXML
     private TextField filtroNombre;
     @FXML
-    private ComboBox<Categoria> filtroCategoria;
+    private ComboBox<Category> filtroCategoria;
 
     private final ObservableList<Equipment> data = FXCollections.observableArrayList();
-    private final ObservableList<Categoria> cats = FXCollections.observableArrayList();
+    private final ObservableList<Category> cats = FXCollections.observableArrayList();
     private final ObservableList<Ubicacion> ubic = FXCollections.observableArrayList();
     private final EquipmentUseCase equipmentUseCase;
     private final CategoriaUseCase useCat;
-    private final UbicacionUseCase useUb;
+    private final LocationUseCase useUb;
 
-    public EquipmentController(EquipmentUseCase equipmentUseCase, CategoriaUseCase useCat, UbicacionUseCase useUb) {
+    public EquipmentController(EquipmentUseCase equipmentUseCase, CategoriaUseCase useCat, LocationUseCase useUb) {
         this.equipmentUseCase = equipmentUseCase;
         this.useCat = useCat;
         this.useUb = useUb;
@@ -171,7 +171,7 @@ public class EquipmentController {
     public void buscar() {
         String sku = filtroSku.getText();
         String nombre = filtroNombre.getText();
-        Categoria cat = filtroCategoria.getValue();
+        Category cat = filtroCategoria.getValue();
 
         data.clear();
         data.addAll(equipmentUseCase.buscar(sku, nombre, cat));

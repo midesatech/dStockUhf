@@ -10,7 +10,7 @@ import infrastructure.adapter.database.memory.InMemoryUserRepositoryAdapter;
 import infrastructure.adapter.security.BCryptPasswordEncoderAdapter;
 import infrastructure.adapter.security.SimpleAuthServiceAdapter;
 import infrastructure.adapter.serial.SerialFactory;
-import infrastructure.adapter.serial.SerialPortAdapter;
+import infrastructure.adapter.serial.SerialPortRepositoryAdapter;
 import infrastructure.adapter.serial.TagOperationsAdapter;
 import infrastructure.persistence.JPAUtil;
 import org.apache.logging.log4j.LogManager;
@@ -32,26 +32,26 @@ public class AppBootstrap {
     // Core services
     private static UserRepository userRepository;
     private static PasswordEncoderPort encoder;
-    private static AuthServicePort auth;
+    private static AuthServiceRepository auth;
     private static SerialFactory serialFactory;
-    private static SerialPort serialPort;
+    private static SerialPortRepository serialPortRepository;
     private static TagOperationsPort tagOperationsPort;
 
     //Repositories adapters
-    private static JpaRoleRepositoryAdapter roleRepo;
-    private static JpaPermissionRepositoryAdapter permRepo;
-    private static LectorUHFRepositoryAdapter lectorUHFRepo;
-    private static TagUHFRepositoryAdapter tagUHFRepositoryAdapter;
+    private static RoleRepositoryAdapter roleRepo;
+    private static PermissionRepositoryAdapter permRepo;
+    private static UHFReaderRepositoryAdapter lectorUHFRepo;
+    private static UHFTagRepositoryAdapter UHFTagRepositoryAdapter;
 
     // UseCases
     private static CategoriaUseCase categoriaUseCase;
-    private static UbicacionUseCase ubicacionUseCase;
-    private static EmpleadoUseCase empleadoUseCase;
+    private static LocationUseCase locationUseCase;
+    private static EmployeeUseCase employeeUseCase;
     private static EquipmentUseCase equipmentUseCase;
     private static RoleUseCase roleUseCase;
     private static PermissionUseCase permissionUseCase;
     private static UserUseCase userUseCase;
-    private static LectorUHFUseCase lectorUHFUseCase;
+    private static UHFReaderUseCase UHFReaderUseCase;
     private static TagOperationsUseCase tagOperationsUseCase;
     private static SerialUseCase serialUseCase;
     private static SerialCommunicationUseCase serialCommunicationUseCase;
@@ -73,21 +73,21 @@ public class AppBootstrap {
                     "jdbc:mariadb://localhost:3306/inventario", "root", "");
 
             JPAUtil.init();
-            userRepository = new JpaUserRepositoryAdapter(JPAUtil.getEmf(), encoder);
-            roleRepo = new JpaRoleRepositoryAdapter(JPAUtil.getEmf());
-            permRepo = new JpaPermissionRepositoryAdapter(JPAUtil.getEmf());
-            lectorUHFRepo = new LectorUHFRepositoryAdapter(JPAUtil.getEmf());
+            userRepository = new UserRepositoryAdapter(JPAUtil.getEmf(), encoder);
+            roleRepo = new RoleRepositoryAdapter(JPAUtil.getEmf());
+            permRepo = new PermissionRepositoryAdapter(JPAUtil.getEmf());
+            lectorUHFRepo = new UHFReaderRepositoryAdapter(JPAUtil.getEmf());
 
 
-            categoriaUseCase = new CategoriaUseCase(new CategoriaRepositoryAdapter(JPAUtil.getEmf()));
-            ubicacionUseCase = new UbicacionUseCase(new UbicacionRepositoryAdapter(JPAUtil.getEmf()));
-            empleadoUseCase = new EmpleadoUseCase(new EmpleadoRepositoryAdapter(JPAUtil.getEmf()));
+            categoriaUseCase = new CategoriaUseCase(new CategoryRepositoryAdapter(JPAUtil.getEmf()));
+            locationUseCase = new LocationUseCase(new LocationRepositoryAdapter(JPAUtil.getEmf()));
+            employeeUseCase = new EmployeeUseCase(new EmployeeRepositoryAdapter(JPAUtil.getEmf()));
             equipmentUseCase = new EquipmentUseCase(new EquipmentRepositoryAdapter(JPAUtil.getEmf()));
 
             roleUseCase = new RoleUseCase(roleRepo);
             permissionUseCase = new PermissionUseCase(permRepo);
-            lectorUHFUseCase = new LectorUHFUseCase(lectorUHFRepo);
-            tagUHFRepositoryAdapter = new TagUHFRepositoryAdapter(JPAUtil.getEmf());
+            UHFReaderUseCase = new UHFReaderUseCase(lectorUHFRepo);
+            UHFTagRepositoryAdapter = new UHFTagRepositoryAdapter(JPAUtil.getEmf());
         } else {
             userRepository = new InMemoryUserRepositoryAdapter();
         }
@@ -101,13 +101,13 @@ public class AppBootstrap {
                 // eliminamos roleRepo y permRepo directos, ahora usamos los UseCases
                 roleUseCase, permissionUseCase, jpaMode);
 
-        serialPort = new SerialPortAdapter(serialFactory);
-        tagOperationsPort = new TagOperationsAdapter(serialPort);
-        serialCommunicationUseCase = new SerialCommunicationUseCase(serialPort);
+        serialPortRepository = new SerialPortRepositoryAdapter(serialFactory);
+        tagOperationsPort = new TagOperationsAdapter(serialPortRepository);
+        serialCommunicationUseCase = new SerialCommunicationUseCase(serialPortRepository);
         tagOperationsUseCase = new TagOperationsUseCase(tagOperationsPort);
         operationsUseCase = new OperationsUseCase(tagOperationsUseCase, serialCommunicationUseCase);
         readerUseCase = new ReaderUseCase(operationsUseCase);
-        tagUHFUseCase = new TagUHFUseCase(tagUHFRepositoryAdapter);
+        tagUHFUseCase = new TagUHFUseCase(UHFTagRepositoryAdapter);
         readTagUseCase = new ReadTagUseCase(operationsUseCase);
         appConfig.ifPresent(config -> {
             readerUseCase.setAppConfig(config);
@@ -187,7 +187,7 @@ public class AppBootstrap {
         return encoder;
     }
 
-    public static AuthServicePort auth() {
+    public static AuthServiceRepository auth() {
         return auth;
     }
 
@@ -195,12 +195,12 @@ public class AppBootstrap {
         return categoriaUseCase;
     }
 
-    public static UbicacionUseCase ubicacionUseCase() {
-        return ubicacionUseCase;
+    public static LocationUseCase ubicacionUseCase() {
+        return locationUseCase;
     }
 
-    public static EmpleadoUseCase empleadoUseCase() {
-        return empleadoUseCase;
+    public static EmployeeUseCase empleadoUseCase() {
+        return employeeUseCase;
     }
 
     public static EquipmentUseCase equipmentUseCase() {
@@ -219,8 +219,8 @@ public class AppBootstrap {
         return jpaMode;
     }
 
-    public static LectorUHFUseCase lectorUHFUseCase() {
-        return lectorUHFUseCase;
+    public static UHFReaderUseCase lectorUHFUseCase() {
+        return UHFReaderUseCase;
     }
 
     public static ReaderUseCase readerUseCase() {

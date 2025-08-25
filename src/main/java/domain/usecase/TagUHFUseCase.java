@@ -1,7 +1,7 @@
 package domain.usecase;
 
 import domain.gateway.TagUHFRepository;
-import domain.model.TagUHF;
+import domain.model.UHFTag;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,19 +14,19 @@ public class TagUHFUseCase {
         this.repo = repo;
     }
 
-    public TagUHF save(TagUHF tag) {
+    public UHFTag save(UHFTag tag) {
         return repo.save(tag);
     }
 
-    public List<TagUHF> findAll() {
+    public List<UHFTag> findAll() {
         return repo.findAll();
     }
 
-    public Optional<TagUHF> findById(Long id) {
+    public Optional<UHFTag> findById(Long id) {
         return repo.findById(id);
     }
 
-    public TagUHF update(TagUHF tag) {
+    public UHFTag update(UHFTag tag) {
         return repo.update(tag);
     }
 
@@ -34,7 +34,7 @@ public class TagUHFUseCase {
         repo.deleteById(id);
     }
 
-    public Optional<TagUHF> findByEpc(String epc) {
+    public Optional<UHFTag> findByEpc(String epc) {
         if (epc == null || epc.isBlank()) return Optional.empty();
         return repo.findByEpc(epc.trim());
     }

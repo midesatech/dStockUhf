@@ -1,12 +1,12 @@
 
 package infrastructure.adapter.security;
 
-import domain.gateway.AuthServicePort;
+import domain.gateway.AuthServiceRepository;
 import domain.gateway.PasswordEncoderPort;
 import domain.gateway.UserRepository;
 import domain.model.User;
 
-public class SimpleAuthServiceAdapter implements AuthServicePort {
+public class SimpleAuthServiceAdapter implements AuthServiceRepository {
     private final UserRepository users;
     private final PasswordEncoderPort enc;
 

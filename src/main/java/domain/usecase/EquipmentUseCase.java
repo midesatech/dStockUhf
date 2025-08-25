@@ -2,7 +2,7 @@
 package domain.usecase;
 
 import domain.gateway.EquipmentGateway;
-import domain.model.Categoria;
+import domain.model.Category;
 import domain.model.Equipment;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class EquipmentUseCase {
         return repo.save(p);
     }
 
-    public List<Equipment> buscar(String sku, String nombre, Categoria cat) {
+    public List<Equipment> buscar(String sku, String nombre, Category cat) {
         return repo.buscar(sku, nombre, cat);
     }
 

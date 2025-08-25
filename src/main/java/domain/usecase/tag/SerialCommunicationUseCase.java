@@ -1,6 +1,6 @@
 package domain.usecase.tag;
 
-import domain.gateway.SerialPort;
+import domain.gateway.SerialPortRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,10 +15,10 @@ public class SerialCommunicationUseCase {
     
     private static final Logger logger = LogManager.getLogger(SerialCommunicationUseCase.class);
     
-    private final SerialPort serialPort;
+    private final SerialPortRepository serialPortRepository;
     
-    public SerialCommunicationUseCase(SerialPort serialPort) {
-        this.serialPort = serialPort;
+    public SerialCommunicationUseCase(SerialPortRepository serialPortRepository) {
+        this.serialPortRepository = serialPortRepository;
     }
     
     /**
@@ -27,7 +27,7 @@ public class SerialCommunicationUseCase {
      */
     public Set<String> getAvailablePorts() {
         try {
-            return serialPort.getAvailablePorts();
+            return serialPortRepository.getAvailablePorts();
         } catch (Exception e) {
             logger.error("Error getting available ports: {}", e.getMessage(), e);
             return Collections.emptySet();
@@ -42,12 +42,12 @@ public class SerialCommunicationUseCase {
      */
     public boolean connect(String portName, int baudRate) {
         try {
-            if (serialPort.isConnected()) {
+            if (serialPortRepository.isConnected()) {
                 logger.info("Already connected to port: {}", portName);
                 return true;
             }
             
-            boolean connected = serialPort.connect(portName, baudRate);
+            boolean connected = serialPortRepository.connect(portName, baudRate);
             if (connected) {
                 logger.info("Successfully connected to port: {} at {} baud", portName, baudRate);
             } else {
@@ -65,7 +65,7 @@ public class SerialCommunicationUseCase {
      */
     public void disconnect() {
         try {
-            serialPort.disconnect();
+            serialPortRepository.disconnect();
             logger.info("Disconnected from serial port");
         } catch (Exception e) {
             logger.error("Error disconnecting from serial port: {}", e.getMessage(), e);
@@ -77,7 +77,7 @@ public class SerialCommunicationUseCase {
      * @return true if connected, false otherwise
      */
     public boolean isConnected() {
-        return serialPort.isConnected();
+        return serialPortRepository.isConnected();
     }
     
     /**
@@ -86,11 +86,11 @@ public class SerialCommunicationUseCase {
      */
     public void sendData(byte[] data) {
         try {
-            if (!serialPort.isConnected()) {
+            if (!serialPortRepository.isConnected()) {
                 logger.warn("Cannot send data: not connected to serial port");
                 return;
             }
-            serialPort.sendData(data);
+            serialPortRepository.sendData(data);
             logger.debug("Sent {} bytes to serial port", data.length);
         } catch (Exception e) {
             logger.error("Error sending data to serial port: {}", e.getMessage(), e);
@@ -103,11 +103,11 @@ public class SerialCommunicationUseCase {
      */
     public byte[] readData() {
         try {
-            if (!serialPort.isConnected()) {
+            if (!serialPortRepository.isConnected()) {
                 logger.warn("Cannot read data: not connected to serial port");
                 return new byte[0];
             }
-            byte[] data = serialPort.readData();
+            byte[] data = serialPortRepository.readData();
             logger.debug("Read {} bytes from serial port", data.length);
             return data;
         } catch (Exception e) {
@@ -123,11 +123,11 @@ public class SerialCommunicationUseCase {
      */
     public byte[] readData(int timeoutMs) {
         try {
-            if (!serialPort.isConnected()) {
+            if (!serialPortRepository.isConnected()) {
                 logger.warn("Cannot read data: not connected to serial port");
                 return new byte[0];
             }
-            byte[] data = serialPort.readData(timeoutMs);
+            byte[] data = serialPortRepository.readData(timeoutMs);
             logger.debug("Read {} bytes from serial port with {}ms timeout", data.length, timeoutMs);
             return data;
         } catch (Exception e) {

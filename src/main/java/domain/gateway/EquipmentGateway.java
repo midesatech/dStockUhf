@@ -1,7 +1,7 @@
 
 package domain.gateway;
 
-import domain.model.Categoria;
+import domain.model.Category;
 import domain.model.Equipment;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface EquipmentGateway {
 
     Optional<Equipment> findById(Long id);
 
-    List<Equipment> buscar(String sku, String nombre, Categoria cat);
+    List<Equipment> buscar(String sku, String nombre, Category cat);
     // 🔹 NUEVO: buscar equipo por EPC
     Optional<Equipment> findByEpc(String epc);
 }

@@ -1,6 +1,6 @@
 package infrastructure.adapter.serial;
 
-import domain.gateway.SerialPort;
+import domain.gateway.SerialPortRepository;
 import domain.gateway.TagOperationsPort;
 import domain.model.tag.ESerialMode;
 import domain.model.tag.ETagMem;
@@ -21,10 +21,10 @@ public class TagOperationsAdapter implements TagOperationsPort {
     
     private static final Logger logger = LogManager.getLogger(TagOperationsAdapter.class);
     
-    private final SerialPort serialPort;
+    private final SerialPortRepository serialPortRepository;
     
-    public TagOperationsAdapter(SerialPort serialPort) {
-        this.serialPort = serialPort;
+    public TagOperationsAdapter(SerialPortRepository serialPortRepository) {
+        this.serialPortRepository = serialPortRepository;
     }
     
     @Override
@@ -32,8 +32,8 @@ public class TagOperationsAdapter implements TagOperationsPort {
         for (byte[] firmware : Constants.getFirmwares()) {
             logger.info("Sending firmware command: {}", Utils.byteArrayToHexString(firmware));
             
-            serialPort.sendData(firmware);
-            byte[] response = serialPort.readData(15);
+            serialPortRepository.sendData(firmware);
+            byte[] response = serialPortRepository.readData(15);
             
             logger.info("Received firmware response: {}", Utils.byteArrayToHexString(response));
             
@@ -56,9 +56,9 @@ public class TagOperationsAdapter implements TagOperationsPort {
                 (byte) Integer.parseInt(length, 16));
         
         logger.debug("Sending read command: {}", Utils.byteArrayToHexString(cmd));
-        serialPort.sendData(cmd);
+        serialPortRepository.sendData(cmd);
         
-        byte[] response = serialPort.readData();
+        byte[] response = serialPortRepository.readData();
         logger.debug("Received read response: {}", Utils.byteArrayToHexString(response));
         
         return CommandFilterService.getReadResponse(response);
@@ -74,9 +74,9 @@ public class TagOperationsAdapter implements TagOperationsPort {
                 Utils.hexStringToByteArray(data));
         
         logger.info("Sending write command: {}", Utils.byteArrayToHexString(cmd));
-        serialPort.sendData(cmd);
+        serialPortRepository.sendData(cmd);
         
-        byte[] response = serialPort.readData();
+        byte[] response = serialPortRepository.readData();
         logger.info("Received write response: {}", Utils.byteArrayToHexString(response));
         
         return CommandFilterService.getReadResponse(response);
@@ -93,9 +93,9 @@ public class TagOperationsAdapter implements TagOperationsPort {
     private void setParameters(RxDto result) {
         if (Objects.nonNull(result) && result.getIsValid()) {
             byte[] params = CommandFilterService.getSetParameter(result.getMode());
-            serialPort.sendData(params);
+            serialPortRepository.sendData(params);
             
-            byte[] response = serialPort.readData();
+            byte[] response = serialPortRepository.readData();
             logger.info("Parameter set response: {}", Utils.byteArrayToHexString(response));
         }
     }

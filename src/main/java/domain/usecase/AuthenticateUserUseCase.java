@@ -1,13 +1,13 @@
 
 package domain.usecase;
 
-import domain.gateway.AuthServicePort;
+import domain.gateway.AuthServiceRepository;
 import domain.model.User;
 
 public class AuthenticateUserUseCase {
-    private final AuthServicePort auth;
+    private final AuthServiceRepository auth;
 
-    public AuthenticateUserUseCase(AuthServicePort auth) {
+    public AuthenticateUserUseCase(AuthServiceRepository auth) {
         this.auth = auth;
     }
 

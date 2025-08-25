@@ -3,7 +3,7 @@ package app.config;
 import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.*;
-import infrastructure.fx.controller.stock.TagUHFController;
+import infrastructure.fx.controller.stock.UHFTagController;
 import infrastructure.fx.controller.system.ChangePasswordController;
 import infrastructure.fx.controller.system.RolesController;
 import infrastructure.fx.controller.system.UserController;
@@ -13,9 +13,9 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
 
     @Override
     public Object call(Class<?> type) {
-        if (type == CategoriasController.class) {
+        if (type == CategoryController.class) {
             CategoriaUseCase categoriaUC = AppBootstrap.categoriaUseCase();
-            return new CategoriasController(categoriaUC);
+            return new CategoryController(categoriaUC);
         }
 
         if (type == LoginController.class) {
@@ -34,24 +34,24 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
             return new ChangePasswordController();
         }
 
-        if (type == EmpleadosController.class) {
-            return new EmpleadosController(AppBootstrap.empleadoUseCase());
+        if (type == EmployeeController.class) {
+            return new EmployeeController(AppBootstrap.empleadoUseCase());
         }
 
         if (type == UbicacionesController.class) {
             return new UbicacionesController(AppBootstrap.ubicacionUseCase());
         }
 
-        if (type == LectoresController.class) {
-            return new LectoresController(AppBootstrap.lectorUHFUseCase(), AppBootstrap.ubicacionUseCase());
+        if (type == ReaderController.class) {
+            return new ReaderController(AppBootstrap.lectorUHFUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
         if (type == EquipmentController.class) {
             return new EquipmentController(AppBootstrap.equipmentUseCase(), AppBootstrap.categoriaUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
-        if (type == TagUHFController.class) {
-            return new TagUHFController(AppBootstrap.tagUhfUsecase(),
+        if (type == UHFTagController.class) {
+            return new UHFTagController(AppBootstrap.tagUhfUsecase(),
                     AppBootstrap.empleadoUseCase(),
                     AppBootstrap.equipmentUseCase(),
                     AppBootstrap.readTagUseCase());
