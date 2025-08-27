@@ -102,6 +102,14 @@ public class SidebarController {
         }
         rootItem.getChildren().add(catRoot);
 
+// 3. Dashboard
+TreeItem<String> dashRoot = makeMenuCategory("Dashboard", Icons.MAP);
+dashRoot.getChildren().add(
+        makeMenuItem("Ocupación por Ubicación", "/infrastructure/fx/view/dashboard.fxml", Icons.SCAN)
+);
+rootItem.getChildren().add(dashRoot);
+
+
         // 2. Administración de inventario (2.1)
         TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {

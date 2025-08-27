@@ -1,0 +1,23 @@
+.header { -fx-padding: 16; }
+.title { -fx-font-size: 22px; -fx-font-weight: bold; }
+.subtitle { -fx-text-fill: #666; -fx-font-size: 12px; -fx-padding: 6 0 0 12; }
+
+.location-card {
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    -fx-spacing: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);
+    -fx-border-radius: 16;
+    -fx-min-width: 240;
+    -fx-min-height: 140;
+}
+.card-title { -fx-font-size: 16px; -fx-font-weight: bold; }
+.card-metric { -fx-font-size: 14px; }
+
+/* Pastel backgrounds */
+.bg-0 { -fx-background-color: #FDE2E4; } /* pink */
+.bg-1 { -fx-background-color: #E2ECE9; } /* green mint */
+.bg-2 { -fx-background-color: #E8E8FD; } /* soft indigo */
+.bg-3 { -fx-background-color: #FFF1E6; } /* peach */
+.bg-4 { -fx-background-color: #E7F5FF; } /* light blue */
+.bg-5 { -fx-background-color: #F1F3F5; } /* gray */

@@ -3,6 +3,7 @@ package app.config;
 import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.*;
+import infrastructure.fx.controller.dashboard.DashboardController;
 import infrastructure.fx.controller.stock.ScanController;
 import infrastructure.fx.controller.stock.UHFTagController;
 import infrastructure.fx.controller.system.ChangePasswordController;
@@ -66,6 +67,11 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
                     AppBootstrap.equipmentUseCase(),
                     AppBootstrap.ubicacionUseCase()
             );
+        }
+
+        if (type == DashboardController.class) {
+                     // El DashboardController arma internamente su servicio (mock o JDBC según env vars)
+            return new DashboardController();
         }
 
         // otros controladores que necesiten dependencias

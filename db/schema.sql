@@ -6,7 +6,7 @@ DROP TRIGGER IF EXISTS bu_equipment_tag_guard;
 
 DROP TABLE IF EXISTS empleados;
 DROP TABLE IF EXISTS equipment;
-DROP TABLE IF EXISTS taguhf;
+DROP TABLE IF EXISTS tags_uhf;
 DROP TABLE IF EXISTS ubicaciones;
 DROP TABLE IF EXISTS categorias;
 DROP TABLE IF EXISTS users;
@@ -25,7 +25,7 @@ CREATE TABLE user_roles (user_id BIGINT NOT NULL, role_id BIGINT NOT NULL, PRIMA
 CREATE TABLE categorias (id BIGINT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(255) NOT NULL);
 CREATE TABLE ubicaciones (id BIGINT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(150) NOT NULL UNIQUE);
 
-CREATE TABLE taguhf (
+CREATE TABLE tags_uhf (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   epc VARCHAR(64) NOT NULL,
   tipo ENUM('EMPLEADO','EQUIPMENT') NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE empleados (
   tag_id     BIGINT NULL,
   CONSTRAINT uk_empleados_doc_number UNIQUE KEY (doc_number),
   CONSTRAINT uk_empleados_tag UNIQUE KEY (tag_id),
-  CONSTRAINT fk_empleados_tag FOREIGN KEY (tag_id) REFERENCES taguhf(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_empleados_tag FOREIGN KEY (tag_id) REFERENCES tags_uhf(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE equipment (
@@ -57,7 +57,7 @@ CREATE TABLE equipment (
   estado  VARCHAR(30),
   tag_id  BIGINT NULL,
   CONSTRAINT uk_equipment_tag UNIQUE KEY (tag_id),
-  CONSTRAINT fk_equipment_tag FOREIGN KEY (tag_id) REFERENCES taguhf(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_equipment_tag FOREIGN KEY (tag_id) REFERENCES tags_uhf(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE detecciones_tags (
