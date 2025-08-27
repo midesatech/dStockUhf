@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS roles_permissions;
 DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS detecciones_tags;
 
 CREATE TABLE roles (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50) NOT NULL UNIQUE);
 CREATE TABLE permissions (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80) NOT NULL UNIQUE);
@@ -58,6 +59,30 @@ CREATE TABLE equipment (
   CONSTRAINT uk_equipment_tag UNIQUE KEY (tag_id),
   CONSTRAINT fk_equipment_tag FOREIGN KEY (tag_id) REFERENCES taguhf(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE detecciones_tags (
+  id            BIGINT PRIMARY KEY AUTO_INCREMENT,
+  lector_id     BIGINT NOT NULL,
+  ubicacion_id  BIGINT NULL,
+  epc           VARCHAR(64) NOT NULL,
+  rssi          INT NULL,
+  machine       VARCHAR(100) NULL,
+  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_detecciones_lector
+    FOREIGN KEY (lector_id) REFERENCES lectores_uhf(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_detecciones_ubicacion
+    FOREIGN KEY (ubicacion_id) REFERENCES ubicaciones(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_detecciones_epc              ON detecciones_tags (epc);
+CREATE INDEX idx_detecciones_created          ON detecciones_tags (created_at);
+CREATE INDEX idx_detecciones_lector_created   ON detecciones_tags (lector_id, created_at);
+CREATE INDEX idx_detecciones_epc_created
+    ON detecciones_tags (epc, created_at);
+
+CREATE INDEX idx_detecciones_ubicacion_created
+    ON detecciones_tags (ubicacion_id, created_at);
 
 DELIMITER $$
 

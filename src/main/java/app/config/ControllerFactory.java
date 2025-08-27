@@ -3,6 +3,7 @@ package app.config;
 import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.*;
+import infrastructure.fx.controller.stock.ScanController;
 import infrastructure.fx.controller.stock.UHFTagController;
 import infrastructure.fx.controller.system.ChangePasswordController;
 import infrastructure.fx.controller.system.RolesController;
@@ -35,7 +36,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == EmployeeController.class) {
-            return new EmployeeController(AppBootstrap.empleadoUseCase());
+            return new EmployeeController(AppBootstrap.employeeUseCase());
         }
 
         if (type == UbicacionesController.class) {
@@ -52,9 +53,19 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
 
         if (type == UHFTagController.class) {
             return new UHFTagController(AppBootstrap.tagUhfUsecase(),
-                    AppBootstrap.empleadoUseCase(),
+                    AppBootstrap.employeeUseCase(),
                     AppBootstrap.equipmentUseCase(),
                     AppBootstrap.readTagUseCase());
+        }
+
+        if (type == ScanController.class) {
+            return new ScanController(
+                    AppBootstrap.scanUseCase(),
+                    AppBootstrap.tagUhfUsecase(),
+                    AppBootstrap.employeeUseCase(),
+                    AppBootstrap.equipmentUseCase(),
+                    AppBootstrap.ubicacionUseCase()
+            );
         }
 
         // otros controladores que necesiten dependencias

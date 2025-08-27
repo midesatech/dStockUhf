@@ -36,6 +36,7 @@ public class AppBootstrap {
     private static SerialFactory serialFactory;
     private static SerialPortRepository serialPortRepository;
     private static TagOperationsPort tagOperationsPort;
+    private static ScanRepository scanRepo;
 
     //Repositories adapters
     private static RoleRepositoryAdapter roleRepo;
@@ -59,6 +60,7 @@ public class AppBootstrap {
     private static OperationsUseCase operationsUseCase;
     private static TagUHFUseCase tagUHFUseCase;
     private static ReadTagUseCase readTagUseCase;
+    private static ScanUseCase scanUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
@@ -113,6 +115,8 @@ public class AppBootstrap {
             readerUseCase.setAppConfig(config);
             readTagUseCase.setAppConfig(config);
         });
+        scanRepo = new ScansRepositoryAdapter(JPAUtil.getEmf());
+        scanUseCase = new ScanUseCase(scanRepo);
     }
 
     private static Optional<AppConfig> loadProperties() {
@@ -199,7 +203,7 @@ public class AppBootstrap {
         return locationUseCase;
     }
 
-    public static EmployeeUseCase empleadoUseCase() {
+    public static EmployeeUseCase employeeUseCase() {
         return employeeUseCase;
     }
 
@@ -234,5 +238,7 @@ public class AppBootstrap {
     public static ReadTagUseCase readTagUseCase() {
         return readTagUseCase;
     }
+
+    public static ScanUseCase scanUseCase() { return scanUseCase; }
 
 }

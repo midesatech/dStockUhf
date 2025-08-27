@@ -106,6 +106,7 @@ public class SidebarController {
         TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {
             invRoot.getChildren().add(makeMenuItem("Asignación de TAG", "/infrastructure/fx/view/stock/uhftag.fxml", Icons.LINK));
+            invRoot.getChildren().add(makeMenuItem("Detecciones ", "/infrastructure/fx/view/stock/scan.fxml", Icons.SCAN));
         }
         rootItem.getChildren().add(invRoot);
 
