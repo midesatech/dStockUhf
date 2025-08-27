@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.stock.ScanController">
+    <stylesheets>
+        <URL value="@/infrastructure/fx/css/scan.css"/>
+    </stylesheets>
+    <top>
+        <ToolBar>
+            <Button text="Refrescar" onAction="#refresh"/>
+            <Button text="Exportar CSV" onAction="#exportCsv"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Detecciones de TAG UHF"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <VBox spacing="8">
+            <!-- Filtros -->
+            <TitledPane text="Filtros" expanded="true">
+                <GridPane hgap="8" vgap="8">
+                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="15"/>
+                        <ColumnConstraints percentWidth="35"/>
+                        <ColumnConstraints percentWidth="15"/>
+                        <ColumnConstraints percentWidth="35"/>
+                    </columnConstraints>
+
+                    <Label text="EPC:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="fEpc" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Lector (código):" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                    <TextField fx:id="fLectorCodigo" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                    <Label text="Ubicación:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="fUbicacion" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Desde:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                    <DatePicker fx:id="fDesde" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+                    <Label text="Hasta:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="fHasta" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="RSSI mínimo:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                    <Spinner fx:id="fRssiMin" GridPane.rowIndex="2" GridPane.columnIndex="3" editable="true"/>
+
+                    <Label text="Machine:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <TextField fx:id="fMachine" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Label text="Límite:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                    <Spinner fx:id="fLimit" GridPane.rowIndex="3" GridPane.columnIndex="3" editable="true"/>
+                </GridPane>
+            </TitledPane>
+
+            <!-- Tabla -->
+            <TableView fx:id="table" prefHeight="400">
+                <columns>
+                    <TableColumn fx:id="colFecha" text="Fecha/Hora" prefWidth="160"/>
+                    <TableColumn fx:id="colLector" text="Lector" prefWidth="120"/>
+                    <TableColumn fx:id="colUbicacion" text="Ubicación" prefWidth="160"/>
+                    <TableColumn fx:id="colEpc" text="EPC" prefWidth="240"/>
+                    <TableColumn fx:id="colRssi" text="RSSI" prefWidth="80"/>
+                    <TableColumn fx:id="colMachine" text="Machine" prefWidth="140"/>
+                </columns>
+            </TableView>
+
+            <!-- Detalle/Widget -->
+            <TitledPane text="Detalle" expanded="true">
+                <VBox spacing="6">
+                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                    <Label fx:id="lblResumen"/>
+                    <Separator/>
+                    <Label text="Asignado a:"/>
+                    <Label fx:id="lblAsignado"/>
+                </VBox>
+            </TitledPane>
+        </VBox>
+    </center>
+
+    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+</BorderPane>

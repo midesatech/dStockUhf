@@ -13,4 +13,10 @@ public class Icons {
     public static final String LOCK = "M17 8h-1V6a4 4 0 1 0-8 0v2H7v10h10V8z";
     public static final String EXIT = "M6 19c0 1.1.9 2 2 2h8v-2H8V5h8V3H8c-1.1 0-2 .9-2 2v14zm12-7-4-4v3H9v2h5v3l4-4z";
     public static final String ANTENNA = "M12 20h0M4 12a8 8 0 0 1 16 0M2 8a12 12 0 0 1 20 0";
+    public static final String SCAN =
+            "M4 7V5h2 " +      // esquina sup-izq
+                    "M20 7V5h-2 " +    // esquina sup-der
+                    "M20 17v2h-2 " +   // esquina inf-der
+                    "M4 17v2h2 " +     // esquina inf-izq
+                    "M3 12h18";
 }
