@@ -71,7 +71,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
 
         if (type == DashboardController.class) {
                      // El DashboardController arma internamente su servicio (mock o JDBC según env vars)
-            return new DashboardController();
+            return new DashboardController(AppBootstrap.dashboardUseCase());
         }
 
         // otros controladores que necesiten dependencias
