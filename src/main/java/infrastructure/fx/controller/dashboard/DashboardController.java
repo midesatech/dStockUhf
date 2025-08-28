@@ -4,11 +4,13 @@ import domain.model.LocationPresence;
 import domain.model.Occupant;
 import domain.usecase.DashboardUseCase;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
@@ -25,6 +27,7 @@ import java.util.TimerTask;
  */
 public class DashboardController {
 
+    @FXML private Region root;
     @FXML private FlowPane tiles;
     @FXML private Label subtitle;
     @FXML private ScrollPane scroller;
@@ -41,7 +44,7 @@ public class DashboardController {
     private final Timer timer = new Timer("dashboard-refresh", true);
     private int timeoutSeconds = 86400; // configurable
     private javafx.scene.Node selectedTile;
-
+    private TimerTask refreshTask;
     // Use case hexagonal
     private final DashboardUseCase dashboard;
 
@@ -60,9 +63,61 @@ public class DashboardController {
         setupDetailsTable();
         refreshNow();
 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override public void run() { Platform.runLater(() -> refreshNow()); }
-        }, 5000, 5000);
+        // Arrancar/parar según visibilidad del nodo (útil cuando cambias el centro de un BorderPane)
+        root.visibleProperty().addListener((obs, wasVisible, isVisible) -> {
+            if (isVisible) startPolling(); else stopPolling();
+        });
+
+        // Arrancar/parar según se muestre/oculte la ventana (útil al cambiar de escena o minimizar)
+        root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            // Si nos quitan la escena, paramos
+            if (newScene == null) {
+                stopPolling();
+                return;
+            }
+            newScene.windowProperty().addListener((o2, oldW, newW) -> {
+                if (oldW != null) oldW.showingProperty().removeListener(windowShowingListener);
+                if (newW != null) newW.showingProperty().addListener(windowShowingListener);
+            });
+        });
+
+        // Si ya está visible y la ventana está mostrando, arrancamos
+        Platform.runLater(() -> {
+            if (root.isVisible()
+                    && root.getScene() != null
+                    && root.getScene().getWindow() != null
+                    && root.getScene().getWindow().isShowing()) {
+                startPolling();
+            }
+        });
+    }
+
+    private final ChangeListener<Boolean> windowShowingListener = (obs, wasShowing, isShowing) -> {
+        if (isShowing) startPolling(); else stopPolling();
+    };
+
+    private void startPolling() {
+        if (refreshTask != null) return; // ya está corriendo
+        refreshTask = new TimerTask() {
+            @Override public void run() {
+                Platform.runLater(() -> refreshNow());
+            }
+        };
+        // cada 5 segundos; ajusta si lo necesitas
+        timer.scheduleAtFixedRate(refreshTask, 5000, 5000);
+    }
+
+    private void stopPolling() {
+        if (refreshTask != null) {
+            refreshTask.cancel();
+            refreshTask = null;
+        }
+    }
+
+    /** Llama esto explícitamente si tu “router” destruye o reemplaza el controller */
+    public void dispose() {
+        stopPolling();
+        timer.purge();
     }
 
     private void refreshNow() {

@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="infrastructure.fx.controller.dashboard.DashboardController">
     <top>
         <HBox spacing="10" styleClass="header" BorderPane.alignment="CENTER_LEFT">
