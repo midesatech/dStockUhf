@@ -12,13 +12,33 @@
         </HBox>
     </top>
     <center>
-        <ScrollPane fx:id="scroller" fitToWidth="true">
-            <content>
-                <FlowPane fx:id="tiles" hgap="16" vgap="16">
-                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                </FlowPane>
-            </content>
-        </ScrollPane>
+        <VBox spacing="10">
+            <ScrollPane fx:id="scroller" fitToWidth="true" VBox.vgrow="ALWAYS">
+                <content>
+                    <FlowPane fx:id="tiles" hgap="16" vgap="16">
+                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                    </FlowPane>
+                </content>
+            </ScrollPane>
+
+
+            <!-- Zona de detalle -->
+            <TitledPane text="Detalle de ocupación" expanded="true">
+                <content>
+                    <TableView fx:id="detailsTable" prefHeight="320.0">
+                        <placeholder>
+                            <Label text="Selecciona una ubicación para ver los EPC detectados"/>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="130"/>
+                            <TableColumn fx:id="colEpc" text="EPC" prefWidth="240"/>
+                            <TableColumn fx:id="colNombre" text="Nombre/Descripción" prefWidth="320"/>
+                            <TableColumn fx:id="colUltimo" text="Última detección" prefWidth="220"/>
+                        </columns>
+                    </TableView>
+                </content>
+            </TitledPane>
+        </VBox>
     </center>
     <stylesheets>
         <URL value="@/infrastructure/fx/styles/dashboard.css"/>

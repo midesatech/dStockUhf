@@ -5,13 +5,18 @@ import infrastructure.persistence.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
 
+import java.sql.*;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,9 +32,18 @@ public class DashboardController {
     @FXML private Label subtitle;
     @FXML private ScrollPane scroller;
 
+    @FXML private TableView<OccupantRow> detailsTable;
+    @FXML private TableColumn<OccupantRow, String> colTipo;
+    @FXML private TableColumn<OccupantRow, String> colEpc;
+    @FXML private TableColumn<OccupantRow, String> colNombre;
+    @FXML private TableColumn<OccupantRow, String> colUltimo;
+
+    private final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private final List<VBox> cardPool = new ArrayList<>();
     private final Timer timer = new Timer("dashboard-refresh", true);
     private int timeoutSeconds = 86400; // configurable
+    private javafx.scene.Node selectedTile;
 
     @FXML
     public void initialize() {
@@ -42,6 +56,7 @@ public class DashboardController {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override public void run() { Platform.runLater(() -> refreshNow()); }
         }, 5000, 5000);
+        setupDetailsTable();
     }
 
     private void refreshNow() {
@@ -114,6 +129,8 @@ public class DashboardController {
     private VBox makeCard() {
         VBox box = new VBox();
         box.getStyleClass().addAll("location-card", "bg-0");
+        box.setPickOnBounds(true);
+        box.setStyle("-fx-cursor: hand;");
         Label title = new Label("Ubicación");
         title.getStyleClass().add("card-title");
         Label emp = new Label("Personas: 0");
@@ -133,5 +150,115 @@ public class DashboardController {
         ((Label) card.getChildren().get(0)).setText(lp.getLocationName());
         ((Label) card.getChildren().get(1)).setText("Personas: " + lp.getEmployees());
         ((Label) card.getChildren().get(2)).setText("Equipos: " + lp.getEquipment());
+        attachClickHandler(card, lp.getLocationId(), lp.getLocationName());
+    }
+
+    private void attachClickHandler(javafx.scene.Node tileNode, long ubicacionId, String ubicacionNombre) {
+        tileNode.setOnMouseClicked(e -> onUbicacionSelected(tileNode, ubicacionId, ubicacionNombre));
+    }
+
+
+    private void onUbicacionSelected(javafx.scene.Node tileNode, long ubicacionId, String ubicacionNombre) {
+        subtitle.setText("Ubicación: " + ubicacionNombre);
+        List<OccupantRow> data = fetchOccupantsByUbicacion(ubicacionId);
+        detailsTable.setItems(FXCollections.observableArrayList(data));
+        // Quitar selección previa (si había)
+        if (selectedTile != null) {
+            selectedTile.getStyleClass().remove("selected");
+            selectedTile.setScaleX(1.0);
+            selectedTile.setScaleY(1.0);
+        }
+        // Marcar la tarjeta actual
+        tileNode.getStyleClass().add("selected");
+        selectedTile = tileNode;
+        ScaleTransition st = new ScaleTransition(Duration.millis(120), tileNode);
+        st.setToX(1.03);
+        st.setToY(1.03);
+        st.play();
+        selectedTile = tileNode;
+    }
+
+
+    private void setupDetailsTable() {
+        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
+        colEpc.setCellValueFactory(new PropertyValueFactory<>("epc"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colUltimo.setCellValueFactory(new PropertyValueFactory<>("ultimo"));
+
+
+        detailsTable.setRowFactory(tv -> new TableRow<>() {
+            @Override protected void updateItem(OccupantRow item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().removeAll("row-employee", "row-equipment");
+                if (empty || item == null) return;
+                String t = item.getTipo() == null ? "" : item.getTipo().toUpperCase();
+                if (t.contains("EMP")) {
+                    getStyleClass().add("row-employee");
+                } else {
+                    getStyleClass().add("row-equipment");
+                }
+            }
+        });
+    }
+
+    private List<OccupantRow> fetchOccupantsByUbicacion(long ubicacionId) {
+        List<OccupantRow> rows = new ArrayList<>();
+
+        String url  = "jdbc:mariadb://localhost:3306/inventario";
+        String user = "root";
+        String pass = "";
+
+        String sql =
+                "WITH ld AS ( " +
+                        "  SELECT dt.epc, MAX(dt.created_at) AS last_seen " +
+                        "  FROM detecciones_tags dt " +
+                        "  WHERE dt.ubicacion_id = ? " +
+                        "  GROUP BY dt.epc " +
+                        ") " +
+                        "SELECT " +
+                        "  CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo, " +
+                        "  tu.epc AS epc, " +
+                        "  TRIM(CASE WHEN e.id IS NOT NULL " +
+                        "            THEN CONCAT(COALESCE(e.full_name,''), ' ', COALESCE(e.last_name,'')) " +
+                        "            ELSE COALESCE(q.nombre,'') END) AS nombre, " +
+                        "  ld.last_seen AS last_seen " +
+                        "FROM ld " +
+                        "JOIN tags_uhf tu ON tu.epc = ld.epc " +
+                        "LEFT JOIN empleados e ON e.tag_id = tu.id " +
+                        "LEFT JOIN equipment q ON q.tag_id = tu.id " +
+                        "ORDER BY ld.last_seen DESC";
+
+        try (Connection cn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setLong(1, ubicacionId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String tipo   = rs.getString("tipo");
+                    String epc    = rs.getString("epc");
+                    String nombre = rs.getString("nombre");
+                    Timestamp ts  = rs.getTimestamp("last_seen");
+                    String last   = ts == null ? "" : ts.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+                            .format(TS_FMT);
+
+                    // Fallbacks por si viniera vacío:
+                    if (nombre == null || nombre.isBlank()) {
+                        if (tipo != null && tipo.toUpperCase().contains("EMP")) {
+                            nombre = "(Empleado sin nombre)";
+                        } else {
+                            nombre = "Equipo (" + epc + ")";
+                        }
+                    }
+
+                    rows.add(new OccupantRow(tipo, epc, nombre, last));
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return rows;
     }
 }
