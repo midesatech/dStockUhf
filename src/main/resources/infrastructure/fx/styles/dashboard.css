@@ -1,0 +1,61 @@
+.header { -fx-padding: 16; }
+.title { -fx-font-size: 22px; -fx-font-weight: bold; }
+.subtitle { -fx-text-fill: #666; -fx-font-size: 12px; -fx-padding: 6 0 0 12; }
+
+.location-card {
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    -fx-spacing: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);
+    -fx-border-radius: 16;
+    -fx-min-width: 240;
+    -fx-min-height: 140;
+}
+/* Selección fuerte para la tarjeta */
+.location-card.selected {
+    -fx-border-color: #1f2937;           /* gris-oscuro */
+    -fx-border-width: 3;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+
+    /* Glow exterior + leve sombreado interior para oscurecer un poco */
+    -fx-effect: dropshadow(gaussian, rgba(31,41,55,0.35), 28, 0.2, 0, 6),
+                innershadow(gaussian, rgba(0,0,0,0.12), 14, 0.2, 0, 0);
+}
+
+/* Que el texto resalte un poco más al estar seleccionada */
+.location-card.selected .card-title,
+.location-card.selected .card-metric {
+    -fx-text-fill: #0f172a;
+}
+
+/* Hover sutil para todas las tarjetas */
+.location-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0.2, 0, 3);
+}
+.card-title { -fx-font-size: 16px; -fx-font-weight: bold; }
+.card-metric { -fx-font-size: 14px; }
+
+/* Pastel backgrounds */
+.bg-0 { -fx-background-color: #FDE2E4; } /* pink */
+.bg-1 { -fx-background-color: #E2ECE9; } /* green mint */
+.bg-2 { -fx-background-color: #E8E8FD; } /* soft indigo */
+.bg-3 { -fx-background-color: #FFF1E6; } /* peach */
+.bg-4 { -fx-background-color: #E7F5FF; } /* light blue */
+.bg-5 { -fx-background-color: #F1F3F5; } /* gray */
+
+/* Pasteles para filas según tipo */
+.table-row-cell.row-employee { -fx-background-color: #eaf4ff; }
+.table-row-cell.row-equipment { -fx-background-color: #f7ecff; }
+
+
+/* Selección suave */
+.table-row-cell:filled:selected, .table-row-cell:filled:selected .text {
+-fx-background-color: #cfe8ff;
+-fx-text-fill: -fx-text-base-color;
+}
+
+
+/* Ajustes generales */
+.table-view { -fx-background-insets: 0; }
+.table-view .column-header-background { -fx-background-color: linear-gradient(to bottom, #ffffff, #f6f7fb); }
