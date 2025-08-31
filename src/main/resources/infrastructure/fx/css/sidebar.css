@@ -1,0 +1,26 @@
+/* Light defaults (optional) */
+.tree-view {
+    -fx-background-color: transparent;
+}
+.tree-cell {
+    -fx-text-fill: #333333;
+    -fx-background-color: transparent;
+}
+.tree-cell:selected {
+    -fx-background-color: #e5e7eb;
+}
+
+/* Dark theme */
+.dark-sidebar .tree-view {
+    -fx-background-color: transparent;
+}
+.dark-sidebar .tree-cell {
+    -fx-text-fill: #e5e7eb;        /* light text */
+    -fx-background-color: transparent;
+}
+.dark-sidebar .tree-cell:hover {
+    -fx-background-color: #1f2937; /* hover */
+}
+.dark-sidebar .tree-cell:selected {
+    -fx-background-color: #374151; /* selection */
+}

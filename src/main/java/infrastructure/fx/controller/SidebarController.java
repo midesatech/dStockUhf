@@ -19,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class SidebarController {
 
@@ -52,15 +53,19 @@ public class SidebarController {
                     // alterna colores pastel por fila (si quieres otros colores cámbialos)
                     int rowIndex = tv.getRow(getTreeItem());
                     if (rowIndex % 2 == 0) {
-                        setStyle("-fx-background-color: #fce4ec;"); // pastel rosado
+                        setStyle(""); // pastel rosado
                     } else {
-                        setStyle("-fx-background-color: #e3f2fd;"); // pastel azul
+                        setStyle(""); // pastel azul
                     }
                 }
             }
         });
 
         buildMenu();
+        String css = Objects.requireNonNull(
+                getClass().getResource("/infrastructure/fx/css/sidebar.css")
+        ).toExternalForm();
+        root.getStylesheets().add(css);
     }
 
     @FXML
