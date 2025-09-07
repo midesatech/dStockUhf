@@ -16,8 +16,13 @@
 
     <!-- Barra superior: SOLO el botón drawer (siempre visible) -->
     <HBox spacing="8" alignment="CENTER_LEFT">
-        <Button fx:id="btnToggle" text="≡" onAction="#toggle"
-                style="-fx-font-size: 14; -fx-background-color: transparent;"/>
+        <Button fx:id="btnToggle" onAction="#toggle" styleClass="icon-button">
+            <graphic>
+                <!-- 3 bars -->
+                <SVGPath styleClass="icon-hamburger"
+                         content="M2 6 H22 V8 H2 Z M2 12 H22 V14 H2 Z M2 18 H22 V20 H2 Z"/>
+            </graphic>
+        </Button>
     </HBox>
 
     <!-- Contenido del menú que se oculta/expande -->

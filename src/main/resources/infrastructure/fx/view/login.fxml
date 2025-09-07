@@ -25,5 +25,6 @@
         <!-- Bigger, ocean-themed button -->
         <Button text="Ingresar" onAction="#login" styleClass="btn-primary"/>
         <Label fx:id="lblMsg" styleClass="error-msg"/>
+        <ChoiceBox fx:id="themeChoice" prefWidth="180.0" />
     </VBox>
 </VBox>

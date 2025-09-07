@@ -33,39 +33,55 @@ public class SidebarController {
 
     @FXML
     public void initialize() {
+        ThemeManager.UiTheme theme = ThemeManager.getTheme();
+        menuTree.getStyleClass().removeAll("ocean-soft","green-soft","dark-menu","obsidian-menu");
+        menuTree.getStyleClass().add(ThemeManager.cssClassFor(theme));
         // Estado inicial expandido
         root.setPrefWidth(EXPANDED_WIDTH);
         menuWrapper.setVisible(true);
         menuWrapper.setManaged(true);
 
         // CellFactory único: muestra SOLO el graphic (ícono + label) y aplica colores pastel intercalados
-        menuTree.setCellFactory(tv -> new TreeCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || getTreeItem() == null) {
+        menuTree.setCellFactory(tv -> {
+            TreeCell<String> cell = new TreeCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    getStyleClass().removeAll("root-item","child-item","even","odd","hovered"); // reset SIEMPRE
+
+                    if (empty || getTreeItem() == null) {
+                        setText(null);
+                        setGraphic(null);
+                        setStyle("");
+                        return;
+                    }
+
                     setText(null);
-                    setGraphic(null);
-                    setStyle("");
-                } else {
-                    setText(null); // no mostramos el value textual del TreeItem
                     setGraphic(getTreeItem().getGraphic());
 
-                    // alterna colores pastel por fila (si quieres otros colores cámbialos)
-                    int rowIndex = tv.getRow(getTreeItem());
-                    if (rowIndex % 2 == 0) {
-                        setStyle(""); // pastel rosado
+                    // Profundidad (root invisible no cuenta)
+                    int depth = 0;
+                    TreeItem<?> cur = getTreeItem();
+                    while (cur != null && cur.getParent() != null) { depth++; cur = cur.getParent(); }
+
+                    if (depth == 1) {
+                        getStyleClass().add("root-item");
                     } else {
-                        setStyle(""); // pastel azul
+                        int rowIndex = tv.getRow(getTreeItem());
+                        getStyleClass().addAll("child-item", (rowIndex % 2 == 0) ? "even" : "odd");
                     }
                 }
-            }
+            };
+
+            // Forzar estado hover aunque el ratón esté sobre el HBox/Label (graphic)
+            cell.setOnMouseEntered(e -> {
+                if (!cell.getStyleClass().contains("hovered")) cell.getStyleClass().add("hovered");
+            });
+            cell.setOnMouseExited(e -> cell.getStyleClass().remove("hovered"));
+
+            return cell;
         });
 
         buildMenu();
-        String css = Objects.requireNonNull(
-                getClass().getResource("/infrastructure/fx/css/sidebar.css")
-        ).toExternalForm();
-        root.getStylesheets().add(css);
     }
 
     @FXML
