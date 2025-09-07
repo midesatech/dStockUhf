@@ -1,26 +1,133 @@
-/* Light defaults (optional) */
-.tree-view {
-    -fx-background-color: transparent;
-}
+/* ===== Base mínimo (sin forzar negro) ===== */
+.tree-view { -fx-background-color: transparent; }
 .tree-cell {
-    -fx-text-fill: #333333;
-    -fx-background-color: transparent;
+  -fx-background-color: transparent;
+  -fx-background-insets: 0;
+  -fx-padding: 6 10;
+  -fx-background-radius: 8;
 }
-.tree-cell:selected {
-    -fx-background-color: #e5e7eb;
+/* Herencia para labels y LabeledText */
+.tree-cell .label { -fx-text-fill: inherit; }
+.tree-cell .text  { -fx-fill: inherit; }
+
+/* ===== Ocean (como lo aprobaste) ===== */
+.tree-view.ocean-soft .tree-cell,
+.tree-view.ocean-soft .tree-cell .label,
+.tree-view.ocean-soft .tree-cell .text {
+  -fx-text-fill: #0b253a !important;  /* azul oscuro legible */
+  -fx-fill:     #0b253a !important;
+}
+.tree-view.ocean-soft .tree-cell.root-item { -fx-background-color: #dbeafe; }
+.tree-view.ocean-soft .tree-cell.root-item:hover { -fx-background-color: #c7d2fe; }
+.tree-view.ocean-soft .tree-cell.root-item:selected { -fx-background-color: #bfdbfe; }
+.tree-view.ocean-soft .tree-cell.child-item.even { -fx-background-color: #e0f2fe; }
+.tree-view.ocean-soft .tree-cell.child-item.odd  { -fx-background-color: #e6fffb; }
+.tree-view.ocean-soft .tree-cell.child-item:hover { -fx-background-color: #dbeafe; }
+.tree-view.ocean-soft .tree-cell.child-item:selected { -fx-background-color: #cfe8ff; }
+.tree-view.ocean-soft .tree-cell.child-item:hover,
+.tree-view.ocean-soft .tree-cell.child-item.hovered {
+  -fx-background-color: #cfe8ff; /* mismo que selected para que se note */
 }
 
-/* Dark theme */
-.dark-sidebar .tree-view {
-    -fx-background-color: transparent;
+.tree-view.ocean-soft .tree-cell.root-item:hover,
+.tree-view.ocean-soft .tree-cell.root-item.hovered {
+  -fx-background-color: #c7d2fe;
 }
-.dark-sidebar .tree-cell {
-    -fx-text-fill: #e5e7eb;        /* light text */
-    -fx-background-color: transparent;
+
+
+/* ===== GREEN (≈25% menos intenso) ===== */
+.tree-view.green-soft .tree-cell,
+.tree-view.green-soft .tree-cell .label,
+.tree-view.green-soft .tree-cell .text {
+  -fx-text-fill: #052e16 !important;  /* oscuro legible */
+  -fx-fill:     #052e16 !important;
 }
-.dark-sidebar .tree-cell:hover {
-    -fx-background-color: #1f2937; /* hover */
+/* Raíz: antes ~green-300 → ahora ~green-200 */
+.tree-view.green-soft .tree-cell.root-item { -fx-background-color: #4ADE80; } /* green-200 */
+.tree-view.green-soft .tree-cell.root-item:hover { -fx-background-color: #A7F3D0; } /* green-300 */
+.tree-view.green-soft .tree-cell.root-item:selected { -fx-background-color: #86EFAC; } /* green-300 */
+
+/* Subitems: antes 400/500 → ahora 300/400 */
+.tree-view.green-soft .tree-cell.child-item.even { -fx-background-color: #86EFAC; } /* green-300 */
+.tree-view.green-soft .tree-cell.child-item.odd  { -fx-background-color: #BBF7D0; } /* green-400 */
+.tree-view.green-soft .tree-cell.child-item:hover { -fx-background-color: #6EE7B7; } /* emerald-300 (suave) */
+.tree-view.green-soft .tree-cell.child-item:selected { -fx-background-color: #BBF7D0; } /* green-200 */
+.tree-view.green-soft .tree-cell.child-item:hover,
+.tree-view.green-soft .tree-cell.child-item.hovered {
+  -fx-background-color: #9EF0C0; /* un pelín más claro que #86EFAC/#4ADE80 */
 }
-.dark-sidebar .tree-cell:selected {
-    -fx-background-color: #374151; /* selection */
+
+.tree-view.green-soft .tree-cell.root-item:hover,
+.tree-view.green-soft .tree-cell.root-item.hovered {
+  -fx-background-color: #A7F3D0;
 }
+
+
+/* ===== DARK (≈25% más claro) ===== */
+.tree-view.dark-menu .tree-cell,
+.tree-view.dark-menu .tree-cell .label,
+.tree-view.dark-menu .tree-cell .text {
+  -fx-text-fill: #000000 !important;   /* claro */
+  -fx-fill:     #000000 !important;
+}
+/* Raíz: antes slate-700 → ahora slate-600/500 */
+.tree-view.dark-menu .tree-cell.root-item { -fx-background-color: #7B3FE4; }  /* slate-600 */
+.tree-view.dark-menu .tree-cell.root-item:hover { -fx-background-color: #64748B; } /* slate-500 */
+.tree-view.dark-menu .tree-cell.root-item:selected { -fx-background-color: #5A667A; } /* intermedio suave */
+
+/* Subitems: tonos intermedios (menos “negro”) */
+.tree-view.dark-menu .tree-cell.child-item.even { -fx-background-color: #7B68EE; }
+.tree-view.dark-menu .tree-cell.child-item.odd  { -fx-background-color: #A79CEC; }
+.tree-view.dark-menu .tree-cell.child-item:hover { -fx-background-color: #465A76; }
+.tree-view.dark-menu .tree-cell.child-item.selected,
+.tree-view.dark-menu .tree-cell.child-item:selected { -fx-background-color: #536889; }
+.tree-view.dark-menu .tree-cell.child-item:hover,
+.tree-view.dark-menu .tree-cell.child-item.hovered {
+  -fx-background-color: #506482; /* más claro que #3A4A62/#40526D para que destaque */
+}
+
+.tree-view.dark-menu .tree-cell.root-item:hover,
+.tree-view.dark-menu .tree-cell.root-item.hovered {
+  -fx-background-color: #64748B; /* ya lo tienes, lo reutilizamos aquí también */
+}
+
+
+/* ===== OBSIDIAN (basado en neutrales + accent; hover oscuro para texto claro) ===== */
+.tree-view.obsidian-menu .tree-cell,
+.tree-view.obsidian-menu .tree-cell .label,
+.tree-view.obsidian-menu .tree-cell .text {
+  -fx-text-fill: #E6EDF3 !important;  /* claro azulado */
+  -fx-fill:     #E6EDF3 !important;
+}
+
+/* raíz */
+.tree-view.obsidian-menu .tree-cell.root-item            { -fx-background-color: #1B2430; }
+.tree-view.obsidian-menu .tree-cell.root-item:hover      { -fx-background-color: #202B38; }
+.tree-view.obsidian-menu .tree-cell.root-item:selected   { -fx-background-color: #243041; }
+
+/* subitems base (dos neutros fríos) */
+.tree-view.obsidian-menu .tree-cell.child-item.even      { -fx-background-color: #164B91; }
+.tree-view.obsidian-menu .tree-cell.child-item.odd       { -fx-background-color: #4D94F2; }
+
+/* HOVER subitems: NO claro (porque el texto es claro); usa un tono intermedio más luminoso */
+.tree-view.obsidian-menu .tree-cell.child-item:hover,
+.tree-view.obsidian-menu .tree-cell.child-item:filled:hover {
+  -fx-background-color: #FF0000; /* intermedio; el hover “se nota” y mantiene contraste con texto claro */
+}
+
+/* SELECTED subitems: acento obsidiano */
+.tree-view.obsidian-menu .tree-cell.child-item.selected,
+.tree-view.obsidian-menu .tree-cell.child-item:selected  { -fx-background-color: #2A6B7E; }
+/* Subitems base los tienes en #425772 / #4E7EB5.
+   Ponemos un hover común algo más claro y frío para que destaque en ambos. */
+.tree-view.obsidian-menu .tree-cell.child-item:hover,
+.tree-view.obsidian-menu .tree-cell.child-item.hovered {
+  -fx-background-color: #5f7b9c; /* más claro que los dos tonos base */
+}
+
+.tree-view.obsidian-menu .tree-cell.root-item:hover,
+.tree-view.obsidian-menu .tree-cell.root-item.hovered {
+  -fx-background-color: #202B38; /* ya lo tenías, también lo aplicamos aquí */
+}
+
+

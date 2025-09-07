@@ -74,7 +74,9 @@ public class AppBootstrap {
         if (useJpa) {
             // ensure DB exists (uses defaults from persistence.xml)
             infrastructure.persistence.DatabaseCreator.ensureDatabaseExists(
-                    "jdbc:mariadb://localhost:3306/inventario", "root", "");
+                                        DbConfig.jdbcUrl(),
+                                        DbConfig.username(),
+                                        DbConfig.password());
 
             JPAUtil.init();
             userRepository = new UserRepositoryAdapter(JPAUtil.getEmf(), encoder);
