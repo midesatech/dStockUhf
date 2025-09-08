@@ -21,4 +21,12 @@ public class DashboardUseCase {
     public List<Occupant> getOccupantsByUbicacion(long ubicacionId) {
         return repo.fetchOccupantsByUbicacion(ubicacionId);
     }
+
+    public int totalEmployees() {
+        return repo.totalEmployees();
+    }
+
+    public int totalEquipment() {
+        return repo.totalEquipment();
+    }
 }

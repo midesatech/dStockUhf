@@ -9,4 +9,6 @@ import java.util.List;
 public interface DashboardRepository {
     List<LocationPresence> fetchPresenceByLocationSince(LocalDateTime since);
     List<Occupant> fetchOccupantsByUbicacion(long ubicacionId);
+    int totalEmployees();
+    int totalEquipment();
 }

@@ -65,3 +65,5 @@ release/
 
 # Other packaging tools (e.g., inno, wix)
 installer/
+.DS_Store
+*.zip

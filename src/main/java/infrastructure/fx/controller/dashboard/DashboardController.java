@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.animation.ScaleTransition;
@@ -37,6 +38,18 @@ public class DashboardController {
     @FXML private TableColumn<OccupantRow, String> colEpc;
     @FXML private TableColumn<OccupantRow, String> colNombre;
     @FXML private TableColumn<OccupantRow, String> colUltimo;
+    @FXML private Label lblTotalEmployees;
+    @FXML private Label lblTotalEquipment;
+
+    // NUEVO: totales de presencia actual
+    @FXML private Label lblPresentEmployees;
+    @FXML private Label lblPresentEquipment;
+
+    // NUEVO: soporte colapsable/redimensionable
+    @FXML private SplitPane splitMain;
+    @FXML private Pane kpiContainer;   // contenedor de los KPIs (top del SplitPane)
+    @FXML private Button btnToggleKpis;
+
 
     private final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -47,6 +60,8 @@ public class DashboardController {
     private TimerTask refreshTask;
     // Use case hexagonal
     private final DashboardUseCase dashboard;
+    // Guardamos la última posición del divisor para restaurarla al expandir
+    private Double lastDividerPos = null;
 
     public DashboardController(DashboardUseCase dashboard) {
         this.dashboard = dashboard;
@@ -61,7 +76,13 @@ public class DashboardController {
         subtitle.setText("Últimas lecturas en " + timeoutSeconds + "s (detecciones_tags)");
 
         setupDetailsTable();
+        updateTotals();
         refreshNow();
+
+        // Opcional: posición inicial del divisor (30% KPIs / 70% contenido)
+        if (splitMain != null && !splitMain.getDividers().isEmpty()) {
+            splitMain.getDividers().get(0).setPosition(0.30);
+        }
 
         // Arrancar/parar según visibilidad del nodo (útil cuando cambias el centro de un BorderPane)
         root.visibleProperty().addListener((obs, wasVisible, isVisible) -> {
@@ -121,7 +142,6 @@ public class DashboardController {
     }
 
     private void refreshNow() {
-        // ⚙️ Caso de uso: trae presencia desde 'since'
         LocalDateTime since = LocalDateTime.now().minusSeconds(timeoutSeconds);
         List<LocationPresence> data = dashboard.getPresenceSince(since);
 
@@ -131,13 +151,21 @@ public class DashboardController {
             VBox card = (VBox) tiles.getChildren().get(i);
             updateCard(card, lp, i);
         }
-        // Remove extra si hay menos ubicaciones
         while (tiles.getChildren().size() > data.size()) {
             int last = tiles.getChildren().size() - 1;
             tiles.getChildren().remove(last);
             cardPool.remove(last);
         }
+        // --- NUEVO: calcular presentes ahora (suma de los contadores por ubicación)
+        int presentEmp = data.stream().mapToInt(LocationPresence::getEmployees).sum();
+        int presentEqp = data.stream().mapToInt(LocationPresence::getEquipment).sum();
+        if (lblPresentEmployees != null) lblPresentEmployees.setText(String.valueOf(presentEmp));
+        if (lblPresentEquipment != null) lblPresentEquipment.setText(String.valueOf(presentEqp));
+
+
+        updateTotals(); // <-- NUEVO
     }
+
 
     private void ensureCards(int n) {
         while (tiles.getChildren().size() < n) {
@@ -242,4 +270,39 @@ public class DashboardController {
             }
         });
     }
+
+    private void updateTotals() {
+        try {
+            int te = dashboard.totalEmployees();
+            int tq = dashboard.totalEquipment();
+            if (lblTotalEmployees != null) lblTotalEmployees.setText(String.valueOf(te));
+            if (lblTotalEquipment != null) lblTotalEquipment.setText(String.valueOf(tq));
+        } catch (Exception ignored) {
+            // opcional: loggear si deseas
+        }
+    }
+
+    @FXML
+    private void toggleKpis() {
+        if (kpiContainer == null || splitMain == null || splitMain.getDividers().isEmpty()) return;
+
+        SplitPane.Divider divider = splitMain.getDividers().get(0);
+
+        if (kpiContainer.isVisible()) {
+            // Guardar posición actual y ocultar
+            lastDividerPos = divider.getPosition();
+            kpiContainer.setVisible(false);
+            kpiContainer.setManaged(false);
+            divider.setPosition(0.0); // deja todo el espacio al panel inferior
+            if (btnToggleKpis != null) btnToggleKpis.setText("Mostrar KPIs");
+        } else {
+            // Mostrar y restaurar posición previa o usar un default
+            kpiContainer.setVisible(true);
+            kpiContainer.setManaged(true);
+            divider.setPosition(lastDividerPos != null ? lastDividerPos : 0.30);
+            if (btnToggleKpis != null) btnToggleKpis.setText("Ocultar KPIs");
+        }
+    }
+
+
 }
