@@ -9,10 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 
@@ -45,10 +42,17 @@ public class DashboardController {
     @FXML private Label lblPresentEmployees;
     @FXML private Label lblPresentEquipment;
 
-    // NUEVO: soporte colapsable/redimensionable
+    // KPIs
     @FXML private SplitPane splitMain;
-    @FXML private Pane kpiContainer;   // contenedor de los KPIs (top del SplitPane)
+    @FXML private BorderPane kpiPanel;     // contenedor fijo con header
+    @FXML private AnchorPane kpiContent;   // contenido colapsable (KPIs)
     @FXML private Button btnToggleKpis;
+
+    // Ubicaciones
+    @FXML private SplitPane splitContent;  // divisor entre Ubicaciones y Detalle
+    @FXML private BorderPane tilesPanel;   // contenedor fijo (header + contenido)
+    @FXML private ScrollPane tilesContent; // contenido colapsable (widgets)
+    @FXML private Button btnToggleTiles;
 
 
     private final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -62,6 +66,8 @@ public class DashboardController {
     private final DashboardUseCase dashboard;
     // Guardamos la última posición del divisor para restaurarla al expandir
     private Double lastDividerPos = null;
+    private Double lastTilesDividerPos = null;
+
 
     public DashboardController(DashboardUseCase dashboard) {
         this.dashboard = dashboard;
@@ -83,6 +89,12 @@ public class DashboardController {
         if (splitMain != null && !splitMain.getDividers().isEmpty()) {
             splitMain.getDividers().get(0).setPosition(0.30);
         }
+
+        // Posición inicial del divisor entre Ubicaciones y Detalle
+        if (splitContent != null && !splitContent.getDividers().isEmpty()) {
+            splitContent.getDividers().get(0).setPosition(0.60);
+        }
+
 
         // Arrancar/parar según visibilidad del nodo (útil cuando cambias el centro de un BorderPane)
         root.visibleProperty().addListener((obs, wasVisible, isVisible) -> {
@@ -284,25 +296,44 @@ public class DashboardController {
 
     @FXML
     private void toggleKpis() {
-        if (kpiContainer == null || splitMain == null || splitMain.getDividers().isEmpty()) return;
-
+        if (kpiContent == null || splitMain == null || splitMain.getDividers().isEmpty()) return;
         SplitPane.Divider divider = splitMain.getDividers().get(0);
 
-        if (kpiContainer.isVisible()) {
-            // Guardar posición actual y ocultar
+        boolean visible = kpiContent.isVisible();
+        if (visible) {
+            // Guardar altura actual y colapsar
             lastDividerPos = divider.getPosition();
-            kpiContainer.setVisible(false);
-            kpiContainer.setManaged(false);
-            divider.setPosition(0.0); // deja todo el espacio al panel inferior
+            kpiContent.setVisible(false);
+            kpiContent.setManaged(false);
+            divider.setPosition(0.0); // da todo el espacio al panel inferior
             if (btnToggleKpis != null) btnToggleKpis.setText("Mostrar KPIs");
         } else {
-            // Mostrar y restaurar posición previa o usar un default
-            kpiContainer.setVisible(true);
-            kpiContainer.setManaged(true);
+            // Mostrar y restaurar altura
+            kpiContent.setVisible(true);
+            kpiContent.setManaged(true);
             divider.setPosition(lastDividerPos != null ? lastDividerPos : 0.30);
             if (btnToggleKpis != null) btnToggleKpis.setText("Ocultar KPIs");
         }
     }
 
+    @FXML
+    private void toggleTiles() {
+        if (tilesContent == null || splitContent == null || splitContent.getDividers().isEmpty()) return;
+        SplitPane.Divider divider = splitContent.getDividers().get(0);
+
+        boolean visible = tilesContent.isVisible();
+        if (visible) {
+            lastTilesDividerPos = divider.getPosition();
+            tilesContent.setVisible(false);
+            tilesContent.setManaged(false);
+            divider.setPosition(0.0); // todo el espacio para Detalle
+            if (btnToggleTiles != null) btnToggleTiles.setText("Mostrar Ubicaciones");
+        } else {
+            tilesContent.setVisible(true);
+            tilesContent.setManaged(true);
+            divider.setPosition(lastTilesDividerPos != null ? lastTilesDividerPos : 0.60);
+            if (btnToggleTiles != null) btnToggleTiles.setText("Ocultar Ubicaciones");
+        }
+    }
 
 }
