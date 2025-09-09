@@ -54,6 +54,9 @@ public class DashboardController {
     @FXML private ScrollPane tilesContent; // contenido colapsable (widgets)
     @FXML private Button btnToggleTiles;
 
+    @FXML private VBox kpiPresentEmpCard;
+    @FXML private VBox kpiPresentEqpCard;
+
 
     private final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -67,7 +70,25 @@ public class DashboardController {
     // Guardamos la última posición del divisor para restaurarla al expandir
     private Double lastDividerPos = null;
     private Double lastTilesDividerPos = null;
+    private int lastTotalEmployees = 0;
+    private int lastTotalEquipment = 0;
+    private int lastPresentEmployees = 0;
+    private int lastPresentEquipment = 0;
 
+    // Evitar re-entradas y bucles del combo
+    private volatile boolean cmbPopulating = false;
+    private volatile boolean fetchInProgress = false;
+
+    // Cache del último dataset completo (para re-filtrar sin ir a DB)
+    private List<LocationPresence> lastAllData = List.of();
+
+
+    // Combo de ubicaciones
+    @FXML private ComboBox<LocationOption> cmbUbicaciones;
+    private Long selectedLocationId = null; // null = "Todos"
+
+    // Indica si el filtrado de tiles está ACTIVADO por el ComboBox
+    private boolean filterFromCombo = false;
 
     public DashboardController(DashboardUseCase dashboard) {
         this.dashboard = dashboard;
@@ -83,18 +104,29 @@ public class DashboardController {
 
         setupDetailsTable();
         updateTotals();
-        refreshNow();
+        refreshNowAsync();
+
+        // Normaliza clases por si quedaron definidas con punto desde el FXML antiguo
+        normalizeStyleClasses(kpiPresentEmpCard);
+        normalizeStyleClasses(kpiPresentEqpCard);
+        // Asegura que tienen base 'kpi-card'
+        if (kpiPresentEmpCard != null && !kpiPresentEmpCard.getStyleClass().contains("kpi-card"))
+            kpiPresentEmpCard.getStyleClass().add(0, "kpi-card");
+        if (kpiPresentEqpCard != null && !kpiPresentEqpCard.getStyleClass().contains("kpi-card"))
+            kpiPresentEqpCard.getStyleClass().add(0, "kpi-card");
+
+        // Aplica estados segun valores ya calculados
+        updateKpiStates();
 
         // Opcional: posición inicial del divisor (30% KPIs / 70% contenido)
         if (splitMain != null && !splitMain.getDividers().isEmpty()) {
-            splitMain.getDividers().get(0).setPosition(0.30);
+            splitMain.getDividers().get(0).setPosition(0.19);
         }
 
         // Posición inicial del divisor entre Ubicaciones y Detalle
         if (splitContent != null && !splitContent.getDividers().isEmpty()) {
             splitContent.getDividers().get(0).setPosition(0.60);
         }
-
 
         // Arrancar/parar según visibilidad del nodo (útil cuando cambias el centro de un BorderPane)
         root.visibleProperty().addListener((obs, wasVisible, isVisible) -> {
@@ -113,6 +145,28 @@ public class DashboardController {
                 if (newW != null) newW.showingProperty().addListener(windowShowingListener);
             });
         });
+
+        if (cmbUbicaciones != null) {
+            cmbUbicaciones.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (cmbPopulating) return; // evitar bucle al repoblar
+
+                if (newVal == null || newVal.id == null) {
+                    // "Todos" ⇒ NO filtrar tiles
+                    filterFromCombo = false;
+                    selectedLocationId = null;
+                    applyData(lastAllData);       // re-render con TODO
+                    loadDetailsAsync(null, null); // limpiar detalle
+                } else {
+                    // Ubicación específica ⇒ filtrar tiles
+                    filterFromCombo = true;
+                    selectedLocationId = newVal.id;
+                    applyData(lastAllData);            // re-render filtrado
+                    loadDetailsAsync(newVal.id, newVal.name); // carga detalle de esa ubicación
+                }
+
+                if (scroller != null) scroller.setVvalue(0.0);
+            });
+        }
 
         // Si ya está visible y la ventana está mostrando, arrancamos
         Platform.runLater(() -> {
@@ -133,12 +187,85 @@ public class DashboardController {
         if (refreshTask != null) return; // ya está corriendo
         refreshTask = new TimerTask() {
             @Override public void run() {
-                Platform.runLater(() -> refreshNow());
+                refreshNowAsync();  // 👈 NO Platform.runLater: ya hacemos UI en onSucceeded
             }
         };
-        // cada 5 segundos; ajusta si lo necesitas
-        timer.scheduleAtFixedRate(refreshTask, 5000, 5000);
+        timer.scheduleAtFixedRate(refreshTask, 2000, 5000); // 2s primer tick, luego cada 5s
     }
+
+    // Consulta en background y actualiza UI en onSucceeded
+    private void refreshNowAsync() {
+        if (fetchInProgress) return; // 👈 evitar concurrencias (tick anterior no ha terminado)
+        fetchInProgress = true;
+
+        final LocalDateTime since = LocalDateTime.now().minusSeconds(timeoutSeconds);
+
+        javafx.concurrent.Task<List<LocationPresence>> task = new javafx.concurrent.Task<>() {
+            @Override protected List<LocationPresence> call() {
+                // ⚠️ Aquí estamos en hilo en background (NO UI)
+                return dashboard.getPresenceSince(since);
+            }
+        };
+
+        task.setOnSucceeded(evt -> {
+            try {
+                List<LocationPresence> allData = task.getValue();
+                applyData(allData); // 👈 aquí sí tocamos UI
+            } finally {
+                fetchInProgress = false;
+            }
+        });
+
+        task.setOnFailed(evt -> {
+            fetchInProgress = false;
+            // (opcional) registra el error: task.getException()
+        });
+
+        Thread t = new Thread(task, "dashboard-refresh-task");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    /** Aplica datos a la UI (tarjetas, presentes, KPIs) y repuebla combo sin bucles */
+    private void applyData(List<LocationPresence> allData) {
+        if (allData == null) allData = List.of();
+        lastAllData = allData; // cache
+
+        // 1) Repoblar combo (sin disparar listener)
+        populateLocationsCombo(allData);
+
+        // 2) Filtrar SOLO las tarjetas según el combo
+        // 2) Filtrar SOLO si el filtro proviene del ComboBox
+        List<LocationPresence> data = (!filterFromCombo || selectedLocationId == null)
+                ? allData
+                : allData.stream().filter(lp -> lp.getLocationId() == selectedLocationId).toList();
+
+        // 3) Render de tarjetas
+        ensureCards(data.size());
+        for (int i = 0; i < data.size(); i++) {
+            LocationPresence lp = data.get(i);
+            VBox card = (VBox) tiles.getChildren().get(i);
+            updateCard(card, lp, i);
+        }
+        while (tiles.getChildren().size() > data.size()) {
+            int last = tiles.getChildren().size() - 1;
+            tiles.getChildren().remove(last);
+            cardPool.remove(last);
+        }
+
+        // 4) Presentes AHORA (KPIs) SIEMPRE con ALLDATA (no filtrado)
+        int presentEmpAll = allData.stream().mapToInt(LocationPresence::getEmployees).sum();
+        int presentEqpAll = allData.stream().mapToInt(LocationPresence::getEquipment).sum();
+        lastPresentEmployees = presentEmpAll;
+        lastPresentEquipment = presentEqpAll;
+        if (lblPresentEmployees != null) lblPresentEmployees.setText(String.valueOf(presentEmpAll));
+        if (lblPresentEquipment != null) lblPresentEquipment.setText(String.valueOf(presentEqpAll));
+
+        // 5) Totales globales y estados de KPI
+        updateTotals();
+        updateKpiStates();
+    }
+
 
     private void stopPolling() {
         if (refreshTask != null) {
@@ -155,8 +282,22 @@ public class DashboardController {
 
     private void refreshNow() {
         LocalDateTime since = LocalDateTime.now().minusSeconds(timeoutSeconds);
-        List<LocationPresence> data = dashboard.getPresenceSince(since);
 
+        // 1) Traer TODO para KPIs y para construir la lista de ubicaciones
+        List<LocationPresence> allData = dashboard.getPresenceSince(since);
+
+        // 2) Poblamos el combo (conserva selección si existe)
+        populateLocationsCombo(allData);
+
+        // 3) Aplicar filtro SOLO para las tarjetas (si el usuario eligió ubicación)
+        List<LocationPresence> data = allData;
+        if (selectedLocationId != null) {
+            data = allData.stream()
+                    .filter(lp -> lp.getLocationId() == selectedLocationId)
+                    .toList();
+        }
+
+        // 4) Tarjetas (grid) con DATA FILTRADA
         ensureCards(data.size());
         for (int i = 0; i < data.size(); i++) {
             LocationPresence lp = data.get(i);
@@ -168,16 +309,18 @@ public class DashboardController {
             tiles.getChildren().remove(last);
             cardPool.remove(last);
         }
-        // --- NUEVO: calcular presentes ahora (suma de los contadores por ubicación)
-        int presentEmp = data.stream().mapToInt(LocationPresence::getEmployees).sum();
-        int presentEqp = data.stream().mapToInt(LocationPresence::getEquipment).sum();
-        if (lblPresentEmployees != null) lblPresentEmployees.setText(String.valueOf(presentEmp));
-        if (lblPresentEquipment != null) lblPresentEquipment.setText(String.valueOf(presentEqp));
 
+        // 5) KPIs SIEMPRE con ALLDATA (NO FILTRADO)
+        int presentEmpAll = allData.stream().mapToInt(LocationPresence::getEmployees).sum();
+        int presentEqpAll = allData.stream().mapToInt(LocationPresence::getEquipment).sum();
+        lastPresentEmployees = presentEmpAll;
+        lastPresentEquipment = presentEqpAll;
+        if (lblPresentEmployees != null) lblPresentEmployees.setText(String.valueOf(presentEmpAll));
+        if (lblPresentEquipment != null) lblPresentEquipment.setText(String.valueOf(presentEqpAll));
 
-        updateTotals(); // <-- NUEVO
+        updateTotals();     // totales globales (DB completa)
+        updateKpiStates();  // warn/ok (comparando presentes globales vs totales globales)
     }
-
 
     private void ensureCards(int n) {
         while (tiles.getChildren().size() < n) {
@@ -222,24 +365,22 @@ public class DashboardController {
     }
 
     private void onUbicacionSelected(javafx.scene.Node tileNode, long ubicacionId, String ubicacionNombre) {
-        subtitle.setText("Ubicación: " + ubicacionNombre);
+        // NO tocar ComboBox ni selectedLocationId ni filterFromCombo
 
-        // ⚙️ Caso de uso: trae ocupantes por ubicación
-        List<Occupant> oc = dashboard.getOccupantsByUbicacion(ubicacionId);
-        List<OccupantRow> rows = new ArrayList<>();
-        for (Occupant o : oc) {
-            String last = (o.getLastSeen() == null) ? "" : o.getLastSeen().format(TS_FMT);
-            rows.add(new OccupantRow(o.getTipo(), o.getEpc(), o.getNombre(), last));
+        // Dispara un refresh inmediato para alinear KPIs/tarjetas si es posible
+        if (!fetchInProgress) {
+            refreshNowAsync();
         }
-        detailsTable.setItems(FXCollections.observableArrayList(rows));
 
-        // Quitar selección previa
+        // Cargar detalle (ya filtrado por ventana)
+        loadDetailsAsync(ubicacionId, ubicacionNombre);
+
+        // Quitar selección previa visual y animar tarjeta
         if (selectedTile != null) {
             selectedTile.getStyleClass().remove("selected");
             selectedTile.setScaleX(1.0);
             selectedTile.setScaleY(1.0);
         }
-        // Marcar y animar
         tileNode.getStyleClass().add("selected");
         ScaleTransition st = new ScaleTransition(Duration.millis(120), tileNode);
         st.setToX(1.03);
@@ -247,6 +388,7 @@ public class DashboardController {
         st.play();
         selectedTile = tileNode;
     }
+
 
     private void setupDetailsTable() {
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
@@ -287,12 +429,55 @@ public class DashboardController {
         try {
             int te = dashboard.totalEmployees();
             int tq = dashboard.totalEquipment();
+            lastTotalEmployees = te;
+            lastTotalEquipment = tq;
+
             if (lblTotalEmployees != null) lblTotalEmployees.setText(String.valueOf(te));
             if (lblTotalEquipment != null) lblTotalEquipment.setText(String.valueOf(tq));
-        } catch (Exception ignored) {
-            // opcional: loggear si deseas
-        }
+        } catch (Exception ignored) { }
     }
+
+    private void updateKpiStates() {
+        setKpiState(kpiPresentEmpCard, lastPresentEmployees, lastTotalEmployees);
+        setKpiState(kpiPresentEqpCard, lastPresentEquipment, lastTotalEquipment);
+    }
+
+    private void setKpiState(VBox card, int present, int total) {
+        if (card == null) return;
+
+        // Normaliza por si acaso (si alguien reinyecta FXML con el punto)
+        normalizeStyleClasses(card);
+
+        // Asegura base 'kpi-card'
+        if (!card.getStyleClass().contains("kpi-card")) {
+            card.getStyleClass().add(0, "kpi-card");
+        }
+        // Limpia estados previos (y la 'accent' para que no compita)
+        card.getStyleClass().removeAll("warn", "ok", "accent", "kpi-card.accent");
+
+        // Sólo warning cuando difiere; si prefieres sólo cuando present < total, cambia por (present < total)
+        if (present != total) card.getStyleClass().add("warn");
+        else card.getStyleClass().add("ok");
+
+        // (opcional) Forzar recomputo CSS de ese nodo
+        // card.applyCss();
+    }
+
+    private void normalizeStyleClasses(javafx.scene.Node node) {
+        if (node == null) return;
+        List<String> add = new ArrayList<>();
+        List<String> remove = new ArrayList<>();
+        for (String c : node.getStyleClass()) {
+            if (c.contains(".")) {
+                String[] parts = c.split("\\.");
+                for (String p : parts) if (!p.isBlank()) add.add(p);
+                remove.add(c);
+            }
+        }
+        node.getStyleClass().removeAll(remove);
+        node.getStyleClass().addAll(add);
+    }
+
 
     @FXML
     private void toggleKpis() {
@@ -311,7 +496,7 @@ public class DashboardController {
             // Mostrar y restaurar altura
             kpiContent.setVisible(true);
             kpiContent.setManaged(true);
-            divider.setPosition(lastDividerPos != null ? lastDividerPos : 0.30);
+            divider.setPosition(lastDividerPos != null ? lastDividerPos : 0.35);
             if (btnToggleKpis != null) btnToggleKpis.setText("Ocultar KPIs");
         }
     }
@@ -334,6 +519,99 @@ public class DashboardController {
             divider.setPosition(lastTilesDividerPos != null ? lastTilesDividerPos : 0.60);
             if (btnToggleTiles != null) btnToggleTiles.setText("Ocultar Ubicaciones");
         }
+    }
+
+    private void populateLocationsCombo(List<LocationPresence> allData) {
+        if (cmbUbicaciones == null) return;
+
+        cmbPopulating = true;        // 👈 bloquear listener
+        try {
+            Long previous = selectedLocationId; // conservar selección actual
+
+            List<LocationOption> items = new ArrayList<>();
+            items.add(new LocationOption(null, "Todos"));
+
+            java.util.LinkedHashMap<Long, String> map = new java.util.LinkedHashMap<>();
+            for (LocationPresence lp : allData) {
+                map.put(lp.getLocationId(), lp.getLocationName());
+            }
+            map.entrySet().stream()
+                    .sorted((a, b) -> a.getValue().compareToIgnoreCase(b.getValue()))
+                    .forEach(e -> items.add(new LocationOption(e.getKey(), e.getValue())));
+
+            cmbUbicaciones.getItems().setAll(items);
+
+            LocationOption sel = items.stream()
+                    .filter(lo -> (previous == null && lo.id == null) ||
+                            (previous != null && lo.id != null && lo.id.equals(previous)))
+                    .findFirst()
+                    .orElse(items.get(0));
+
+            cmbUbicaciones.getSelectionModel().select(sel);
+            selectedLocationId = sel.id;
+        } finally {
+            cmbPopulating = false;   // 👈 reactivar listener
+        }
+    }
+
+    private void loadDetailsAsync(Long ubicacionId, String ubicacionNombre) {
+        // Si es "Todos", limpiamos detalle y subtítulo
+        if (ubicacionId == null) {
+            subtitle.setText("Todas las ubicaciones");
+            detailsTable.getItems().clear();
+            if (selectedTile != null) {
+                selectedTile.getStyleClass().remove("selected");
+                selectedTile = null;
+            }
+            return;
+        }
+
+        subtitle.setText("Ubicación: " + ubicacionNombre);
+
+        // Usa el MISMO since que presence
+        final LocalDateTime since = LocalDateTime.now().minusSeconds(timeoutSeconds);
+
+        javafx.concurrent.Task<List<Occupant>> task = new javafx.concurrent.Task<>() {
+            @Override protected List<Occupant> call() {
+                // Trae todos los ocupantes de la ubicación…
+                List<Occupant> all = dashboard.getOccupantsByUbicacion(ubicacionId);
+                // …y FILTRA por la misma ventana temporal para alinear con KPIs/tarjetas
+                List<Occupant> filtered = new ArrayList<>();
+                for (Occupant o : all) {
+                    if (o.getLastSeen() != null && !o.getLastSeen().isBefore(since)) {
+                        filtered.add(o);
+                    }
+                }
+                return filtered;
+            }
+        };
+
+        task.setOnSucceeded(evt -> {
+            List<Occupant> oc = task.getValue();
+            List<OccupantRow> rows = new ArrayList<>();
+            for (Occupant o : oc) {
+                String last = (o.getLastSeen() == null) ? "" : o.getLastSeen().format(TS_FMT);
+                rows.add(new OccupantRow(o.getTipo(), o.getEpc(), o.getNombre(), last));
+            }
+            detailsTable.setItems(FXCollections.observableArrayList(rows));
+        });
+
+        task.setOnFailed(evt -> {
+            detailsTable.getItems().clear();
+            // opcional: log task.getException()
+        });
+
+        Thread t = new Thread(task, "load-details");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // Auxiliar de combo
+    private static class LocationOption {
+        final Long id;      // null = Todos
+        final String name;
+        LocationOption(Long id, String name) { this.id = id; this.name = name; }
+        @Override public String toString() { return name; }
     }
 
 }

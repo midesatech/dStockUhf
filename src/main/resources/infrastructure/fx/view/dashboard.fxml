@@ -15,7 +15,6 @@
         <!-- SplitPane vertical: arriba KPIs (colapsable), abajo el contenido actual -->
         <SplitPane fx:id="splitMain" orientation="VERTICAL">
             <items>
-
                 <!-- Panel superior: KPIs (header fijo + contenido colapsable) -->
                 <BorderPane fx:id="kpiPanel">
                     <top>
@@ -30,6 +29,7 @@
                     <center>
                         <!-- Contenido real de KPIs (esto es lo que se colapsa) -->
                         <AnchorPane fx:id="kpiContent">
+                            <minHeight>95.0</minHeight>
                             <children>
                                 <HBox spacing="12" AnchorPane.topAnchor="8.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0">
                                     <VBox styleClass="kpi-card" alignment="CENTER_LEFT">
@@ -42,12 +42,12 @@
                                         <Label fx:id="lblTotalEquipment" text="0" styleClass="kpi-number"/>
                                     </VBox>
 
-                                    <VBox styleClass="kpi-card accent" alignment="CENTER_LEFT">
+                                    <VBox fx:id="kpiPresentEmpCard" styleClass="kpi-card accent" alignment="CENTER_LEFT">
                                         <Label text="Presentes (Employees)" styleClass="kpi-title"/>
                                         <Label fx:id="lblPresentEmployees" text="0" styleClass="kpi-number"/>
                                     </VBox>
 
-                                    <VBox styleClass="kpi-card accent" alignment="CENTER_LEFT">
+                                    <VBox fx:id="kpiPresentEqpCard" styleClass="kpi-card accent" alignment="CENTER_LEFT">
                                         <Label text="Presentes (Equipment)" styleClass="kpi-title"/>
                                         <Label fx:id="lblPresentEquipment" text="0" styleClass="kpi-number"/>
                                     </VBox>
@@ -56,7 +56,7 @@
                             <padding>
                                 <Insets top="8" right="16" bottom="8" left="16"/>
                             </padding>
-                            <minHeight>64.0</minHeight>
+
                         </AnchorPane>
                     </center>
                 </BorderPane>
@@ -70,6 +70,7 @@
                             <top>
                                 <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
                                     <Label text="Ubicaciones" styleClass="tiles-title"/>
+                                    <ComboBox fx:id="cmbUbicaciones" promptText="Filtrar por ubicación" prefWidth="240"/>
                                     <Pane HBox.hgrow="ALWAYS"/>
                                     <Button fx:id="btnToggleTiles" text="Ocultar Ubicaciones"
                                             onAction="#toggleTiles"

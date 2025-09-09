@@ -102,35 +102,32 @@
     -fx-text-fill: #0f172a;    /* slate-900 */
 }
 
-/* KPIs globales */
-.kpis { -fx-padding: 0 16 4 16; }
-
-.kpi-card {
-    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc);
-    -fx-background-radius: 16;
-    -fx-padding: 12 16;
-    -fx-spacing: 4;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0.2, 0, 2);
-    -fx-min-width: 180;
-}
-
 .kpi-card.accent {
     /* sutil diferencia para KPIs de presencia actual */
     -fx-background-color: linear-gradient(to bottom, #ffffff, #eef2ff); /* azulado pastel */
 }
-
-.kpi-title {
-    -fx-text-fill: #64748b;
-    -fx-font-size: 11px;
-    -fx-font-weight: 700;
-    -fx-letter-spacing: 0.3px;
+/* Estados de alerta/ok para KPIs de "Presentes" */
+.kpi-card.warn {
+    /* amarillo/ámbar suave que llame la atención */
+    -fx-background-color: linear-gradient(to bottom, #fff7ed, #ffedd5); /* amber-50/100 */
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.25), 12, 0.3, 0, 2);
+    -fx-border-color: #f59e0b;  /* amber-500 */
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
 }
 
-.kpi-number {
-    -fx-font-size: 26px;
-    -fx-font-weight: 900;
-    -fx-text-fill: #0f172a;
+.kpi-card.ok {
+    /* verdoso sutil cuando no hay discrepancia */
+    -fx-background-color: linear-gradient(to bottom, #ecfdf5, #d1fae5); /* emerald-50/100 */
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.18), 10, 0.25, 0, 2);
+    -fx-border-color: #10b981;  /* emerald-500 */
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
 }
+
+/* Opcional: números más contrastados dentro de warn/ok */
+.kpi-card.warn .kpi-number { -fx-text-fill: #7c2d12; }   /* amber-900 */
+.kpi-card.ok   .kpi-number { -fx-text-fill: #064e3b; }   /* emerald-900 */
 
 /* Botón de colapso */
 .kpi-toggle-btn {
@@ -144,7 +141,7 @@
     -fx-background-color: #cbd5e1;
 }
 .tiles-header {
-    -fx-padding: 8 16 8 16;
+    -fx-padding: 4 4 4 4;
 }
 
 .tiles-title {
@@ -152,4 +149,6 @@
     -fx-font-weight: 800;
     -fx-text-fill: #334155; /* slate-700 */
 }
+
+
 
