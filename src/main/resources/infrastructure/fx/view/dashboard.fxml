@@ -31,7 +31,7 @@
                         <AnchorPane fx:id="kpiContent">
                             <minHeight>95.0</minHeight>
                             <children>
-                                <HBox spacing="12" AnchorPane.topAnchor="8.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0">
+                                <HBox spacing="12" AnchorPane.topAnchor="4.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0">
                                     <VBox styleClass="kpi-card" alignment="CENTER_LEFT">
                                         <Label text="Employees" styleClass="kpi-title"/>
                                         <Label fx:id="lblTotalEmployees" text="0" styleClass="kpi-number"/>

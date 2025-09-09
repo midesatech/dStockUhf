@@ -78,7 +78,7 @@
 }
 
 /* KPIs globales */
-.kpis { -fx-padding: 0 16 4 16; }
+.kpis { -fx-padding: 0 8 4 8; }
 
 .kpi-card {
     -fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc);
@@ -132,7 +132,7 @@
 /* Botón de colapso */
 .kpi-toggle-btn {
     -fx-background-radius: 999;
-    -fx-padding: 6 12;
+    -fx-padding: 3 6;
     -fx-font-size: 11px;
     -fx-background-color: #e2e8f0;
     -fx-text-fill: #0f172a;
@@ -146,7 +146,7 @@
 
 .tiles-title {
     -fx-font-size: 13px;
-    -fx-font-weight: 800;
+    -fx-font-weight: 700;
     -fx-text-fill: #334155; /* slate-700 */
 }
 
