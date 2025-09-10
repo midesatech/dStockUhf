@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.dashboard.TrackDashboardController">
+    <fx:define>
+        <ToggleGroup fx:id="grpTipo"/>
+    </fx:define>
+    <top>
+        <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
+            <HBox spacing="10" styleClass="header">
+                <Label text="Seguimiento UHF (Employee / Equipment)" styleClass="title"/>
+                <Label fx:id="lblSubtitle" text="" styleClass="subtitle"/>
+            </HBox>
+
+            <HBox spacing="10" styleClass="kpis" alignment="CENTER_LEFT">
+
+                <RadioButton fx:id="rbEmployee" text="Employees" toggleGroup="$grpTipo" selected="true"/>
+                <RadioButton fx:id="rbEquipment" text="Equipment" toggleGroup="$grpTipo"/>
+
+                <Separator orientation="VERTICAL"/>
+
+                <Label text="Rango rápido:"/>
+                <ComboBox fx:id="cmbQuick" prefWidth="180"/>
+
+                <Label text="Inicio:"/>
+                <DatePicker fx:id="dpStart"/>
+                <Spinner fx:id="spStartHour" prefWidth="70"/>
+                <Spinner fx:id="spStartMin"  prefWidth="70"/>
+
+                <Label text="Fin:"/>
+                <DatePicker fx:id="dpEnd"/>
+                <Spinner fx:id="spEndHour" prefWidth="70"/>
+                <Spinner fx:id="spEndMin"  prefWidth="70"/>
+
+                <Button fx:id="btnSearch" text="Buscar" onAction="#onSearch"/>
+                <Button fx:id="btnReset"  text="Reset"  onAction="#onReset"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane orientation="VERTICAL">
+            <items>
+                <TableView fx:id="tblDetections">
+                    <placeholder><Label text="Ajusta filtros y presiona Buscar"/></placeholder>
+                    <columns>
+                        <TableColumn fx:id="colWhen"    text="Fecha/Hora"         prefWidth="180"/>
+                        <TableColumn fx:id="colTipo"    text="Tipo"               prefWidth="110"/>
+                        <TableColumn fx:id="colEpc"     text="EPC"                prefWidth="240"/>
+                        <TableColumn fx:id="colNombre"  text="Nombre/Descripción" prefWidth="300"/>
+                        <TableColumn fx:id="colUbic"    text="Ubicación"          prefWidth="220"/>
+                    </columns>
+                </TableView>
+
+                <BorderPane>
+                    <top>
+                        <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
+                            <Label text="Ruta del EPC seleccionado" styleClass="tiles-title"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblRouteInfo" text=""/>
+                        </HBox>
+                    </top>
+                    <center>
+                        <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER">
+                            <content>
+                                <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;"/>
+                            </content>
+                        </ScrollPane>
+                    </center>
+                </BorderPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <padding>
+        <Insets top="8" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/infrastructure/fx/styles/dashboard.css"/>
+    </stylesheets>
+</BorderPane>

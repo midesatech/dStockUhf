@@ -144,7 +144,11 @@ public class SidebarController {
         dashRoot.getChildren().add(
                 makeMenuItem("Ocupación por Ubicación", "/infrastructure/fx/view/dashboard.fxml", Icons.SCAN)
         );
+        dashRoot.getChildren().add(
+                makeMenuItem("Seguimiento", "/infrastructure/fx/view/track_dashboard.fxml", Icons.ROUTE)
+        );
         rootItem.getChildren().add(dashRoot);
+
 
         // 4. Administración del sistema (3.1..3.4)
         TreeItem<String> sysRoot = makeMenuCategory("Administración", Icons.SHIELD);

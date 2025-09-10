@@ -19,4 +19,10 @@ public class Icons {
                     "M20 17v2h-2 " +   // esquina inf-der
                     "M4 17v2h2 " +     // esquina inf-izq
                     "M3 12h18";
+    public static final String ROUTE =
+            "M5 19h0 " +       // punto 1
+                    "M12 12h0 " +      // punto 2
+                    "M19 5h0 " +       // punto 3
+                    "M7 17L10 14 " +   // segmento 1-2
+                    "M14 10L17 7";     // segmento 2-3
 }

@@ -150,5 +150,26 @@
     -fx-text-fill: #334155; /* slate-700 */
 }
 
+/* Chips de ruta (pastel) */
+.route-chip {
+    -fx-background-radius: 18;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0.2, 0, 2);
+    -fx-alignment: center;
+}
+.route-chip-text { -fx-fill: #0f172a; -fx-font-weight: 700; }
 
+/* paleta 0..5 (consistente con tus bg-*) */
+.chip-0 { -fx-background-color: #FDE2E4; }
+.chip-1 { -fx-background-color: #E2ECE9; }
+.chip-2 { -fx-background-color: #E8E8FD; }
+.chip-3 { -fx-background-color: #FFF1E6; }
+.chip-4 { -fx-background-color: #E7F5FF; }
+.chip-5 { -fx-background-color: #F1F3F5; }
+
+.route-arrow {
+    -fx-text-fill: #334155; /* slate-700 */
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+}
 
