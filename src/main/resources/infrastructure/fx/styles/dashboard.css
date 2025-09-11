@@ -79,6 +79,17 @@
 
 /* KPIs globales */
 .kpis { -fx-padding: 0 8 4 8; }
+/* Ensure text is visible for controls inside the filters area */
+.kpis .button .text,
+.kpis .radio-button .text,
+.kpis .label { -fx-opacity: 1; }
+
+/* Make sure buttons show text even if an icon is added later */
+.kpis .button { -fx-content-display: LEFT; }
+
+/* Optional: avoid overly tight buttons */
+/* .kpis .button { -fx-padding: 6 12 6 12; } */
+
 
 .kpi-card {
     -fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc);
@@ -173,3 +184,27 @@
     -fx-font-weight: 900;
 }
 
+/* Soft pastel buttons */
+.btn-soft-primary {
+    -fx-background-color: rgba(59,130,246,0.15);
+    -fx-text-fill: #1f2937;
+    -fx-background-radius: 10;
+    -fx-padding: 6 14 6 14;
+    -fx-font-weight: 600;
+}
+.btn-soft-primary:hover { -fx-background-color: rgba(59,130,246,0.25); }
+.btn-soft-primary:armed { -fx-background-color: rgba(59,130,246,0.35); }
+
+.btn-soft-neutral {
+    -fx-background-color: rgba(100,116,139,0.15); /* slate-ish */
+    -fx-text-fill: #1f2937;
+    -fx-background-radius: 10;
+    -fx-padding: 6 14 6 14;
+    -fx-font-weight: 600;
+}
+.btn-soft-neutral:hover { -fx-background-color: rgba(100,116,139,0.25); }
+.btn-soft-neutral:armed { -fx-background-color: rgba(100,116,139,0.35); }
+
+/* Make sure radio captions are visible and horizontal */
+.filters-radios .radio-button .text { -fx-opacity: 1; }
+.filters-radios .radio-button { -fx-content-display: LEFT; }

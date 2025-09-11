@@ -13,31 +13,83 @@
             <HBox spacing="10" styleClass="header">
                 <Label text="Seguimiento UHF (Employee / Equipment)" styleClass="title"/>
                 <Label fx:id="lblSubtitle" text="" styleClass="subtitle"/>
-            </HBox>
+            </HBox><TitledPane text="Filtros" expanded="false" animated="true">
+            <content>
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <GridPane hgap="10" vgap="6" styleClass="kpis" alignment="CENTER_LEFT">
+                        <columnConstraints>
+                            <ColumnConstraints prefWidth="140" minWidth="140" hgrow="NEVER"/>
+                            <ColumnConstraints minWidth="150" hgrow="NEVER"/>
+                            <ColumnConstraints minWidth="120" hgrow="NEVER"/>
+                            <ColumnConstraints minWidth="320" hgrow="SOMETIMES"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints valignment="CENTER"/>
+                            <RowConstraints valignment="CENTER"/>
+                            <!-- Buttons row; CENTER is fine -->
+                            <RowConstraints valignment="CENTER"/>
+                        </rowConstraints>
 
-            <HBox spacing="10" styleClass="kpis" alignment="CENTER_LEFT">
+                        <!-- Row 0: Labels -->
+                        <Label text="Tipo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Rango rápido:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Inicio:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <Label text="Fin:" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
-                <RadioButton fx:id="rbEmployee" text="Employees" toggleGroup="$grpTipo" selected="true"/>
-                <RadioButton fx:id="rbEquipment" text="Equipment" toggleGroup="$grpTipo"/>
+                        <!-- Row 1: Values – radios vertically stacked, no rowSpan -->
+                        <VBox spacing="8" styleClass="filters-radios"
+                              GridPane.rowIndex="1" GridPane.columnIndex="0"
+                              GridPane.valignment="TOP">
+                            <children>
+                                <RadioButton fx:id="rbEmployee" text="Employees"
+                                             toggleGroup="$grpTipo" selected="true"
+                                             mnemonicParsing="false" contentDisplay="LEFT"
+                                             wrapText="true" maxWidth="Infinity"/>
+                                <RadioButton fx:id="rbEquipment" text="Equipment"
+                                             toggleGroup="$grpTipo" mnemonicParsing="false"
+                                             contentDisplay="LEFT" wrapText="true" maxWidth="Infinity"/>
+                            </children>
+                        </VBox>
 
-                <Separator orientation="VERTICAL"/>
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.valignment="CENTER">
+                            <ComboBox fx:id="cmbQuick" maxWidth="Infinity"/>
+                        </HBox>
 
-                <Label text="Rango rápido:"/>
-                <ComboBox fx:id="cmbQuick" prefWidth="180"/>
 
-                <Label text="Inicio:"/>
-                <DatePicker fx:id="dpStart"/>
-                <Spinner fx:id="spStartHour" prefWidth="70"/>
-                <Spinner fx:id="spStartMin"  prefWidth="70"/>
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.valignment="CENTER">
+                            <children>
+                                <DatePicker fx:id="dpStart"/>
+                                <Spinner fx:id="spStartHour" prefWidth="70"/>
+                                <Spinner fx:id="spStartMin"  prefWidth="70"/>
+                            </children>
+                        </HBox>
 
-                <Label text="Fin:"/>
-                <DatePicker fx:id="dpEnd"/>
-                <Spinner fx:id="spEndHour" prefWidth="70"/>
-                <Spinner fx:id="spEndMin"  prefWidth="70"/>
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="3" GridPane.valignment="CENTER">
+                            <children>
+                                <DatePicker fx:id="dpEnd"/>
+                                <Spinner fx:id="spEndHour" prefWidth="70"/>
+                                <Spinner fx:id="spEndMin"  prefWidth="70"/>
+                            </children>
+                        </HBox>
 
-                <Button fx:id="btnSearch" text="Buscar" onAction="#onSearch"/>
-                <Button fx:id="btnReset"  text="Reset"  onAction="#onReset"/>
-            </HBox>
+                        <!-- Row 2: Buttons aligned right across all columns -->
+                        <HBox spacing="10" alignment="CENTER_RIGHT"
+                              GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="5">
+                            <children>
+                                <Button fx:id="btnReset"  text="Reset"  onAction="#onReset" mnemonicParsing="false"
+                                        styleClass="btn-soft-neutral"/>
+                                <Button fx:id="btnSearch" text="Buscar" onAction="#onSearch" mnemonicParsing="false"
+                                        defaultButton="true" styleClass="btn-soft-primary"/>
+                            </children>
+                        </HBox>
+                    </GridPane>
+                </VBox>
+            </content>
+        </TitledPane>
         </VBox>
     </top>
 
