@@ -161,6 +161,13 @@ public class SidebarController {
         if (isAdmin || hasPermission(u, "ROLE_MANAGE")) {
             sysRoot.getChildren().add(makeMenuItem("Permisos por roles", "/infrastructure/fx/view/system/permissions.fxml", Icons.KEY));
         }
+        // Only ADMIN can see DB Config page
+        if (isAdmin) {
+            sysRoot.getChildren().add(
+                    makeMenuItem("DB Configuración", "/infrastructure/fx/view/system/db_config.fxml", Icons.SETTINGS)
+            );
+        }
+
         // 3.4 = Cambio de contraseña → siempre visible
         sysRoot.getChildren().add(makeMenuItem("Cambio de contraseña", "/infrastructure/fx/view/system/change_password.fxml", Icons.LOCK));
 

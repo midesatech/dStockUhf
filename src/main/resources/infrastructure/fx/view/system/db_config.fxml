@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.system.DbConfigController"
+            stylesheets="@../../styles/db_config.css"
+            styleClass="db-config-root">
+    <center>
+        <VBox spacing="12">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="Database Settings" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="140"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="Host:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtHost" promptText="localhost" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Port:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtPort" promptText="3306" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="User:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtUser" promptText="root" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Password:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="txtPassword" promptText="••••••" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="10">
+                <Button text="Test Connection" onAction="#testConnection"/>
+                <Button text="Save" onAction="#save"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Cancel" onAction="#cancel"/>
+            </HBox>
+
+            <Label fx:id="lblMessage" textFill="#444"/>
+        </VBox>
+    </center>
+</BorderPane>

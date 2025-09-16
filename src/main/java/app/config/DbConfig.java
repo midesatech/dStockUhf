@@ -52,22 +52,42 @@ public final class DbConfig {
 
     public static Map<String, Object> jpaOverrides() {
         Map<String, Object> map = new HashMap<>();
-        map.put("jakarta.persistence.jdbc.url", jdbcUrl());
-        map.put("jakarta.persistence.jdbc.user", username());
-        map.put("jakarta.persistence.jdbc.password", password());
 
-        // optional pool sizing (Hikari used by EclipseLink/Hibernate integrations)
-        String maxPool = System.getenv("HIKARI_MAX_POOL");
-        if (maxPool != null && !maxPool.isEmpty()) {
-            map.put("hibernate.hikari.maximumPoolSize", maxPool);
-        }
+        // 1) Load from properties file if present
+        String fileHost = PropertyConfigService.get(PropertyConfigService.KEY_DB_HOST, "");
+        String filePort = PropertyConfigService.get(PropertyConfigService.KEY_DB_PORT, "");
+        String fileUser = PropertyConfigService.get(PropertyConfigService.KEY_DB_USER, "");
+        String filePass = PropertyConfigService.get(PropertyConfigService.KEY_DB_PASSWORD, "");
 
+        // 2) Allow env to override properties (if provided)
+        String host = Optional.ofNullable(System.getenv("DB_HOST"))
+                .filter(s -> !s.isEmpty()).orElse(!fileHost.isEmpty() ? fileHost : "localhost");
+
+        String port = Optional.ofNullable(System.getenv("DB_PORT"))
+                .filter(s -> !s.isEmpty()).orElse(!filePort.isEmpty() ? filePort : "3306");
+
+        String user = Optional.ofNullable(System.getenv("DB_USER"))
+                .filter(s -> !s.isEmpty()).orElse(!fileUser.isEmpty() ? fileUser : "root");
+
+        String pass = Optional.ofNullable(System.getenv("DB_PASS"))
+                .orElse(filePass); // can be empty
+
+        // NOTE: database name from persistence.xml (inventario)
+        String url = Optional.ofNullable(System.getenv("JDBC_URL"))
+                .filter(s -> !s.isEmpty())
+                .orElse("jdbc:mariadb://" + host + ":" + port + "/inventario");
+
+        map.put("jakarta.persistence.jdbc.url", url);
+        map.put("jakarta.persistence.jdbc.user", user);
+        map.put("jakarta.persistence.jdbc.password", pass);
+
+        // Hibernate settings (same logic you already had)
+        map.put("hibernate.dialect", "org.hibernate.dialect.MariaDBDialect");
         // Profile-specific safe defaults
         if ("prod".equals(profile())) {
             map.put("hibernate.show_sql", "false");
             map.put("hibernate.hbm2ddl.auto", Optional.ofNullable(System.getenv("HIBERNATE_HBM2DDL_AUTO")).orElse("validate"));
         } else {
-            // dev: keep non-invasive defaults; allow env override
             String show = env("HIBERNATE_SHOW_SQL", "false");
             String hbm2ddl = env("HIBERNATE_HBM2DDL_AUTO", "");
             map.put("hibernate.show_sql", show);
@@ -75,4 +95,5 @@ public final class DbConfig {
         }
         return map;
     }
+
 }

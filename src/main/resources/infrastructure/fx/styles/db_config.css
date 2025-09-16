@@ -1,0 +1,60 @@
+/* Target ONLY this screen’s root node */
+.db-config-root {
+    -fx-background-color: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+    -fx-text-fill: #a8f0a2;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+
+/* Ensure children don’t paint opaque backgrounds */
+.db-config-root .vbox,
+.db-config-root .grid-pane,
+.db-config-root .hbox,
+.db-config-root .label {
+    -fx-background-color: transparent;
+}
+
+/* Titles & labels */
+.db-config-root .label {
+    -fx-text-fill: #a8f0a2; /* pastel matrix green */
+}
+
+/* Text Inputs */
+.db-config-root .text-field,
+.db-config-root .password-field {
+    -fx-background-color: #111, #222, #111;
+    -fx-text-fill: #c8facc;
+    -fx-prompt-text-fill: #557755;
+    -fx-border-color: #3cb043;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 8;
+}
+
+/* Buttons */
+.db-config-root .button {
+    -fx-background-color: #1b2f1b;
+    -fx-text-fill: #a8f0a2;
+    -fx-background-radius: 10;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+.db-config-root .button:hover {
+    -fx-background-color: #2c4d2c;
+    -fx-text-fill: #d8ffd6;
+}
+.db-config-root .button:pressed {
+    -fx-background-color: #0f1f0f;
+}
+
+/* Status message */
+.db-config-root #lblMessage {
+    -fx-font-size: 12px;
+    -fx-padding: 6 0 0 0;
+}
+
+/* Success / Error classes the controller toggles */
+.db-config-root .success { -fx-text-fill: #a8f0a2; }
+.db-config-root .error   { -fx-text-fill: #ff8080; }
