@@ -38,12 +38,13 @@ public class AppBootstrap {
     private static TagOperationsPort tagOperationsPort;
     private static ScanRepository scanRepo;
     private static DashboardRepository dashboardRepository;
+    private static SearchRepository searchRepository;
 
     //Repositories adapters
     private static RoleRepositoryAdapter roleRepo;
     private static PermissionRepositoryAdapter permRepo;
     private static UHFReaderRepositoryAdapter lectorUHFRepo;
-    private static UHFTagRepositoryAdapter UHFTagRepositoryAdapter;
+    private static UHFTagRepositoryAdapter uhfTagRepositoryAdapter;
 
     // UseCases
     private static CategoriaUseCase categoriaUseCase;
@@ -63,6 +64,7 @@ public class AppBootstrap {
     private static ReadTagUseCase readTagUseCase;
     private static ScanUseCase scanUseCase;
     private static DashboardUseCase dashboardUseCase;
+    private static SearchDetectionsUseCase searchDetectionsUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
@@ -83,6 +85,7 @@ public class AppBootstrap {
             roleRepo = new RoleRepositoryAdapter(JPAUtil.getEmf());
             permRepo = new PermissionRepositoryAdapter(JPAUtil.getEmf());
             lectorUHFRepo = new UHFReaderRepositoryAdapter(JPAUtil.getEmf());
+            searchRepository = new SearchRepositoryAdapter(JPAUtil.getEmf());
 
 
             categoriaUseCase = new CategoriaUseCase(new CategoryRepositoryAdapter(JPAUtil.getEmf()));
@@ -93,7 +96,8 @@ public class AppBootstrap {
             roleUseCase = new RoleUseCase(roleRepo);
             permissionUseCase = new PermissionUseCase(permRepo);
             UHFReaderUseCase = new UHFReaderUseCase(lectorUHFRepo);
-            UHFTagRepositoryAdapter = new UHFTagRepositoryAdapter(JPAUtil.getEmf());
+            uhfTagRepositoryAdapter = new UHFTagRepositoryAdapter(JPAUtil.getEmf());
+            searchRepository = new SearchRepositoryAdapter(JPAUtil.getEmf());
         } else {
             userRepository = new InMemoryUserRepositoryAdapter();
         }
@@ -113,7 +117,7 @@ public class AppBootstrap {
         tagOperationsUseCase = new TagOperationsUseCase(tagOperationsPort);
         operationsUseCase = new OperationsUseCase(tagOperationsUseCase, serialCommunicationUseCase);
         readerUseCase = new ReaderUseCase(operationsUseCase);
-        tagUHFUseCase = new TagUHFUseCase(UHFTagRepositoryAdapter);
+        tagUHFUseCase = new TagUHFUseCase(uhfTagRepositoryAdapter);
         readTagUseCase = new ReadTagUseCase(operationsUseCase);
         appConfig.ifPresent(config -> {
             readerUseCase.setAppConfig(config);
@@ -123,6 +127,7 @@ public class AppBootstrap {
         scanUseCase = new ScanUseCase(scanRepo);
         dashboardRepository = new DashboardRepositoryAdapter(JPAUtil.getEmf());
         dashboardUseCase = new DashboardUseCase(dashboardRepository);
+        searchDetectionsUseCase = new SearchDetectionsUseCase(searchRepository);
     }
 
     private static Optional<AppConfig> loadProperties() {
@@ -248,5 +253,7 @@ public class AppBootstrap {
     public static ScanUseCase scanUseCase() { return scanUseCase; }
 
     public static DashboardUseCase dashboardUseCase() { return dashboardUseCase; }
+
+    public static SearchDetectionsUseCase searchDetectionsUseCase() { return searchDetectionsUseCase; }
 
 }

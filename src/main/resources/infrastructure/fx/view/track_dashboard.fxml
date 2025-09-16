@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.dashboard.TrackDashboardController">
+    <fx:define>
+        <ToggleGroup fx:id="grpTipo"/>
+    </fx:define>
+    <top>
+        <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
+            <HBox spacing="10" styleClass="header">
+                <Label text="Seguimiento UHF (Employee / Equipment)" styleClass="title"/>
+                <Label fx:id="lblSubtitle" text="" styleClass="subtitle"/>
+            </HBox><TitledPane text="Filtros" expanded="false" animated="true">
+            <content>
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <GridPane hgap="10" vgap="6" styleClass="kpis" alignment="CENTER_LEFT">
+                        <columnConstraints>
+                            <ColumnConstraints prefWidth="140" minWidth="140" hgrow="NEVER"/>
+                            <ColumnConstraints minWidth="150" hgrow="NEVER"/>
+                            <ColumnConstraints minWidth="120" hgrow="NEVER"/>
+                            <ColumnConstraints minWidth="320" hgrow="SOMETIMES"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints valignment="CENTER"/>
+                            <RowConstraints valignment="CENTER"/>
+                            <!-- Buttons row; CENTER is fine -->
+                            <RowConstraints valignment="CENTER"/>
+                        </rowConstraints>
+
+                        <!-- Row 0: Labels -->
+                        <Label text="Tipo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Rango rápido:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Inicio:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <Label text="Fin:" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                        <!-- Row 1: Values – radios vertically stacked, no rowSpan -->
+                        <VBox spacing="8" styleClass="filters-radios"
+                              GridPane.rowIndex="1" GridPane.columnIndex="0"
+                              GridPane.valignment="TOP">
+                            <children>
+                                <RadioButton fx:id="rbEmployee" text="Employees"
+                                             toggleGroup="$grpTipo" selected="true"
+                                             mnemonicParsing="false" contentDisplay="LEFT"
+                                             wrapText="true" maxWidth="Infinity"/>
+                                <RadioButton fx:id="rbEquipment" text="Equipment"
+                                             toggleGroup="$grpTipo" mnemonicParsing="false"
+                                             contentDisplay="LEFT" wrapText="true" maxWidth="Infinity"/>
+                            </children>
+                        </VBox>
+
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.valignment="CENTER">
+                            <ComboBox fx:id="cmbQuick" maxWidth="Infinity"/>
+                        </HBox>
+
+
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.valignment="CENTER">
+                            <children>
+                                <DatePicker fx:id="dpStart"/>
+                                <Spinner fx:id="spStartHour" prefWidth="70"/>
+                                <Spinner fx:id="spStartMin"  prefWidth="70"/>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="3" GridPane.valignment="CENTER">
+                            <children>
+                                <DatePicker fx:id="dpEnd"/>
+                                <Spinner fx:id="spEndHour" prefWidth="70"/>
+                                <Spinner fx:id="spEndMin"  prefWidth="70"/>
+                            </children>
+                        </HBox>
+
+                        <!-- Row 2: Buttons aligned right across all columns -->
+                        <HBox spacing="10" alignment="CENTER_RIGHT"
+                              GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="5">
+                            <children>
+                                <Button fx:id="btnReset"  text="Reset"  onAction="#onReset" mnemonicParsing="false"
+                                        styleClass="btn-soft-neutral"/>
+                                <Button fx:id="btnSearch" text="Buscar" onAction="#onSearch" mnemonicParsing="false"
+                                        defaultButton="true" styleClass="btn-soft-primary"/>
+                            </children>
+                        </HBox>
+                    </GridPane>
+                </VBox>
+            </content>
+        </TitledPane>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane orientation="VERTICAL">
+            <items>
+                <TableView fx:id="tblDetections">
+                    <placeholder><Label text="Ajusta filtros y presiona Buscar"/></placeholder>
+                    <columns>
+                        <TableColumn fx:id="colWhen"    text="Fecha/Hora"         prefWidth="180"/>
+                        <TableColumn fx:id="colTipo"    text="Tipo"               prefWidth="110"/>
+                        <TableColumn fx:id="colEpc"     text="EPC"                prefWidth="240"/>
+                        <TableColumn fx:id="colNombre"  text="Nombre/Descripción" prefWidth="300"/>
+                        <TableColumn fx:id="colUbic"    text="Ubicación"          prefWidth="220"/>
+                    </columns>
+                </TableView>
+
+                <BorderPane>
+                    <top>
+                        <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
+                            <Label text="Ruta del EPC seleccionado" styleClass="tiles-title"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblRouteInfo" text=""/>
+                        </HBox>
+                    </top>
+                    <center>
+                        <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER">
+                            <content>
+                                <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;"/>
+                            </content>
+                        </ScrollPane>
+                    </center>
+                </BorderPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <padding>
+        <Insets top="8" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/infrastructure/fx/styles/dashboard.css"/>
+    </stylesheets>
+</BorderPane>

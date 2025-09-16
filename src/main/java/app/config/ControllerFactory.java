@@ -4,9 +4,11 @@ import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.*;
 import infrastructure.fx.controller.dashboard.DashboardController;
+import infrastructure.fx.controller.dashboard.TrackDashboardController;
 import infrastructure.fx.controller.stock.ScanController;
 import infrastructure.fx.controller.stock.UHFTagController;
 import infrastructure.fx.controller.system.ChangePasswordController;
+import infrastructure.fx.controller.system.DbConfigController;
 import infrastructure.fx.controller.system.RolesController;
 import infrastructure.fx.controller.system.UserController;
 import javafx.util.Callback;
@@ -70,8 +72,15 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == DashboardController.class) {
-                     // El DashboardController arma internamente su servicio (mock o JDBC según env vars)
             return new DashboardController(AppBootstrap.dashboardUseCase());
+        }
+
+        if (type == TrackDashboardController.class) {
+            return new TrackDashboardController(AppBootstrap.searchDetectionsUseCase());
+        }
+
+        if (type == DbConfigController.class) {
+            return new DbConfigController();
         }
 
         // otros controladores que necesiten dependencias

@@ -76,3 +76,135 @@
 .table-view .column-header-background {
     -fx-background-color: linear-gradient(to bottom, #ffffff, #f6f7fb);
 }
+
+/* KPIs globales */
+.kpis { -fx-padding: 0 8 4 8; }
+/* Ensure text is visible for controls inside the filters area */
+.kpis .button .text,
+.kpis .radio-button .text,
+.kpis .label { -fx-opacity: 1; }
+
+/* Make sure buttons show text even if an icon is added later */
+.kpis .button { -fx-content-display: LEFT; }
+
+/* Optional: avoid overly tight buttons */
+/* .kpis .button { -fx-padding: 6 12 6 12; } */
+
+
+.kpi-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc);
+    -fx-background-radius: 16;
+    -fx-padding: 12 16;
+    -fx-spacing: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0.2, 0, 2);
+    -fx-min-width: 180;
+}
+
+.kpi-title {
+    -fx-text-fill: #64748b;    /* slate-500 */
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 0.3px;
+}
+
+.kpi-number {
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;    /* slate-900 */
+}
+
+.kpi-card.accent {
+    /* sutil diferencia para KPIs de presencia actual */
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #eef2ff); /* azulado pastel */
+}
+/* Estados de alerta/ok para KPIs de "Presentes" */
+.kpi-card.warn {
+    /* amarillo/ámbar suave que llame la atención */
+    -fx-background-color: linear-gradient(to bottom, #fff7ed, #ffedd5); /* amber-50/100 */
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.25), 12, 0.3, 0, 2);
+    -fx-border-color: #f59e0b;  /* amber-500 */
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+}
+
+.kpi-card.ok {
+    /* verdoso sutil cuando no hay discrepancia */
+    -fx-background-color: linear-gradient(to bottom, #ecfdf5, #d1fae5); /* emerald-50/100 */
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.18), 10, 0.25, 0, 2);
+    -fx-border-color: #10b981;  /* emerald-500 */
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+}
+
+/* Opcional: números más contrastados dentro de warn/ok */
+.kpi-card.warn .kpi-number { -fx-text-fill: #7c2d12; }   /* amber-900 */
+.kpi-card.ok   .kpi-number { -fx-text-fill: #064e3b; }   /* emerald-900 */
+
+/* Botón de colapso */
+.kpi-toggle-btn {
+    -fx-background-radius: 999;
+    -fx-padding: 3 6;
+    -fx-font-size: 11px;
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #0f172a;
+}
+.kpi-toggle-btn:hover {
+    -fx-background-color: #cbd5e1;
+}
+.tiles-header {
+    -fx-padding: 4 4 4 4;
+}
+
+.tiles-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #334155; /* slate-700 */
+}
+
+/* Chips de ruta (pastel) */
+.route-chip {
+    -fx-background-radius: 18;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0.2, 0, 2);
+    -fx-alignment: center;
+}
+.route-chip-text { -fx-fill: #0f172a; -fx-font-weight: 700; }
+
+/* paleta 0..5 (consistente con tus bg-*) */
+.chip-0 { -fx-background-color: #FDE2E4; }
+.chip-1 { -fx-background-color: #E2ECE9; }
+.chip-2 { -fx-background-color: #E8E8FD; }
+.chip-3 { -fx-background-color: #FFF1E6; }
+.chip-4 { -fx-background-color: #E7F5FF; }
+.chip-5 { -fx-background-color: #F1F3F5; }
+
+.route-arrow {
+    -fx-text-fill: #334155; /* slate-700 */
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+}
+
+/* Soft pastel buttons */
+.btn-soft-primary {
+    -fx-background-color: rgba(59,130,246,0.15);
+    -fx-text-fill: #1f2937;
+    -fx-background-radius: 10;
+    -fx-padding: 6 14 6 14;
+    -fx-font-weight: 600;
+}
+.btn-soft-primary:hover { -fx-background-color: rgba(59,130,246,0.25); }
+.btn-soft-primary:armed { -fx-background-color: rgba(59,130,246,0.35); }
+
+.btn-soft-neutral {
+    -fx-background-color: rgba(100,116,139,0.15); /* slate-ish */
+    -fx-text-fill: #1f2937;
+    -fx-background-radius: 10;
+    -fx-padding: 6 14 6 14;
+    -fx-font-weight: 600;
+}
+.btn-soft-neutral:hover { -fx-background-color: rgba(100,116,139,0.25); }
+.btn-soft-neutral:armed { -fx-background-color: rgba(100,116,139,0.35); }
+
+/* Make sure radio captions are visible and horizontal */
+.filters-radios .radio-button .text { -fx-opacity: 1; }
+.filters-radios .radio-button { -fx-content-display: LEFT; }

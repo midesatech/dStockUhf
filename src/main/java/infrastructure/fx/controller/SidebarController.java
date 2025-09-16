@@ -23,9 +23,12 @@ import java.util.Objects;
 
 public class SidebarController {
 
-    @FXML private VBox root;          // contenedor raíz (mantiene el botón)
-    @FXML private VBox menuWrapper;   // SOLO esto se colapsa
-    @FXML private TreeView<String> menuTree;
+    @FXML
+    private VBox root;          // contenedor raíz (mantiene el botón)
+    @FXML
+    private VBox menuWrapper;   // SOLO esto se colapsa
+    @FXML
+    private TreeView<String> menuTree;
 
     private boolean collapsed = false;
     private static final double EXPANDED_WIDTH = 240;
@@ -34,7 +37,7 @@ public class SidebarController {
     @FXML
     public void initialize() {
         ThemeManager.UiTheme theme = ThemeManager.getTheme();
-        menuTree.getStyleClass().removeAll("ocean-soft","green-soft","dark-menu","obsidian-menu");
+        menuTree.getStyleClass().removeAll("ocean-soft", "green-soft", "dark-menu", "obsidian-menu");
         menuTree.getStyleClass().add(ThemeManager.cssClassFor(theme));
         // Estado inicial expandido
         root.setPrefWidth(EXPANDED_WIDTH);
@@ -44,9 +47,10 @@ public class SidebarController {
         // CellFactory único: muestra SOLO el graphic (ícono + label) y aplica colores pastel intercalados
         menuTree.setCellFactory(tv -> {
             TreeCell<String> cell = new TreeCell<>() {
-                @Override protected void updateItem(String item, boolean empty) {
+                @Override
+                protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
-                    getStyleClass().removeAll("root-item","child-item","even","odd","hovered"); // reset SIEMPRE
+                    getStyleClass().removeAll("root-item", "child-item", "even", "odd", "hovered"); // reset SIEMPRE
 
                     if (empty || getTreeItem() == null) {
                         setText(null);
@@ -61,7 +65,10 @@ public class SidebarController {
                     // Profundidad (root invisible no cuenta)
                     int depth = 0;
                     TreeItem<?> cur = getTreeItem();
-                    while (cur != null && cur.getParent() != null) { depth++; cur = cur.getParent(); }
+                    while (cur != null && cur.getParent() != null) {
+                        depth++;
+                        cur = cur.getParent();
+                    }
 
                     if (depth == 1) {
                         getStyleClass().add("root-item");
@@ -123,14 +130,6 @@ public class SidebarController {
         }
         rootItem.getChildren().add(catRoot);
 
-// 3. Dashboard
-TreeItem<String> dashRoot = makeMenuCategory("Dashboard", Icons.MAP);
-dashRoot.getChildren().add(
-        makeMenuItem("Ocupación por Ubicación", "/infrastructure/fx/view/dashboard.fxml", Icons.SCAN)
-);
-rootItem.getChildren().add(dashRoot);
-
-
         // 2. Administración de inventario (2.1)
         TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {
@@ -139,7 +138,19 @@ rootItem.getChildren().add(dashRoot);
         }
         rootItem.getChildren().add(invRoot);
 
-        // 3. Administración del sistema (3.1..3.4)
+
+        // 3. Dashboard
+        TreeItem<String> dashRoot = makeMenuCategory("Dashboard", Icons.MAP);
+        dashRoot.getChildren().add(
+                makeMenuItem("Ocupación por Ubicación", "/infrastructure/fx/view/dashboard.fxml", Icons.SCAN)
+        );
+        dashRoot.getChildren().add(
+                makeMenuItem("Seguimiento", "/infrastructure/fx/view/track_dashboard.fxml", Icons.ROUTE)
+        );
+        rootItem.getChildren().add(dashRoot);
+
+
+        // 4. Administración del sistema (3.1..3.4)
         TreeItem<String> sysRoot = makeMenuCategory("Administración", Icons.SHIELD);
         if (isAdmin || hasPermission(u, "ROLE_MANAGE")) {
             sysRoot.getChildren().add(makeMenuItem("Roles", "/infrastructure/fx/view/system/roles.fxml", Icons.SHIELD));
@@ -150,6 +161,13 @@ rootItem.getChildren().add(dashRoot);
         if (isAdmin || hasPermission(u, "ROLE_MANAGE")) {
             sysRoot.getChildren().add(makeMenuItem("Permisos por roles", "/infrastructure/fx/view/system/permissions.fxml", Icons.KEY));
         }
+        // Only ADMIN can see DB Config page
+        if (isAdmin) {
+            sysRoot.getChildren().add(
+                    makeMenuItem("DB Configuración", "/infrastructure/fx/view/system/db_config.fxml", Icons.SETTINGS)
+            );
+        }
+
         // 3.4 = Cambio de contraseña → siempre visible
         sysRoot.getChildren().add(makeMenuItem("Cambio de contraseña", "/infrastructure/fx/view/system/change_password.fxml", Icons.LOCK));
 
@@ -168,7 +186,7 @@ rootItem.getChildren().add(dashRoot);
                 Object ud = ((HBox) item.getGraphic()).getUserData();
                 if (ud instanceof String) {
                     loadView((String) ud);
-                } else if ("Cerrar sesión".equals(((Label)((HBox)item.getGraphic()).getChildren().get(1)).getText())) {
+                } else if ("Cerrar sesión".equals(((Label) ((HBox) item.getGraphic()).getChildren().get(1)).getText())) {
                     MainController.getInstance().logout();
                 }
             }

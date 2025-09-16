@@ -11,17 +11,38 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        // 🔹 Inicializar infraestructura (true = JPA/MariaDB, false = in-memory)
-        AppBootstrap.init(true);
+        // If config file does not exist → show config screen first (no JPA yet)
+        if (!app.config.PropertyConfigService.exists()) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/infrastructure/fx/view/system/db_config.fxml"));
+            // pass controller factory only for consistency (not strictly required here)
+            loader.setControllerFactory(new app.config.ControllerFactory());
+            javafx.scene.Parent root = loader.load();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/infrastructure/fx/view/login.fxml"));
-        loader.setControllerFactory(new ControllerFactory()); // inyección centralizada
+            infrastructure.fx.controller.system.DbConfigController ctrl =
+                    loader.getController();
+            ctrl.setStartupMode(true);         // ↩ important
+            ctrl.setStage(stage);              // we will swap to Login after save
 
-        Parent root = loader.load();
+            stage.setTitle("Configuración de Base de Datos");
+            stage.setScene(new javafx.scene.Scene(root, 520, 360));
+            stage.show();
+            return; // defer AppBootstrap.init(...) until user saves & tests
+        }
+
+        // Normal flow (config already present)
+        app.config.AppBootstrap.init(true);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                "/infrastructure/fx/view/login.fxml"));
+        loader.setControllerFactory(new app.config.ControllerFactory());
+
+        javafx.scene.Parent root = loader.load();
         stage.setTitle("Inventario - Login");
-        stage.setScene(new Scene(root, 400, 300));
+        stage.setScene(new javafx.scene.Scene(root, 400, 300));
         stage.show();
     }
+
 
     @Override
     public void stop() {

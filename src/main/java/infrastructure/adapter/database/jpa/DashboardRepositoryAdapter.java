@@ -29,28 +29,34 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
         EntityManager em = emf.createEntityManager();
         try {
             String sql = """
-                    SELECT u.id AS location_id, u.nombre AS location_name,
-                    SUM(CASE WHEN e.id IS NOT NULL THEN 1 ELSE 0 END) AS employees,
-                    SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END) AS equipment
+                SELECT
+                    u.id   AS location_id,
+                    u.nombre AS location_name,
+                    COALESCE(SUM(CASE WHEN e.id  IS NOT NULL THEN 1 ELSE 0 END), 0) AS employees,
+                    COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS equipment
+                FROM ubicaciones u
+                LEFT JOIN (
+                    /* Última detección por EPC (solo las recientes) */
+                    SELECT dt.ubicacion_id, dt.epc, dt.created_at
                     FROM detecciones_tags dt
                     JOIN (
-                    SELECT epc, MAX(created_at) AS last_ts
-                    FROM detecciones_tags
-                    GROUP BY epc
+                        SELECT epc, MAX(created_at) AS last_ts
+                        FROM detecciones_tags
+                        GROUP BY epc
                     ) x ON x.epc = dt.epc AND x.last_ts = dt.created_at
-                    JOIN ubicaciones u ON u.id = dt.ubicacion_id
-                    LEFT JOIN tags_uhf t ON t.epc = dt.epc
-                    LEFT JOIN empleados e ON e.tag_id = t.id
-                    LEFT JOIN equipment eq ON eq.tag_id = t.id
                     WHERE dt.created_at >= ?1
-                    GROUP BY u.id, u.nombre
-                    ORDER BY u.nombre ASC
-                    """;
+                ) ld ON ld.ubicacion_id = u.id
+                LEFT JOIN tags_uhf t ON t.epc = ld.epc
+                LEFT JOIN empleados e ON e.tag_id = t.id
+                LEFT JOIN equipment eq ON eq.tag_id = t.id
+                GROUP BY u.id, u.nombre
+                ORDER BY u.nombre ASC
+                """;
             Query q = em.createNativeQuery(sql);
-            q.setParameter(1, since);
+            q.setParameter(1, Timestamp.valueOf(since));
             List<Object[]> rows = q.getResultList();
             for (Object[] r : rows) {
-                Long id = ((Number) r[0]).longValue();
+                long id = ((Number) r[0]).longValue();
                 String name = (String) r[1];
                 int emp = ((Number) r[2]).intValue();
                 int eqp = ((Number) r[3]).intValue();
@@ -61,7 +67,6 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
         }
         return list;
     }
-
 
     @Override
     public List<Occupant> fetchOccupantsByUbicacion(long ubicacionId) {
@@ -105,4 +110,27 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
         }
         return rows;
     }
+
+    @Override
+    public int totalEmployees() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            Number n = (Number) em.createNativeQuery("SELECT COUNT(*) FROM empleados").getSingleResult();
+            return n.intValue();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public int totalEquipment() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            Number n = (Number) em.createNativeQuery("SELECT COUNT(*) FROM equipment").getSingleResult();
+            return n.intValue();
+        } finally {
+            em.close();
+        }
+    }
+
 }
