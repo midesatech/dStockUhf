@@ -208,3 +208,12 @@
 /* Make sure radio captions are visible and horizontal */
 .filters-radios .radio-button .text { -fx-opacity: 1; }
 .filters-radios .radio-button { -fx-content-display: LEFT; }
+/* Delta badge between route chips */
+.delta-badge {
+    -fx-background-color: rgba(59,130,246,0.12); /* soft ocean */
+    -fx-text-fill: #1d4ed8;
+    -fx-padding: 2 8;
+    -fx-background-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}

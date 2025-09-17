@@ -5,19 +5,21 @@ import domain.model.PathHop;
 import domain.usecase.tag.SearchDetectionsUseCase;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TrackDashboardController {
 
@@ -30,7 +32,7 @@ public class TrackDashboardController {
     @FXML private Button btnSearch, btnReset;
 
     @FXML private TableView<DetectionRow> tblDetections;
-    @FXML private TableColumn<DetectionRow, String> colWhen, colTipo, colEpc, colNombre, colUbic;
+    @FXML private TableColumn<DetectionRow, String> colWhen, colTipo, colEpc, colNombre, colUbic, colDelta;
 
     @FXML private HBox routeFlow;
 
@@ -48,6 +50,7 @@ public class TrackDashboardController {
         colEpc.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("epc"));
         colNombre.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("nombre"));
         colUbic.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("ubicacion"));
+        colDelta.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("delta"));
 
         tblDetections.setRowFactory(tv -> new TableRow<>() {
             @Override protected void updateItem(DetectionRow item, boolean empty) {
@@ -132,11 +135,39 @@ public class TrackDashboardController {
             }
         };
         task.setOnSucceeded(e -> {
-            List<DetectionRow> rows = new ArrayList<>();
-            for (DetectionRecord r : task.getValue()) {
-                String ts = r.getSeenAt() == null ? "" : r.getSeenAt().format(TS_FMT);
-                rows.add(new DetectionRow(ts, r.getTipo(), r.getEpc(), r.getNombre(), r.getLocationName()));
+            // Original list from repo (likely ordered by fecha DESC)
+            var raw = task.getValue();
+
+            // Compute deltas per EPC based on ascending timestamps so the “previous” really is the hop you came from
+            var asc = new java.util.ArrayList<DetectionRecord>(raw);
+            asc.sort(Comparator
+                    .comparing(DetectionRecord::getEpc)
+                    .thenComparing(DetectionRecord::getSeenAt));
+
+            Map<String, DetectionRecord> prevByEpc = new HashMap<>();
+            Map<DetectionRecord, String> deltaByRec = new HashMap<>();
+
+            for (DetectionRecord r : asc) {
+                String deltaStr = "";
+                var prev = prevByEpc.get(r.getEpc());
+                boolean changedLocation = prev != null && !Objects.equals(prev.getLocationId(), r.getLocationId());
+                if (changedLocation && prev.getSeenAt() != null && r.getSeenAt() != null) {
+                    var d = Duration.between(prev.getSeenAt(), r.getSeenAt());
+                    if (d.isNegative()) d = d.negated();
+                    deltaStr = formatDuration(d);
+                }
+                deltaByRec.put(r, deltaStr);
+                prevByEpc.put(r.getEpc(), r);
             }
+
+            // Render in the original order (unchanged UX), but attach the computed deltas
+            var rows = new java.util.ArrayList<DetectionRow>(raw.size());
+            for (DetectionRecord r : raw) {
+                String ts = (r.getSeenAt() == null) ? "" : r.getSeenAt().format(TS_FMT);
+                String deltaStr = deltaByRec.getOrDefault(r, "");
+                rows.add(new DetectionRow(ts, r.getTipo(), r.getEpc(), r.getNombre(), r.getLocationName(), deltaStr));
+            }
+
             tblDetections.setItems(FXCollections.observableArrayList(rows));
             clearRoute();
         });
@@ -193,14 +224,49 @@ public class TrackDashboardController {
             lblRouteInfo.setText("Sin datos para EPC " + epc);
             return;
         }
-        lblRouteInfo.setText("EPC " + epc + " • " + hops.size() + " tramos");
+
+        // Build summary like: EPC X • 4 tramos • Δ A→B 2m 05s, B→C 15s, ...
+        StringBuilder summary = new StringBuilder();
 
         for (int i = 0; i < hops.size(); i++) {
-            PathHop h = hops.get(i);
-            routeFlow.getChildren().add(makeChip(h.getLocationName(), i));
-            if (i < hops.size() - 1) routeFlow.getChildren().add(makeArrow());
+            PathHop cur = hops.get(i);
+            routeFlow.getChildren().add(makeChip(cur.getLocationName(), i));
+
+            if (i < hops.size() - 1) {
+                PathHop next = hops.get(i + 1);
+                Duration d = null;
+                if (cur.getLastSeen() != null && next.getFirstSeen() != null) {
+                    d = Duration.between(cur.getLastSeen(), next.getFirstSeen());
+                    if (d.isNegative()) d = d.negated();
+                }
+                String deltaText = formatDuration(d);
+                routeFlow.getChildren().add(makeArrowWithDelta(deltaText)); // arrow + badge
+
+                if (deltaText != null && !deltaText.isBlank()) {
+                    if (summary.length() > 0) summary.append(", ");
+                    summary.append(cur.getLocationName()).append("→").append(next.getLocationName())
+                            .append(" ").append(deltaText);
+                }
+            }
         }
+
+        String info = "EPC " + epc + " • " + hops.size() + " tramos";
+        if (summary.length() > 0) info += " • Δ " + summary;
+        lblRouteInfo.setText(info);
     }
+
+    private Node makeArrowWithDelta(String deltaText) {
+        Label arrow = new Label("→");
+        arrow.getStyleClass().add("route-arrow");
+
+        Label badge = new Label((deltaText == null || deltaText.isBlank()) ? "Δ —" : "Δ " + deltaText);
+        badge.getStyleClass().add("delta-badge");
+
+        VBox box = new VBox(2, arrow, badge);
+        box.setAlignment(Pos.CENTER);
+        return box;
+    }
+
 
     private Node makeChip(String text, int idx) {
         StackPane chip = new StackPane();
@@ -222,16 +288,27 @@ public class TrackDashboardController {
         return arrow;
     }
 
+    private String formatDuration(Duration d) {
+        long s = Math.abs(d.getSeconds());
+        long hrs = s / 3600; s %= 3600;
+        long mins = s / 60; long secs = s % 60;
+        if (hrs > 0) return String.format("%dh %02dm %02ds", hrs, mins, secs);
+        if (mins > 0) return String.format("%dm %02ds", mins, secs);
+        return String.format("%ds", secs);
+    }
+
+
     public static class DetectionRow {
-        private final String when, tipo, epc, nombre, ubicacion;
-        public DetectionRow(String when, String tipo, String epc, String nombre, String ubicacion) {
-            this.when = when; this.tipo = tipo; this.epc = epc; this.nombre = nombre; this.ubicacion = ubicacion;
+        private final String when, tipo, epc, nombre, ubicacion, delta;
+        public DetectionRow(String when, String tipo, String epc, String nombre, String ubicacion, String delta) {
+            this.when = when; this.tipo = tipo; this.epc = epc; this.nombre = nombre; this.ubicacion = ubicacion;   this.delta = delta;
         }
         public String getWhen() { return when; }
         public String getTipo() { return tipo; }
         public String getEpc() { return epc; }
         public String getNombre() { return nombre; }
         public String getUbicacion() { return ubicacion; }
+        public String getDelta() { return delta; }
     }
 
     public static class QuickRange {

@@ -99,11 +99,12 @@
                 <TableView fx:id="tblDetections">
                     <placeholder><Label text="Ajusta filtros y presiona Buscar"/></placeholder>
                     <columns>
-                        <TableColumn fx:id="colWhen"    text="Fecha/Hora"         prefWidth="180"/>
+                        <TableColumn fx:id="colWhen"    text="Fecha/Hora"         prefWidth="135"/>
                         <TableColumn fx:id="colTipo"    text="Tipo"               prefWidth="110"/>
-                        <TableColumn fx:id="colEpc"     text="EPC"                prefWidth="240"/>
-                        <TableColumn fx:id="colNombre"  text="Nombre/Descripción" prefWidth="300"/>
+                        <TableColumn fx:id="colEpc"     text="EPC"                prefWidth="200"/>
+                        <TableColumn fx:id="colNombre"  text="Nombre/Descripción" prefWidth="290"/>
                         <TableColumn fx:id="colUbic"    text="Ubicación"          prefWidth="220"/>
+                        <TableColumn fx:id="colDelta"   text="Δ desde anterior" prefWidth="130"/>
                     </columns>
                 </TableView>
 
