@@ -113,15 +113,25 @@
                         <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
                             <Label text="Ruta del EPC seleccionado" styleClass="tiles-title"/>
                             <Pane HBox.hgrow="ALWAYS"/>
+                            <!-- NEW: toggle -->
+                            <CheckBox fx:id="chkZFlow" text="Z flow" selected="false"/>
                             <Label fx:id="lblRouteInfo" text=""/>
                         </HBox>
                     </top>
                     <center>
-                        <!-- AFTER: allow natural width + horizontal scroll -->
-                        <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER"
-                                    pannable="true">
-                            <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;"/>
+                        <ScrollPane fx:id="routeScroll" fitToWidth="false" fitToHeight="true"
+                                    hbarPolicy="ALWAYS" vbarPolicy="AS_NEEDED" pannable="true">
+                            <content>
+                                <StackPane>
+                                    <!-- Linear (existing) -->
+                                    <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;" StackPane.alignment="TOP_LEFT"/>
+                                    <!-- Z Flow (wrapped) -->
+                                    <FlowPane fx:id="routeFlowZ" hgap="12" vgap="12" style="-fx-padding: 12;"
+                                              visible="false" managed="false" StackPane.alignment="TOP_LEFT"/>
+                                </StackPane>
+                            </content>
                         </ScrollPane>
+
                     </center>
                 </BorderPane>
             </items>

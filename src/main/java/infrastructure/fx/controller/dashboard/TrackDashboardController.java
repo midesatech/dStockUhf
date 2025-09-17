@@ -31,7 +31,13 @@ public class TrackDashboardController {
 
     @FXML private TableView<DetectionRow> tblDetections;
     @FXML private TableColumn<DetectionRow, String> colWhen, colTipo, colEpc, colNombre, colUbic, colDelta;
+    @FXML private CheckBox chkZFlow;
+    @FXML private ScrollPane routeScroll;
+    @FXML private FlowPane routeFlowZ;
 
+    // Keep the last rendered data to re-render on toggle:
+    private String currentEpc;
+    private List<PathHop> currentHops;
     @FXML private HBox routeFlow;
 
     private final SearchDetectionsUseCase useCase;
@@ -84,8 +90,47 @@ public class TrackDashboardController {
         applyQuickRange(cmbQuick.getValue());
         cmbQuick.valueProperty().addListener((o, old, q) -> applyQuickRange(q));
 
+        // Make Z-flow wrap to the viewport width of the scroll (minus a little padding)
+        routeScroll.viewportBoundsProperty().addListener((obs, oldB, b) -> {
+            if (b != null) {
+                double pad = 24; // matches -fx-padding 12 on each side
+                routeFlowZ.setPrefWrapLength(Math.max(200, b.getWidth() - pad));
+            }
+        });
+
+        // Toggle between linear and Z flow
+        if (chkZFlow != null) {
+            chkZFlow.selectedProperty().addListener((o, wasZ, isZ) -> {
+                setRouteLayout(isZ);
+                // Re-render with current data so the view switches immediately
+                rerenderCurrentRoute();
+            });
+        }
+
+        // Default layout: linear
+        setRouteLayout(false);
+
+
         updateSubtitle();
     }
+
+    private void setRouteLayout(boolean z) {
+        // Only one layout visible/managed at a time
+        routeFlow.setVisible(!z);
+        routeFlow.setManaged(!z);
+        routeFlowZ.setVisible(z);
+        routeFlowZ.setManaged(z);
+    }
+
+    private void rerenderCurrentRoute() {
+        if (currentHops == null || currentHops.isEmpty()) return;
+        if (chkZFlow != null && chkZFlow.isSelected()) {
+            renderRouteZ(currentEpc, currentHops);
+        } else {
+            renderRouteLinear(currentEpc, currentHops);
+        }
+    }
+
 
     private void setupSpinner(Spinner<Integer> sp, int min, int max) {
         sp.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, 0));
@@ -217,15 +262,26 @@ public class TrackDashboardController {
     }
 
     private void renderRoute(String epc, List<PathHop> hops) {
-        routeFlow.getChildren().clear();
+        currentEpc = epc;
+        currentHops = hops;
         if (hops == null || hops.isEmpty()) {
+            routeFlow.getChildren().clear();
+            routeFlowZ.getChildren().clear();
             lblRouteInfo.setText("Sin datos para EPC " + epc);
             return;
         }
+        if (chkZFlow != null && chkZFlow.isSelected()) {
+            renderRouteZ(epc, hops);
+        } else {
+            renderRouteLinear(epc, hops);
+        }
+    }
 
-        // Build summary like: EPC X • 4 tramos • Δ A→B 2m 05s, B→C 15s, ...
+    private void renderRouteLinear(String epc, List<PathHop> hops) {
+        routeFlow.getChildren().clear();
+
         StringBuilder summary = new StringBuilder();
-        Duration total = Duration.ZERO; // ← NEW: accumulate total Δ across hops
+        Duration total = Duration.ZERO;
 
         for (int i = 0; i < hops.size(); i++) {
             PathHop cur = hops.get(i);
@@ -239,12 +295,13 @@ public class TrackDashboardController {
                     if (d.isNegative()) d = d.negated();
                 }
                 String deltaText = formatDuration(d);
-                routeFlow.getChildren().add(makeArrowWithDelta(deltaText)); // arrow + badge
 
-                if (d != null) { // ← NEW: sum only valid gaps
-                    total = total.plus(d);
-                }
+                Node arrow = makeArrowWithDelta(deltaText);
+                // prevent shrinking
+                if (arrow instanceof Region r) keepPrefWidth(r);
+                routeFlow.getChildren().add(arrow);
 
+                if (d != null) total = total.plus(d);
                 if (deltaText != null && !deltaText.isBlank()) {
                     if (summary.length() > 0) summary.append(", ");
                     summary.append(cur.getLocationName()).append("→").append(next.getLocationName())
@@ -253,16 +310,68 @@ public class TrackDashboardController {
             }
         }
 
-        // ← NEW: add Total Time badge at the very end (only makes sense with >= 2 hops)
         if (hops.size() >= 2) {
             String totalText = formatDuration(total);
-            routeFlow.getChildren().add(makeTotalTimeBadge(totalText));
+            Node totalBadge = makeTotalTimeBadge(totalText);
+            if (totalBadge instanceof Region r) keepPrefWidth(r);
+            routeFlow.getChildren().add(totalBadge);
         }
 
         String info = "EPC " + epc + " • " + hops.size() + " tramos";
         if (summary.length() > 0) info += " • Δ " + summary;
-        lblRouteInfo.setText(info);
+        //lblRouteInfo.setText(info);
+
+        // Compact spacing on very long routes (optional)
+        routeFlow.setSpacing(hops.size() > 14 ? 8 : 12);
     }
+
+    private void renderRouteZ(String epc, List<PathHop> hops) {
+        routeFlowZ.getChildren().clear();
+
+        StringBuilder summary = new StringBuilder();
+        Duration total = Duration.ZERO;
+
+        for (int i = 0; i < hops.size(); i++) {
+            PathHop cur = hops.get(i);
+
+            Node chip = makeChip(cur.getLocationName(), i);
+            if (chip instanceof Region r1) keepPrefWidth(r1);
+            routeFlowZ.getChildren().add(chip);
+
+            if (i < hops.size() - 1) {
+                PathHop next = hops.get(i + 1);
+                Duration d = null;
+                if (cur.getLastSeen() != null && next.getFirstSeen() != null) {
+                    d = Duration.between(cur.getLastSeen(), next.getFirstSeen());
+                    if (d.isNegative()) d = d.negated();
+                }
+                String deltaText = formatDuration(d);
+
+                Node arrow = makeArrowWithDelta(deltaText);
+                if (arrow instanceof Region r2) keepPrefWidth(r2);
+                routeFlowZ.getChildren().add(arrow);
+
+                if (d != null) total = total.plus(d);
+                if (deltaText != null && !deltaText.isBlank()) {
+                    if (summary.length() > 0) summary.append(", ");
+                    summary.append(cur.getLocationName()).append("→").append(next.getLocationName())
+                            .append(" ").append(deltaText);
+                }
+            }
+        }
+
+        if (hops.size() >= 2) {
+            String totalText = formatDuration(total);
+            Node totalBadge = makeTotalTimeBadge(totalText);
+            if (totalBadge instanceof Region r3) keepPrefWidth(r3);
+            routeFlowZ.getChildren().add(totalBadge);
+        }
+
+        String info = "EPC " + epc + " • " + hops.size() + " tramos";
+        if (summary.length() > 0) info += " • Δ " + summary;
+        //lblRouteInfo.setText(info);
+    }
+
 
     private Node makeTotalTimeBadge(String totalText) {
         Label badge = new Label("Total Time: " + (totalText == null || totalText.isBlank() ? "—" : totalText));
@@ -303,10 +412,11 @@ public class TrackDashboardController {
             if (r == null) continue;
             r.setMinWidth(Region.USE_PREF_SIZE);
             r.setMaxWidth(Region.USE_PREF_SIZE);
-            HBox.setHgrow(r, Priority.NEVER);
+            if (r.getParent() instanceof HBox) {
+                HBox.setHgrow(r, Priority.NEVER);
+            }
         }
     }
-
 
     private Node makeChip(String text, int idx) {
         StackPane chip = new StackPane();
