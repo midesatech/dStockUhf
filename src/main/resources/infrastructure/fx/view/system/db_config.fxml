@@ -25,11 +25,14 @@
                 <Label text="Port:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                 <TextField fx:id="txtPort" promptText="3306" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                <Label text="User:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtUser" promptText="root" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Database:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtDatabase" promptText="inventario" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                <Label text="Password:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <PasswordField fx:id="txtPassword" promptText="••••••" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="User:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtUser" promptText="root" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Password:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="txtPassword" promptText="••••••" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
             </GridPane>
 
             <HBox spacing="10">
