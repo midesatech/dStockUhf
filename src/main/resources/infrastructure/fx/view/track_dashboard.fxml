@@ -99,11 +99,12 @@
                 <TableView fx:id="tblDetections">
                     <placeholder><Label text="Ajusta filtros y presiona Buscar"/></placeholder>
                     <columns>
-                        <TableColumn fx:id="colWhen"    text="Fecha/Hora"         prefWidth="180"/>
+                        <TableColumn fx:id="colWhen"    text="Fecha/Hora"         prefWidth="135"/>
                         <TableColumn fx:id="colTipo"    text="Tipo"               prefWidth="110"/>
-                        <TableColumn fx:id="colEpc"     text="EPC"                prefWidth="240"/>
-                        <TableColumn fx:id="colNombre"  text="Nombre/Descripción" prefWidth="300"/>
+                        <TableColumn fx:id="colEpc"     text="EPC"                prefWidth="200"/>
+                        <TableColumn fx:id="colNombre"  text="Nombre/Descripción" prefWidth="290"/>
                         <TableColumn fx:id="colUbic"    text="Ubicación"          prefWidth="220"/>
+                        <TableColumn fx:id="colDelta"   text="Δ desde anterior" prefWidth="130"/>
                     </columns>
                 </TableView>
 
@@ -112,15 +113,25 @@
                         <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
                             <Label text="Ruta del EPC seleccionado" styleClass="tiles-title"/>
                             <Pane HBox.hgrow="ALWAYS"/>
+                            <!-- NEW: toggle -->
+                            <CheckBox fx:id="chkZFlow" text="Z flow" selected="false"/>
                             <Label fx:id="lblRouteInfo" text=""/>
                         </HBox>
                     </top>
                     <center>
-                        <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER">
+                        <ScrollPane fx:id="routeScroll" fitToWidth="false" fitToHeight="true"
+                                    hbarPolicy="ALWAYS" vbarPolicy="AS_NEEDED" pannable="true">
                             <content>
-                                <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;"/>
+                                <StackPane>
+                                    <!-- Linear (existing) -->
+                                    <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;" StackPane.alignment="TOP_LEFT"/>
+                                    <!-- Z Flow (wrapped) -->
+                                    <FlowPane fx:id="routeFlowZ" hgap="12" vgap="12" style="-fx-padding: 12;"
+                                              visible="false" managed="false" StackPane.alignment="TOP_LEFT"/>
+                                </StackPane>
                             </content>
                         </ScrollPane>
+
                     </center>
                 </BorderPane>
             </items>
