@@ -19,6 +19,7 @@ public class DbConfigController {
     @FXML private TextField txtHost;
     @FXML private TextField txtPort;
     @FXML private TextField txtUser;
+    @FXML private TextField txtDatabase;
     @FXML private PasswordField txtPassword;
     @FXML private Label lblMessage;
 
@@ -31,6 +32,7 @@ public class DbConfigController {
         Properties p = PropertyConfigService.load();
         txtHost.setText(p.getProperty(PropertyConfigService.KEY_DB_HOST, "localhost"));
         txtPort.setText(p.getProperty(PropertyConfigService.KEY_DB_PORT, "3306"));
+        txtDatabase.setText(p.getProperty(PropertyConfigService.KEY_DB_DATABASE, "inventario"));
         txtUser.setText(p.getProperty(PropertyConfigService.KEY_DB_USER, "root"));
         txtPassword.setText(p.getProperty(PropertyConfigService.KEY_DB_PASSWORD, ""));
     }
@@ -47,14 +49,15 @@ public class DbConfigController {
     public void testConnection() {
         String host = txtHost.getText().trim();
         String port = txtPort.getText().trim();
+        String database = txtDatabase.getText().trim();
         String user = txtUser.getText().trim();
         String pass = txtPassword.getText();
 
-        if (host.isEmpty() || port.isEmpty() || user.isEmpty()) {
+        if (host.isEmpty() || port.isEmpty() || database.isEmpty() || user.isEmpty()) {
             setInfo("Please fill Host, Port and User.", true);
             return;
         }
-        String url = "jdbc:mariadb://" + host + ":" + port + "/inventario";
+        String url = "jdbc:mariadb://" + host + ":" + port + "/" + database;
         try {
             // Load driver explicitly (optional in modern JDKs; safe)
             Class.forName("org.mariadb.jdbc.Driver");
@@ -70,21 +73,22 @@ public class DbConfigController {
     public void save() {
         String host = txtHost.getText().trim();
         String port = txtPort.getText().trim();
+        String database = txtDatabase.getText().trim();
         String user = txtUser.getText().trim();
         String pass = txtPassword.getText();
 
-        if (host.isEmpty() || port.isEmpty() || user.isEmpty()) {
+        if (host.isEmpty() || port.isEmpty() || database.isEmpty() || user.isEmpty()) {
             setInfo("Please fill Host, Port and User.", true);
             return;
         }
 
         // Try connection first
-        String url = "jdbc:mariadb://" + host + ":" + port + "/inventario";
+        String url = "jdbc:mariadb://" + host + ":" + port + "/" + database;
         try {
             Class.forName("org.mariadb.jdbc.Driver");
             try (Connection ignored = DriverManager.getConnection(url, user, pass)) {
                 // OK → persist
-                PropertyConfigService.save(host, port, user, pass);
+                PropertyConfigService.save(host, port, database, user, pass);
                 setInfo("✅ Saved. Connection OK.", false);
 
                 if (startupMode) {

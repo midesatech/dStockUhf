@@ -56,6 +56,7 @@ public final class DbConfig {
         // 1) Load from properties file if present
         String fileHost = PropertyConfigService.get(PropertyConfigService.KEY_DB_HOST, "");
         String filePort = PropertyConfigService.get(PropertyConfigService.KEY_DB_PORT, "");
+        String fileDatabase = PropertyConfigService.get(PropertyConfigService.KEY_DB_DATABASE, "");
         String fileUser = PropertyConfigService.get(PropertyConfigService.KEY_DB_USER, "");
         String filePass = PropertyConfigService.get(PropertyConfigService.KEY_DB_PASSWORD, "");
 
@@ -66,6 +67,9 @@ public final class DbConfig {
         String port = Optional.ofNullable(System.getenv("DB_PORT"))
                 .filter(s -> !s.isEmpty()).orElse(!filePort.isEmpty() ? filePort : "3306");
 
+        String database = Optional.ofNullable(System.getenv("DB_DATABASE"))
+                .filter(s -> !s.isEmpty()).orElse(!fileDatabase.isEmpty() ? fileDatabase : "inventario");
+
         String user = Optional.ofNullable(System.getenv("DB_USER"))
                 .filter(s -> !s.isEmpty()).orElse(!fileUser.isEmpty() ? fileUser : "root");
 
@@ -75,7 +79,7 @@ public final class DbConfig {
         // NOTE: database name from persistence.xml (inventario)
         String url = Optional.ofNullable(System.getenv("JDBC_URL"))
                 .filter(s -> !s.isEmpty())
-                .orElse("jdbc:mariadb://" + host + ":" + port + "/inventario");
+                .orElse("jdbc:mariadb://" + host + ":" + port + "/" + database);
 
         map.put("jakarta.persistence.jdbc.url", url);
         map.put("jakarta.persistence.jdbc.user", user);

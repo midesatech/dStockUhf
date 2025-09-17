@@ -13,6 +13,7 @@ public final class PropertyConfigService {
     // Keys we persist
     public static final String KEY_DB_HOST = "db.host";
     public static final String KEY_DB_PORT = "db.port";
+    public static final String KEY_DB_DATABASE = "db.database";
     public static final String KEY_DB_USER = "db.user";
     public static final String KEY_DB_PASSWORD = "db.password";
 
@@ -46,9 +47,10 @@ public final class PropertyConfigService {
         return cached;
     }
 
-    public static synchronized void save(String host, String port, String user, String password) {
+    public static synchronized void save(String host, String port, String database, String user, String password) {
         Objects.requireNonNull(host, "host");
         Objects.requireNonNull(port, "port");
+        Objects.requireNonNull(database, "database");
         Objects.requireNonNull(user, "user");
         if (!Files.exists(configDir())) {
             try { Files.createDirectories(configDir()); }
@@ -57,6 +59,7 @@ public final class PropertyConfigService {
         Properties p = new Properties();
         p.setProperty(KEY_DB_HOST, host.trim());
         p.setProperty(KEY_DB_PORT, port.trim());
+        p.setProperty(KEY_DB_DATABASE, database.trim());
         p.setProperty(KEY_DB_USER, user.trim());
         // store **as-is**, PasswordField masks UI only; file is not encrypted
         p.setProperty(KEY_DB_PASSWORD, password == null ? "" : password);
