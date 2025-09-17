@@ -8,9 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
@@ -227,6 +225,7 @@ public class TrackDashboardController {
 
         // Build summary like: EPC X • 4 tramos • Δ A→B 2m 05s, B→C 15s, ...
         StringBuilder summary = new StringBuilder();
+        Duration total = Duration.ZERO; // ← NEW: accumulate total Δ across hops
 
         for (int i = 0; i < hops.size(); i++) {
             PathHop cur = hops.get(i);
@@ -242,6 +241,10 @@ public class TrackDashboardController {
                 String deltaText = formatDuration(d);
                 routeFlow.getChildren().add(makeArrowWithDelta(deltaText)); // arrow + badge
 
+                if (d != null) { // ← NEW: sum only valid gaps
+                    total = total.plus(d);
+                }
+
                 if (deltaText != null && !deltaText.isBlank()) {
                     if (summary.length() > 0) summary.append(", ");
                     summary.append(cur.getLocationName()).append("→").append(next.getLocationName())
@@ -250,21 +253,58 @@ public class TrackDashboardController {
             }
         }
 
+        // ← NEW: add Total Time badge at the very end (only makes sense with >= 2 hops)
+        if (hops.size() >= 2) {
+            String totalText = formatDuration(total);
+            routeFlow.getChildren().add(makeTotalTimeBadge(totalText));
+        }
+
         String info = "EPC " + epc + " • " + hops.size() + " tramos";
         if (summary.length() > 0) info += " • Δ " + summary;
         lblRouteInfo.setText(info);
     }
 
+    private Node makeTotalTimeBadge(String totalText) {
+        Label badge = new Label("Total Time: " + (totalText == null || totalText.isBlank() ? "—" : totalText));
+        badge.getStyleClass().add("total-badge");
+        badge.setWrapText(false);
+
+        // NEW: prevent shrinking/cropping
+        keepPrefWidth(badge);
+
+        return badge;
+    }
+
+
     private Node makeArrowWithDelta(String deltaText) {
         Label arrow = new Label("→");
         arrow.getStyleClass().add("route-arrow");
+        arrow.setWrapText(false);
 
         Label badge = new Label((deltaText == null || deltaText.isBlank()) ? "Δ —" : "Δ " + deltaText);
         badge.getStyleClass().add("delta-badge");
+        badge.setWrapText(false);
 
         VBox box = new VBox(2, arrow, badge);
         box.setAlignment(Pos.CENTER);
+
+        // NEW: prevent shrinking/cropping
+        keepPrefWidth(arrow);
+        keepPrefWidth(badge);
+        keepPrefWidth(box);
+
         return box;
+    }
+
+
+    /** Keep nodes at their preferred width; never shrink or stretch in routeFlow. */
+    private static void keepPrefWidth(Region... rs) {
+        for (Region r : rs) {
+            if (r == null) continue;
+            r.setMinWidth(Region.USE_PREF_SIZE);
+            r.setMaxWidth(Region.USE_PREF_SIZE);
+            HBox.setHgrow(r, Priority.NEVER);
+        }
     }
 
 

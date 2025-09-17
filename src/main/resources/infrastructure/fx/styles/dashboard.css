@@ -217,3 +217,12 @@
     -fx-font-size: 11px;
     -fx-font-weight: 700;
 }
+/* Total time badge at end of route flow */
+.total-badge {
+    -fx-background-color: rgba(16,185,129,0.16); /* soft teal/green */
+    -fx-text-fill: #065f46;
+    -fx-padding: 3 10;
+    -fx-background-radius: 999;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}

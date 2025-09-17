@@ -117,10 +117,10 @@
                         </HBox>
                     </top>
                     <center>
-                        <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER">
-                            <content>
-                                <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;"/>
-                            </content>
+                        <!-- AFTER: allow natural width + horizontal scroll -->
+                        <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER"
+                                    pannable="true">
+                            <HBox fx:id="routeFlow" spacing="12" style="-fx-padding: 12;"/>
                         </ScrollPane>
                     </center>
                 </BorderPane>
