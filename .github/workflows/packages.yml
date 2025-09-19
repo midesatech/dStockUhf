@@ -1,5 +1,5 @@
 # .github/workflows/packages.yml
-name: Build installers
+name: Build installers OS
 on:
   workflow_dispatch:
   push:
