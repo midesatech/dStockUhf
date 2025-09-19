@@ -1,0 +1,50 @@
+# .github/workflows/packages.yml
+name: Build installers
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  package:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      # --- OS prerequisites for jpackage ---
+      - name: Windows prerequisites (WiX 3.x)
+        if: runner.os == 'Windows'
+        run: |
+          choco install wixtoolset --version=3.14.1.20250415 -y
+          echo "WIX=C:\Program Files (x86)\WiX Toolset v3.14\bin" >> $env:GITHUB_ENV
+          echo "$env:WIX" | Out-Host
+      - name: Linux prerequisites (deb/rpm)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot rpm
+      - name: macOS prerequisites (Xcode CLT)
+        if: runner.os == 'macOS'
+        run: |
+          xcode-select -p || xcode-select --install
+
+      # --- Build installers with Gradle (org.beryx.runtime -> jpackage) ---
+      - name: Build installers
+        run: ./gradlew --no-daemon clean jpackage
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dStockUhf-${{ runner.os }}
+          path: build/jpackage/**
