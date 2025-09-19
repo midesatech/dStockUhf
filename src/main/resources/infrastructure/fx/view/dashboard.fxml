@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="infrastructure.fx.controller.dashboard.DashboardController">
+    <top>
+        <HBox spacing="10" styleClass="header" BorderPane.alignment="CENTER_LEFT">
+            <Label text="Dashboard de Ocupación UHF" styleClass="title"/>
+            <Label fx:id="subtitle" text="Cargando..." styleClass="subtitle"/>
+        </HBox>
+    </top>
+    <center>
+        <!-- SplitPane vertical: arriba KPIs (colapsable), abajo el contenido actual -->
+        <SplitPane fx:id="splitMain" orientation="VERTICAL">
+            <items>
+                <!-- Panel superior: KPIs (header fijo + contenido colapsable) -->
+                <BorderPane fx:id="kpiPanel">
+                    <top>
+                        <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
+                            <Label text="KPIs" styleClass="tiles-title"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="btnToggleKpis" text="Ocultar KPIs"
+                                    onAction="#toggleKpis"
+                                    styleClass="kpi-toggle-btn"/>
+                        </HBox>
+                    </top>
+                    <center>
+                        <!-- Contenido real de KPIs (esto es lo que se colapsa) -->
+                        <AnchorPane fx:id="kpiContent">
+                            <minHeight>95.0</minHeight>
+                            <children>
+                                <HBox spacing="12" AnchorPane.topAnchor="4.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0">
+                                    <VBox styleClass="kpi-card" alignment="CENTER_LEFT">
+                                        <Label text="Employees" styleClass="kpi-title"/>
+                                        <Label fx:id="lblTotalEmployees" text="0" styleClass="kpi-number"/>
+                                    </VBox>
+
+                                    <VBox styleClass="kpi-card" alignment="CENTER_LEFT">
+                                        <Label text="Equipment" styleClass="kpi-title"/>
+                                        <Label fx:id="lblTotalEquipment" text="0" styleClass="kpi-number"/>
+                                    </VBox>
+
+                                    <VBox fx:id="kpiPresentEmpCard" styleClass="kpi-card accent" alignment="CENTER_LEFT">
+                                        <Label text="Presentes (Employees)" styleClass="kpi-title"/>
+                                        <Label fx:id="lblPresentEmployees" text="0" styleClass="kpi-number"/>
+                                    </VBox>
+
+                                    <VBox fx:id="kpiPresentEqpCard" styleClass="kpi-card accent" alignment="CENTER_LEFT">
+                                        <Label text="Presentes (Equipment)" styleClass="kpi-title"/>
+                                        <Label fx:id="lblPresentEquipment" text="0" styleClass="kpi-number"/>
+                                    </VBox>
+                                </HBox>
+                            </children>
+                            <padding>
+                                <Insets top="8" right="16" bottom="8" left="16"/>
+                            </padding>
+
+                        </AnchorPane>
+                    </center>
+                </BorderPane>
+
+                <!-- Panel inferior: ahora con SplitPane para (Ubicaciones ⬇) y (Detalle ⬇) -->
+                <SplitPane fx:id="splitContent" orientation="VERTICAL">
+
+                    <items>
+                        <!-- Panel superior: Ubicaciones (widgets) con header y botón de colapso -->
+                        <BorderPane fx:id="tilesPanel">
+                            <top>
+                                <HBox spacing="8" styleClass="tiles-header" BorderPane.alignment="CENTER_LEFT">
+                                    <Label text="Ubicaciones" styleClass="tiles-title"/>
+                                    <ComboBox fx:id="cmbUbicaciones" promptText="Filtrar por ubicación" prefWidth="240"/>
+                                    <Pane HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="btnToggleTiles" text="Ocultar Ubicaciones"
+                                            onAction="#toggleTiles"
+                                            styleClass="kpi-toggle-btn"/>
+                                </HBox>
+                            </top>
+                            <center>
+                                <ScrollPane fx:id="tilesContent" fitToWidth="true">
+                                    <content>
+                                        <FlowPane fx:id="tiles" hgap="16" vgap="16">
+                                            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                        </FlowPane>
+                                    </content>
+                                </ScrollPane>
+                            </center>
+                        </BorderPane>
+
+                        <!-- Panel inferior: Detalle (igual que antes) -->
+                        <TitledPane text="Detalle de ocupación" expanded="true">
+                            <content>
+                                <TableView fx:id="detailsTable" prefHeight="320.0">
+                                    <placeholder>
+                                        <Label text="Selecciona una ubicación para ver los EPC detectados"/>
+                                    </placeholder>
+                                    <columns>
+                                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="130"/>
+                                        <TableColumn fx:id="colEpc" text="EPC" prefWidth="240"/>
+                                        <TableColumn fx:id="colNombre" text="Nombre/Descripción" prefWidth="320"/>
+                                        <TableColumn fx:id="colUltimo" text="Última detección" prefWidth="220"/>
+                                    </columns>
+                                </TableView>
+                            </content>
+                        </TitledPane>
+                    </items>
+                </SplitPane>
+
+
+            </items>
+        </SplitPane>
+    </center>
+
+    <stylesheets>
+        <URL value="@/infrastructure/fx/styles/dashboard.css"/>
+    </stylesheets>
+</BorderPane>

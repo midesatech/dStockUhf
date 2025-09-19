@@ -19,12 +19,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class SidebarController {
 
-    @FXML private VBox root;          // contenedor raíz (mantiene el botón)
-    @FXML private VBox menuWrapper;   // SOLO esto se colapsa
-    @FXML private TreeView<String> menuTree;
+    @FXML
+    private VBox root;          // contenedor raíz (mantiene el botón)
+    @FXML
+    private VBox menuWrapper;   // SOLO esto se colapsa
+    @FXML
+    private TreeView<String> menuTree;
 
     private boolean collapsed = false;
     private static final double EXPANDED_WIDTH = 240;
@@ -32,32 +36,56 @@ public class SidebarController {
 
     @FXML
     public void initialize() {
+        ThemeManager.UiTheme theme = ThemeManager.getTheme();
+        menuTree.getStyleClass().removeAll("ocean-soft", "green-soft", "dark-menu", "obsidian-menu");
+        menuTree.getStyleClass().add(ThemeManager.cssClassFor(theme));
         // Estado inicial expandido
         root.setPrefWidth(EXPANDED_WIDTH);
         menuWrapper.setVisible(true);
         menuWrapper.setManaged(true);
 
         // CellFactory único: muestra SOLO el graphic (ícono + label) y aplica colores pastel intercalados
-        menuTree.setCellFactory(tv -> new TreeCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || getTreeItem() == null) {
+        menuTree.setCellFactory(tv -> {
+            TreeCell<String> cell = new TreeCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    getStyleClass().removeAll("root-item", "child-item", "even", "odd", "hovered"); // reset SIEMPRE
+
+                    if (empty || getTreeItem() == null) {
+                        setText(null);
+                        setGraphic(null);
+                        setStyle("");
+                        return;
+                    }
+
                     setText(null);
-                    setGraphic(null);
-                    setStyle("");
-                } else {
-                    setText(null); // no mostramos el value textual del TreeItem
                     setGraphic(getTreeItem().getGraphic());
 
-                    // alterna colores pastel por fila (si quieres otros colores cámbialos)
-                    int rowIndex = tv.getRow(getTreeItem());
-                    if (rowIndex % 2 == 0) {
-                        setStyle("-fx-background-color: #fce4ec;"); // pastel rosado
+                    // Profundidad (root invisible no cuenta)
+                    int depth = 0;
+                    TreeItem<?> cur = getTreeItem();
+                    while (cur != null && cur.getParent() != null) {
+                        depth++;
+                        cur = cur.getParent();
+                    }
+
+                    if (depth == 1) {
+                        getStyleClass().add("root-item");
                     } else {
-                        setStyle("-fx-background-color: #e3f2fd;"); // pastel azul
+                        int rowIndex = tv.getRow(getTreeItem());
+                        getStyleClass().addAll("child-item", (rowIndex % 2 == 0) ? "even" : "odd");
                     }
                 }
-            }
+            };
+
+            // Forzar estado hover aunque el ratón esté sobre el HBox/Label (graphic)
+            cell.setOnMouseEntered(e -> {
+                if (!cell.getStyleClass().contains("hovered")) cell.getStyleClass().add("hovered");
+            });
+            cell.setOnMouseExited(e -> cell.getStyleClass().remove("hovered"));
+
+            return cell;
         });
 
         buildMenu();
@@ -106,10 +134,23 @@ public class SidebarController {
         TreeItem<String> invRoot = makeMenuCategory("Inventario", Icons.SETTINGS);
         if (isAdmin || hasPermission(u, "INVENTORY_ASSIGN")) {
             invRoot.getChildren().add(makeMenuItem("Asignación de TAG", "/infrastructure/fx/view/stock/uhftag.fxml", Icons.LINK));
+            invRoot.getChildren().add(makeMenuItem("Detecciones ", "/infrastructure/fx/view/stock/scan.fxml", Icons.SCAN));
         }
         rootItem.getChildren().add(invRoot);
 
-        // 3. Administración del sistema (3.1..3.4)
+
+        // 3. Dashboard
+        TreeItem<String> dashRoot = makeMenuCategory("Dashboard", Icons.MAP);
+        dashRoot.getChildren().add(
+                makeMenuItem("Ocupación por Ubicación", "/infrastructure/fx/view/dashboard.fxml", Icons.SCAN)
+        );
+        dashRoot.getChildren().add(
+                makeMenuItem("Seguimiento", "/infrastructure/fx/view/track_dashboard.fxml", Icons.ROUTE)
+        );
+        rootItem.getChildren().add(dashRoot);
+
+
+        // 4. Administración del sistema (3.1..3.4)
         TreeItem<String> sysRoot = makeMenuCategory("Administración", Icons.SHIELD);
         if (isAdmin || hasPermission(u, "ROLE_MANAGE")) {
             sysRoot.getChildren().add(makeMenuItem("Roles", "/infrastructure/fx/view/system/roles.fxml", Icons.SHIELD));
@@ -120,6 +161,13 @@ public class SidebarController {
         if (isAdmin || hasPermission(u, "ROLE_MANAGE")) {
             sysRoot.getChildren().add(makeMenuItem("Permisos por roles", "/infrastructure/fx/view/system/permissions.fxml", Icons.KEY));
         }
+        // Only ADMIN can see DB Config page
+        if (isAdmin) {
+            sysRoot.getChildren().add(
+                    makeMenuItem("DB Configuración", "/infrastructure/fx/view/system/db_config.fxml", Icons.SETTINGS)
+            );
+        }
+
         // 3.4 = Cambio de contraseña → siempre visible
         sysRoot.getChildren().add(makeMenuItem("Cambio de contraseña", "/infrastructure/fx/view/system/change_password.fxml", Icons.LOCK));
 
@@ -138,7 +186,7 @@ public class SidebarController {
                 Object ud = ((HBox) item.getGraphic()).getUserData();
                 if (ud instanceof String) {
                     loadView((String) ud);
-                } else if ("Cerrar sesión".equals(((Label)((HBox)item.getGraphic()).getChildren().get(1)).getText())) {
+                } else if ("Cerrar sesión".equals(((Label) ((HBox) item.getGraphic()).getChildren().get(1)).getText())) {
                     MainController.getInstance().logout();
                 }
             }

@@ -20,11 +20,20 @@ public class LoginController {
     private Label lblMsg;
     @FXML
     private Label lblCapsLock;
+    @FXML
+    private ChoiceBox<ThemeManager.UiTheme> themeChoice;
 
     @FXML
     public void initialize() {
         txtPass.setOnKeyPressed(e -> checkCapsLock());
         txtPass.setOnKeyReleased(e -> checkCapsLock());
+        themeChoice.getItems().setAll(
+                ThemeManager.UiTheme.OCEAN,
+                ThemeManager.UiTheme.GREEN,
+                ThemeManager.UiTheme.DARK,
+                ThemeManager.UiTheme.OBSIDIAN
+        );
+        themeChoice.setValue(ThemeManager.getTheme());
     }
 
     @FXML
@@ -32,6 +41,8 @@ public class LoginController {
         try {
             User u = AppBootstrap.auth().authenticate(txtUser.getText(), txtPass.getText());
             UserSession.setCurrent(u);
+            ThemeManager.UiTheme sel = themeChoice.getValue();
+            if (sel != null) ThemeManager.setTheme(sel);
             // open main window
             Stage stage = (Stage) txtUser.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/infrastructure/fx/view/main.fxml"));

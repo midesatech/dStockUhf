@@ -3,8 +3,12 @@ package app.config;
 import domain.usecase.CategoriaUseCase;
 import infrastructure.fx.controller.LoginController;
 import infrastructure.fx.controller.catalog.*;
+import infrastructure.fx.controller.dashboard.DashboardController;
+import infrastructure.fx.controller.dashboard.TrackDashboardController;
+import infrastructure.fx.controller.stock.ScanController;
 import infrastructure.fx.controller.stock.UHFTagController;
 import infrastructure.fx.controller.system.ChangePasswordController;
+import infrastructure.fx.controller.system.DbConfigController;
 import infrastructure.fx.controller.system.RolesController;
 import infrastructure.fx.controller.system.UserController;
 import javafx.util.Callback;
@@ -35,7 +39,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == EmployeeController.class) {
-            return new EmployeeController(AppBootstrap.empleadoUseCase());
+            return new EmployeeController(AppBootstrap.employeeUseCase());
         }
 
         if (type == UbicacionesController.class) {
@@ -52,9 +56,31 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
 
         if (type == UHFTagController.class) {
             return new UHFTagController(AppBootstrap.tagUhfUsecase(),
-                    AppBootstrap.empleadoUseCase(),
+                    AppBootstrap.employeeUseCase(),
                     AppBootstrap.equipmentUseCase(),
                     AppBootstrap.readTagUseCase());
+        }
+
+        if (type == ScanController.class) {
+            return new ScanController(
+                    AppBootstrap.scanUseCase(),
+                    AppBootstrap.tagUhfUsecase(),
+                    AppBootstrap.employeeUseCase(),
+                    AppBootstrap.equipmentUseCase(),
+                    AppBootstrap.ubicacionUseCase()
+            );
+        }
+
+        if (type == DashboardController.class) {
+            return new DashboardController(AppBootstrap.dashboardUseCase());
+        }
+
+        if (type == TrackDashboardController.class) {
+            return new TrackDashboardController(AppBootstrap.searchDetectionsUseCase());
+        }
+
+        if (type == DbConfigController.class) {
+            return new DbConfigController();
         }
 
         // otros controladores que necesiten dependencias

@@ -1,0 +1,62 @@
+/* Root background: ocean gradient */
+.login-root {
+    -fx-background-color: linear-gradient(to bottom, #0ea5e9, #0284c7);
+    -fx-padding: 24;
+}
+
+/* Card that holds the fields */
+.login-card {
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-background-radius: 16;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.25, 0, 6);
+    -fx-min-width: 320;
+    -fx-max-width: 420;
+}
+
+/* Title */
+.login-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0b3b5b; /* deep ocean text */
+}
+
+/* Inputs */
+.text-field, .password-field {
+    -fx-background-radius: 10;
+    -fx-background-color: white;
+    -fx-padding: 10 12;
+    -fx-pref-width: 260;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10;
+}
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #0ea5e9;
+    -fx-border-width: 2;
+}
+
+/* Caps warning and error message */
+.caps-warning { -fx-text-fill: #b45309; /* amber-700 */ }
+.error-msg    { -fx-text-fill: #b91c1c; /* red-700  */ }
+
+/* Primary button: bigger & ocean themed */
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom, #22d3ee, #0ea5e9);
+    -fx-text-fill: white;
+    -fx-font-size: 16px;          /* bigger text */
+    -fx-font-weight: bold;
+    -fx-padding: 10 18;           /* bigger padding */
+    -fx-min-width: 200;           /* wider button */
+    -fx-min-height: 42;           /* taller button */
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #38bdf8, #0284c7);
+}
+.btn-primary:pressed {
+    -fx-background-color: #0369a1;
+}
+.btn-primary:focused {
+    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.6), 12, 0.3, 0, 0);
+}

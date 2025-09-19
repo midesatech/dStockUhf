@@ -11,8 +11,8 @@
 
     <!-- Menú lateral -->
     <left>
-        <VBox fx:id="sidebarContainer">
-            <fx:include source="sidebar.fxml"/>
+        <VBox fx:id="sidebarContainer" VBox.vgrow="ALWAYS">
+            <fx:include source="sidebar.fxml" fx:id="sidebar" VBox.vgrow="ALWAYS"/>
         </VBox>
     </left>
 

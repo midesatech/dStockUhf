@@ -11,11 +11,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
 
 public class MainController {
     @FXML private StackPane contentArea;
@@ -94,21 +97,39 @@ public class MainController {
     @FXML
     public void logout() {
         try {
-            // 1. Limpiar sesión
+            // 1) Stop background stuff and clear session
+            stopReaderDetection();                 // if you run a reader task
             UserSession.clear();
 
-            // 2. Volver al login
-            Stage stage = (Stage) lblUser.getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/infrastructure/fx/view/login.fxml"));
-            Parent root = loader.load();
-            stage.setScene(new Scene(root));
+            // 2) Load login view
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/infrastructure/fx/view/login.fxml")
+            );
+            Parent loginRoot = loader.load();
+
+            // 3) Get the Stage from any node you control (contentArea, root, etc.)
+            Stage stage = (Stage) contentArea.getScene().getWindow();
+
+            // 4) Reset size constraints so the login can size itself
+            stage.setResizable(true);
+            stage.setMinWidth(0);     // ✅ non-negative
+            stage.setMinHeight(0);
+
+            // 5) Set a NEW scene AND the intended size (match your MainApp)
+            Scene loginScene = new Scene(loginRoot, 400, 300);
+            stage.setScene(loginScene);
+
+            // If you attach global stylesheets, re-attach them here as needed:
+            // loginScene.getStylesheets().add(getClass().getResource("/app.css").toExternalForm());
+
+            // 6) Let JavaFX compute the proper window size and position
+            stage.sizeToScene();
+            stage.centerOnScreen();
             stage.setTitle("Inventario - Login");
-        } catch (Exception e) {
-            e.printStackTrace();
-            setStatus("Error al cerrar sesión: " + e.getMessage());
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
-
     private void loadReaders() {
         startReaderDetection();
     }
