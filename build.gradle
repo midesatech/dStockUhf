@@ -1,57 +1,101 @@
 plugins {
+    id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.runtime' version '1.13.1'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
+repositories { mavenCentral() }
+
 java {
-    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+/**
+ * Let the JavaFX plugin resolve platform-specific artifacts.
+ * (Tip: you can remove the manual org.openjfx dependencies below to avoid duplicates.)
+ */
+javafx {
+    version = "21.0.3"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
+}
+
+dependencies {
+    // If you keep these, they're fine, but the plugin already supplies them:
+    // implementation 'org.openjfx:javafx-controls:21.0.3'
+    // implementation 'org.openjfx:javafx-fxml:21.0.3'
+
+    implementation 'org.mindrot:jbcrypt:0.4'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'org.hibernate.orm:hibernate-core:6.4.4.Final'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+    implementation 'org.slf4j:slf4j-simple:2.0.12'
+    implementation 'com.fazecast:jSerialComm:2.11.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.24.3'
 }
 
 application {
-    // Your JavaFX main class
     mainClass = 'app.MainApp'
-    // JavaFX modules you need at runtime (no flags on the command line)
-    applicationDefaultJvmArgs = ['--add-modules=javafx.controls,javafx.fxml',
-                                 '-Duser.timezone=America/Bogota']
+    applicationDefaultJvmArgs = [
+            '--module-path', '$APP_HOME/lib/javafx:$APP_HOME/lib',
+            '--add-modules', 'javafx.controls,javafx.fxml'
+    ]
 }
 
-javafx {
-    version = '21.0.3'
-    modules = ['javafx.controls', 'javafx.fxml']
+
+/** Plain jar manifest (not the fat jar) */
+jar {
+    manifest { attributes('Main-Class': 'app.MainApp') }
 }
 
-// Typical runtime deps (adjust versions to yours)
-dependencies {
-    implementation 'org.hibernate.orm:hibernate-core:6.5.2.Final'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
-    // logging of your choice
-    implementation 'ch.qos.logback:logback-classic:1.5.6'
+/** Keep shadow if you need it; don't minimize with JavaFX */
+shadowJar { mergeServiceFiles() }
+
+distributions {
+    main {
+        contents {
+            // Don't duplicate files when we "move" them
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            // Rewrite the destination of JavaFX jars from lib/ → lib/javafx/
+            eachFile { details ->
+                if (details.path.startsWith('lib/')) {
+                    // Use the *target* filename (includes version/classifier)
+                    def n = details.name
+                    if (n ==~ /javafx-(base|graphics|controls|fxml).*\.jar/) {
+                        details.path = "lib/javafx/${n}"
+                    }
+                }
+            }
+        }
+    }
 }
 
-def os = org.gradle.internal.os.OperatingSystem.current()
+/**
+ * Make launchers pass the correct module-path in a way that expands APP_HOME
+ * reliably on both Unix and Windows scripts.
+ */
+tasks.named('startScripts') {
+    // Put a placeholder that we'll replace AFTER the script files are generated
+    defaultJvmOpts = [
+            '--module-path', '___APP_HOME___/lib/javafx',
+            '--add-modules', 'javafx.controls,javafx.fxml'
+    ]
 
-runtime {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    doLast {
+        // Unix script: replace placeholder with $APP_HOME (keeps proper quoting)
+        unixScript.text = unixScript.text.replace('___APP_HOME___', '$APP_HOME')
 
-    jpackage {
-        appName = 'dStockUhf'
-        vendor = 'YourCompany'
-        appVersion = '0.1.0'
+        // Windows script: replace with %APP_HOME%
+        windowsScript.text = windowsScript.text.replace('___APP_HOME___', '%APP_HOME%')
+    }
+}
 
-        // Pick sensible defaults per OS
-        installerType = os.isWindows() ? 'exe' : (os.isMacOsX() ? 'dmg' : 'deb')
-        // icons (put files under projectDir/packaging/)
-        if (os.isWindows()) icon = "$projectDir/packaging/icon.ico"
-        if (os.isMacOsX())  icon = "$projectDir/packaging/icon.icns"
-        if (os.isLinux())   icon = "$projectDir/packaging/icon.png"
 
-        // JVM args baked into the launcher
-        jvmArgs = ['--add-modules=javafx.controls,javafx.fxml',
-                   '-Duser.timezone=America/Bogota']
-
-        // Optional: put a readme/license next to the installer
-        // resourceDir = file("$projectDir/packaging")
+sourceSets {
+    main {
+        resources { srcDirs = ['src/main/resources'] }
     }
 }
