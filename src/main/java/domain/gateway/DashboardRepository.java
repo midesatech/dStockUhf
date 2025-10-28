@@ -7,8 +7,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DashboardRepository {
-    List<LocationPresence> fetchPresenceByLocationSince(LocalDateTime since);
+    // Presencia agregada por ubicación principal (suma principal + sub)
+    List<LocationPresence> fetchPresenceByPrincipalSince(LocalDateTime since);
+
+    // Breakdown por sububicación de una principal
+    List<LocationPresence> fetchPresenceBySubOf(long principalId, LocalDateTime since);
+
+    // Ocupantes (personas/equipos) por ubicación (acepta principal o sub)
     List<Occupant> fetchOccupantsByUbicacion(long ubicacionId);
+
     int totalEmployees();
     int totalEquipment();
 }

@@ -21,6 +21,11 @@
             </padding>
             <Label text="Nombre"/>
             <TextField fx:id="txtNombre"/>
+            <Label text="Ubicación padre (opcional)"/>
+            <ComboBox fx:id="cmbPadre"/>
+
+            <Label text="Nota: déjalo vacío para crear una ubicación principal." style="-fx-font-size:11; -fx-text-fill:#666;"/>
+
         </VBox>
     </left>
     <center>
@@ -28,6 +33,7 @@
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
                 <TableColumn fx:id="colNombre" text="Nombre" prefWidth="250"/>
+                <TableColumn fx:id="colPadre" text="Padre" prefWidth="220"/>
             </columns>
         </TableView>
     </center>

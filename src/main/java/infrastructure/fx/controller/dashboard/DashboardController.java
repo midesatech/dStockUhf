@@ -3,6 +3,7 @@ package infrastructure.fx.controller.dashboard;
 import domain.model.LocationPresence;
 import domain.model.Occupant;
 import domain.usecase.DashboardUseCase;
+import domain.usecase.LocationUseCase;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -69,6 +70,14 @@ public class DashboardController {
     // Combo de ubicaciones
     @FXML private ComboBox<LocationOption> cmbUbicaciones;
 
+    // --- nuevos campos ---
+    @FXML private ComboBox<domain.model.Ubicacion> cmbPrincipal;
+    @FXML private TableView<domain.model.LocationPresence> tblSubs;
+    @FXML private TableColumn<domain.model.LocationPresence, String> colSubNombre;
+    @FXML private TableColumn<domain.model.LocationPresence, Integer> colSubEmp, colSubEq;
+    @FXML private Button btnVerSubs;
+
+
     // ==== Configuración ====
     private static final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final double MAIN_SPLIT_DEFAULT = 0.19;   // altura inicial de KPIs
@@ -79,6 +88,7 @@ public class DashboardController {
 
     // ==== Estado ====
     private final DashboardUseCase dashboard;
+    private final LocationUseCase locationUseCase;
 
     private int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
 
@@ -103,8 +113,13 @@ public class DashboardController {
     private Double lastDividerPos = null;
     private Double lastTilesDividerPos = null;
 
-    public DashboardController(DashboardUseCase dashboard) {
+    private java.util.List<domain.model.Ubicacion> principals = java.util.Collections.emptyList();
+    private final javafx.collections.ObservableList<domain.model.LocationPresence> subsData =
+            javafx.collections.FXCollections.observableArrayList();
+
+    public DashboardController(DashboardUseCase dashboard, LocationUseCase locationUseCase) {
         this.dashboard = dashboard;
+        this.locationUseCase = locationUseCase;
     }
 
     // ==== Ciclo de vida ====
@@ -161,6 +176,18 @@ public class DashboardController {
                 if (scroller != null) scroller.setVvalue(0.0);
             });
         }
+
+        cmbPrincipal.setButtonCell(new javafx.scene.control.ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
+        cmbPrincipal.setCellFactory(cb -> new javafx.scene.control.ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
+        colSubNombre.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyStringWrapper(c.getValue().getLocationName()));
+        colSubEmp.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyObjectWrapper<>(c.getValue().getEmployees()));
+        colSubEq.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyObjectWrapper<>(c.getValue().getEquipment()));
+        tblSubs.setItems(subsData);
+
+        // cargar principales (usa tu LocationUseCase vía factory/DI)
+        principals = locationUseCase.principales();
+        cmbPrincipal.getItems().setAll(principals);
+        cmbPrincipal.valueProperty().addListener((o,old,nu) -> refreshSubs());
 
         // Arranque si ya está visible
         Platform.runLater(() -> {
@@ -562,5 +589,18 @@ public class DashboardController {
         }
         node.getStyleClass().removeAll(remove);
         node.getStyleClass().addAll(add);
+    }
+
+    // botón
+    public void toggleSubs() { refreshSubs(); }
+
+    // 2) breakdown sub:
+    private void refreshSubs() {
+        subsData.clear();
+        var sel = cmbPrincipal.getValue();
+        if (sel == null) return;
+        var since = buildSince();
+        var rows = dashboard.fetchPresenceBySubOf(sel.getId(), since);
+        subsData.addAll(rows);
     }
 }

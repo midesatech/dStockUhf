@@ -41,4 +41,14 @@ public class SearchDetectionsUseCase {
         if (epc == null || epc.isBlank()) throw new IllegalArgumentException("epc required");
         return repo.pathForEpc(epc, start, end);
     }
+
+    // Con filtro de ubicación (principal => incluye sub)
+    public List<Occupant> searchByAt(String subject, LocalDateTime start, LocalDateTime end, Long ubicacionId) {
+        subject = norm(subject); validateRange(start, end);
+        return repo.searchBySubjectAndTimeAt(subject, start, end, ubicacionId);
+    }
+    public List<DetectionRecord> searchRawAt(String subject, LocalDateTime start, LocalDateTime end, Long ubicacionId) {
+        subject = norm(subject); validateRange(start, end);
+        return repo.searchRawBySubjectAndTimeAt(subject, start, end, ubicacionId);
+    }
 }

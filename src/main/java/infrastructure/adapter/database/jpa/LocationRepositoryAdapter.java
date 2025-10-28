@@ -19,17 +19,38 @@ public class LocationRepositoryAdapter implements LocationRepository {
         this.emf = emf;
     }
 
+    private static Ubicacion map(LocationEntity e) {
+        return new Ubicacion(
+                e.getId(),
+                e.getNombre(),
+                e.getParent() == null ? null : e.getParent().getId(),
+                e.getParent() == null ? null : e.getParent().getNombre()
+        );
+    }
+
     @Override
     public Ubicacion save(Ubicacion u) {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            LocationEntity e = new LocationEntity();
-            e.setNombre(u.getNombre());
-            em.persist(e);
+            LocationEntity e;
+            if (u.getId() != null) {
+                e = em.find(LocationEntity.class, u.getId());
+                e.setNombre(u.getNombre());
+            } else {
+                e = new LocationEntity();
+                e.setNombre(u.getNombre());
+            }
+            if (u.getParentId() != null) {
+                LocationEntity parent = em.find(LocationEntity.class, u.getParentId());
+                e.setParent(parent);
+            } else {
+                e.setParent(null);
+            }
+            if (e.getId() == null) em.persist(e);
             tx.commit();
-            return new Ubicacion(e.getId(), e.getNombre());
+            return map(e);
         } catch (Exception ex) {
             if (tx.isActive()) tx.rollback();
             throw ex;
@@ -42,14 +63,33 @@ public class LocationRepositoryAdapter implements LocationRepository {
     public List<Ubicacion> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("select u from LocationEntity u", LocationEntity.class)
-                    .getResultList()
-                    .stream()
-                    .map(e -> new Ubicacion(e.getId(), e.getNombre()))
-                    .collect(Collectors.toList());
-        } finally {
-            em.close();
-        }
+            List<LocationEntity> rows = em.createQuery(
+                    "SELECT u FROM LocationEntity u LEFT JOIN FETCH u.parent ORDER BY COALESCE(u.parent.id, u.id), u.nombre",
+                    LocationEntity.class).getResultList();
+            return rows.stream().map(LocationRepositoryAdapter::map).collect(Collectors.toList());
+        } finally { em.close(); }
+    }
+
+    @Override
+    public List<Ubicacion> findPrincipals() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<LocationEntity> rows = em.createQuery(
+                    "SELECT u FROM LocationEntity u WHERE u.parent IS NULL ORDER BY u.nombre",
+                    LocationEntity.class).getResultList();
+            return rows.stream().map(LocationRepositoryAdapter::map).collect(Collectors.toList());
+        } finally { em.close(); }
+    }
+
+    @Override
+    public List<Ubicacion> findByParentId(Long parentId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<LocationEntity> rows = em.createQuery(
+                    "SELECT u FROM LocationEntity u LEFT JOIN FETCH u.parent WHERE u.parent.id = :pid ORDER BY u.nombre",
+                    LocationEntity.class).setParameter("pid", parentId).getResultList();
+            return rows.stream().map(LocationRepositoryAdapter::map).collect(Collectors.toList());
+        } finally { em.close(); }
     }
 
     @Override
@@ -64,9 +104,7 @@ public class LocationRepositoryAdapter implements LocationRepository {
         } catch (Exception ex) {
             if (tx.isActive()) tx.rollback();
             throw ex;
-        } finally {
-            em.close();
-        }
+        } finally { em.close(); }
     }
 
     @Override
@@ -74,9 +112,8 @@ public class LocationRepositoryAdapter implements LocationRepository {
         EntityManager em = emf.createEntityManager();
         try {
             LocationEntity e = em.find(LocationEntity.class, id);
-            return Optional.ofNullable(e == null ? null : new Ubicacion(e.getId(), e.getNombre()));
-        } finally {
-            em.close();
-        }
+            if (e != null && e.getParent() != null) e.getParent().getId(); // touch
+            return Optional.ofNullable(e == null ? null : map(e));
+        } finally { em.close(); }
     }
 }

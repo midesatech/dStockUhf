@@ -32,6 +32,7 @@
                             <RowConstraints valignment="CENTER"/>
                             <!-- Buttons row; CENTER is fine -->
                             <RowConstraints valignment="CENTER"/>
+                            <RowConstraints valignment="CENTER"/>
                         </rowConstraints>
 
                         <!-- Row 0: Labels -->
@@ -86,6 +87,13 @@
                                         defaultButton="true" styleClass="btn-soft-primary"/>
                             </children>
                         </HBox>
+
+                        <!-- Row 3: Buttons aligned right across all columns -->
+                        <Label text="Ubicación" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="cmbUbicPrincipal" prefWidth="200" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <Label text="Sub" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="cmbSububicacion" GridPane.rowIndex="3" GridPane.columnIndex="3" prefWidth="200"/>
+
                     </GridPane>
                 </VBox>
             </content>

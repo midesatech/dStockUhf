@@ -157,4 +157,126 @@ public class SearchRepositoryAdapter implements SearchRepository {
         } finally { if (em != null) em.close(); }
         return hops;
     }
+
+    @Override
+    public java.util.List<domain.model.Occupant> searchBySubjectAndTimeAt(String subject, java.time.LocalDateTime start, java.time.LocalDateTime end, Long ubicacionId) {
+        var em = emf.createEntityManager();
+        var rows = new java.util.ArrayList<domain.model.Occupant>();
+        try {
+            String scope = (ubicacionId == null) ? "" : """
+            WITH target AS (
+                SELECT id FROM ubicaciones WHERE id = :uid
+                UNION ALL
+                SELECT id FROM ubicaciones WHERE parent_id = :uid
+            )
+        """;
+            String inClause = (ubicacionId == null) ? "" : "AND dt.ubicacion_id IN (SELECT id FROM target)";
+
+            String sql = scope + """
+            SELECT
+               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
+               dt.epc,
+               COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.name) AS nombre,
+               MAX(dt.created_at) as last_ts
+            FROM detecciones_tags dt
+            LEFT JOIN tags_uhf t ON t.epc = dt.epc
+            LEFT JOIN empleados e ON e.tag_id = t.id
+            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            WHERE dt.created_at BETWEEN :s AND :e
+              AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
+              """ + inClause + """
+            GROUP BY 1,2,3
+            ORDER BY last_ts DESC
+        """;
+            var q = em.createNativeQuery(sql);
+            q.setParameter("s", java.sql.Timestamp.valueOf(start));
+            q.setParameter("e", java.sql.Timestamp.valueOf(end));
+            q.setParameter("subject", subject);
+            if (ubicacionId != null) q.setParameter("uid", ubicacionId);
+
+            java.util.List<Object[]> rs = q.getResultList();
+            for (Object[] r : rs) {
+                String tipo = (String) r[0];
+                String epc = (String) r[1];
+                String nombre = (String) r[2];
+                java.sql.Timestamp ts = (java.sql.Timestamp) r[3];
+                java.time.LocalDateTime last = ts == null ? null : ts.toLocalDateTime();
+                rows.add(new domain.model.Occupant(tipo, epc, (nombre == null || nombre.isBlank()) ? "(" + tipo + " " + epc + ")" : nombre, last));
+            }
+        } finally { em.close(); }
+        return rows;
+    }
+
+    @Override
+    public java.util.List<domain.model.DetectionRecord> searchRawBySubjectAndTimeAt(
+            String subject,
+            java.time.LocalDateTime start,
+            java.time.LocalDateTime end,
+            Long ubicacionId
+    ) {
+        var em = emf.createEntityManager();
+        var rows = new java.util.ArrayList<domain.model.DetectionRecord>();
+        try {
+            String scope = (ubicacionId == null) ? "" : """
+            WITH target AS (
+                SELECT id FROM ubicaciones WHERE id = :uid
+                UNION ALL
+                SELECT id FROM ubicaciones WHERE parent_id = :uid
+            )
+        """;
+            // Si filtras por ubicación, restringe a target; si no, usa todo.
+            String inClause = (ubicacionId == null) ? "" : "AND dt.ubicacion_id IN (SELECT id FROM target)";
+
+            // NOTA: agregamos u.id AS ubicacion_id y un "source" string (placeholder vacío '')
+            String sql = scope + """
+            SELECT
+               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
+               dt.epc,
+               COALESCE(u.nombre, '(Sin ubicación)') AS ubicacion,
+               u.id AS ubicacion_id,
+               '' AS source,            -- ajusta aquí si tienes un campo de origen (lector/dispositivo)
+               dt.created_at
+            FROM detecciones_tags dt
+            LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
+            LEFT JOIN tags_uhf t ON t.epc = dt.epc
+            LEFT JOIN empleados e ON e.tag_id = t.id
+            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            WHERE dt.created_at BETWEEN :s AND :e
+              AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
+              """ + inClause + """
+            ORDER BY dt.created_at DESC
+        """;
+
+            var q = em.createNativeQuery(sql);
+            q.setParameter("s", java.sql.Timestamp.valueOf(start));
+            q.setParameter("e", java.sql.Timestamp.valueOf(end));
+            q.setParameter("subject", subject);
+            if (ubicacionId != null) q.setParameter("uid", ubicacionId);
+
+            @SuppressWarnings("unchecked")
+            java.util.List<Object[]> rs = q.getResultList();
+
+            for (Object[] r : rs) {
+                String tipo = (String) r[0];
+                String epc = (String) r[1];
+                String ubiNombre = (String) r[2];
+                Long ubiId = (r[3] == null) ? null : ((Number) r[3]).longValue();
+                String source = (String) r[4]; // placeholder: '' (vacío) por ahora
+                java.sql.Timestamp ts = (java.sql.Timestamp) r[5];
+                java.time.LocalDateTime when = (ts == null) ? null : ts.toLocalDateTime();
+
+                rows.add(new domain.model.DetectionRecord(
+                        tipo,           // String
+                        epc,            // String
+                        ubiNombre,      // String
+                        ubiId,          // Long
+                        source,         // String
+                        when            // LocalDateTime
+                ));
+            }
+        } finally {
+            em.close();
+        }
+        return rows;
+    }
 }

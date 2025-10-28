@@ -72,11 +72,11 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == DashboardController.class) {
-            return new DashboardController(AppBootstrap.dashboardUseCase());
+            return new DashboardController(AppBootstrap.dashboardUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
         if (type == TrackDashboardController.class) {
-            return new TrackDashboardController(AppBootstrap.searchDetectionsUseCase());
+            return new TrackDashboardController(AppBootstrap.searchDetectionsUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
         if (type == DbConfigController.class) {

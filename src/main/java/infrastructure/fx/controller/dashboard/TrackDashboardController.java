@@ -2,6 +2,7 @@ package infrastructure.fx.controller.dashboard;
 
 import domain.model.DetectionRecord;
 import domain.model.PathHop;
+import domain.usecase.LocationUseCase;
 import domain.usecase.tag.SearchDetectionsUseCase;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -34,17 +35,24 @@ public class TrackDashboardController {
     @FXML private CheckBox chkZFlow;
     @FXML private ScrollPane routeScroll;
     @FXML private FlowPane routeFlowZ;
-
     // Keep the last rendered data to re-render on toggle:
     private String currentEpc;
     private List<PathHop> currentHops;
     @FXML private HBox routeFlow;
+    // nuevos campos
+    @FXML private ComboBox<domain.model.Ubicacion> cmbUbicPrincipal;
+    @FXML private ComboBox<domain.model.Ubicacion> cmbSububicacion;
+
+    private java.util.List<domain.model.Ubicacion> principals = java.util.Collections.emptyList();
 
     private final SearchDetectionsUseCase useCase;
     private final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public TrackDashboardController(SearchDetectionsUseCase useCase) {
+    private final LocationUseCase locationUseCase;
+
+    public TrackDashboardController(SearchDetectionsUseCase useCase, LocationUseCase locationUseCase) {
         this.useCase = useCase;
+        this.locationUseCase = locationUseCase;
     }
 
     @FXML
@@ -107,11 +115,36 @@ public class TrackDashboardController {
             });
         }
 
+        // en initialize() (al final de tu init de filtros)
+        principals = locationUseCase.principales();
+        cmbUbicPrincipal.getItems().setAll(principals);
+
+        cmbUbicPrincipal.setButtonCell(new ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
+        cmbUbicPrincipal.setCellFactory(cb -> new ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
+        cmbSububicacion.setButtonCell(new ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
+        cmbSububicacion.setCellFactory(cb -> new ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
+
+        cmbUbicPrincipal.valueProperty().addListener((o, old, sel) -> {
+            cmbSububicacion.getItems().clear();
+            cmbSububicacion.getSelectionModel().clearSelection();
+            if (sel != null) cmbSububicacion.getItems().setAll(locationUseCase.sububicaciones(sel.getId()));
+        });
+
         // Default layout: linear
         setRouteLayout(false);
 
 
         updateSubtitle();
+
+
+    }
+
+    // helper
+    private Long currentUbicacionFilter() {
+        var sub = cmbSububicacion.getValue();
+        if (sub != null) return sub.getId();
+        var pri = cmbUbicPrincipal.getValue();
+        return pri == null ? null : pri.getId();
     }
 
     private void setRouteLayout(boolean z) {
@@ -171,10 +204,14 @@ public class TrackDashboardController {
         LocalDateTime start = buildStart();
         LocalDateTime end   = buildEnd();
         updateSubtitle();
+        Long ubicFilter = currentUbicacionFilter();
 
         javafx.concurrent.Task<List<DetectionRecord>> task = new javafx.concurrent.Task<>() {
             @Override protected List<DetectionRecord> call() {
-                return useCase.searchRaw(subject, start, end);
+                //return useCase.searchRaw(subject, start, end);
+                return (ubicFilter == null)
+                        ? useCase.searchRaw(subject, start, end)
+                        : useCase.searchRawAt(subject, start, end, ubicFilter);
             }
         };
         task.setOnSucceeded(e -> {

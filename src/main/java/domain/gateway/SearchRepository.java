@@ -11,4 +11,9 @@ public interface SearchRepository {
     List<Occupant> searchBySubjectAndTime(String subject, LocalDateTime start, LocalDateTime end);
     List<DetectionRecord> searchRawBySubjectAndTime(String subject, LocalDateTime start, LocalDateTime end);
     List<PathHop> pathForEpc(String epc, LocalDateTime start, LocalDateTime end);
+
+    // Nuevos con filtro ubicacion (principal => incluye sub)
+    List<Occupant> searchBySubjectAndTimeAt(String subject, LocalDateTime start, LocalDateTime end, Long ubicacionId);
+    List<DetectionRecord> searchRawBySubjectAndTimeAt(String subject, LocalDateTime start, LocalDateTime end, Long ubicacionId);
+
 }

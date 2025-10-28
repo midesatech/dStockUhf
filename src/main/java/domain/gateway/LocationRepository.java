@@ -11,6 +11,9 @@ public interface LocationRepository {
 
     List<Ubicacion> findAll();
 
+    List<Ubicacion> findPrincipals();           // parentId = null
+    List<Ubicacion> findByParentId(Long parentId); // sububicaciones de un principal
+
     void deleteById(Long id);
 
     Optional<Ubicacion> findById(Long id);

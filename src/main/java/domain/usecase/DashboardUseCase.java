@@ -15,11 +15,15 @@ public class DashboardUseCase {
     }
 
     public List<LocationPresence> getPresenceSince(LocalDateTime since) {
-        return repo.fetchPresenceByLocationSince(since);
+        return repo.fetchPresenceByPrincipalSince(since);
     }
 
     public List<Occupant> getOccupantsByUbicacion(long ubicacionId) {
         return repo.fetchOccupantsByUbicacion(ubicacionId);
+    }
+
+    public List<LocationPresence> fetchPresenceBySubOf(long ubicacionId, LocalDateTime since) {
+        return repo.fetchPresenceBySubOf(ubicacionId, since);
     }
 
     public int totalEmployees() {
