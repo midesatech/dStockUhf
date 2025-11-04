@@ -81,7 +81,7 @@
                         <!-- Botones alineados a la derecha, en la misma fila de filtros -->
                         <HBox spacing="10" alignment="CENTER_LEFT"
                               GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="4"
-                              GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM">
+                              GridPane.valignment="BOTTOM">
                             <children>
                                 <!-- Bloque de ubicación + sububicación alineado a la izquierda -->
                                 <HBox spacing="6" alignment="CENTER_LEFT">
