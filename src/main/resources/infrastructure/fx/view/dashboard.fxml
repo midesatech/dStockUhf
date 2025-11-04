@@ -111,11 +111,12 @@
                         </TitledPane>
                     </items>
                 </SplitPane>
-
-
             </items>
         </SplitPane>
-        <VBox spacing="8" padding="8">
+        <VBox spacing="8">
+            <padding>
+                <Insets top="8" right="8" bottom="8" left="8"/>
+            </padding>
             <Label text="Detalle por sububicación" style="-fx-font-size:12; -fx-text-fill:#666;" />
             <TableView fx:id="tblSubs">
                 <columns>
@@ -125,9 +126,7 @@
                 </columns>
             </TableView>
         </VBox>
-
     </center>
-
     <stylesheets>
         <URL value="@/infrastructure/fx/styles/dashboard.css"/>
     </stylesheets>

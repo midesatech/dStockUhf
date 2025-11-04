@@ -41,11 +41,12 @@
                         <Label text="Inicio:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
                         <Label text="Fin:" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
-                        <!-- Row 1: Values – radios vertically stacked, no rowSpan -->
+                        <!-- Row 1: Values – radios + ubicaciones en una sola columna vertical -->
                         <VBox spacing="8" styleClass="filters-radios"
                               GridPane.rowIndex="1" GridPane.columnIndex="0"
                               GridPane.valignment="TOP">
                             <children>
+                                <!-- Tipo (radios) -->
                                 <RadioButton fx:id="rbEmployee" text="Employees"
                                              toggleGroup="$grpTipo" selected="true"
                                              mnemonicParsing="false" contentDisplay="LEFT"
@@ -59,7 +60,6 @@
                         <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.valignment="CENTER">
                             <ComboBox fx:id="cmbQuick" maxWidth="Infinity"/>
                         </HBox>
-
 
                         <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.valignment="CENTER">
                             <children>
@@ -78,22 +78,39 @@
                         </HBox>
 
                         <!-- Row 2: Buttons aligned right across all columns -->
-                        <HBox spacing="10" alignment="CENTER_RIGHT"
-                              GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="5">
+                        <!-- Botones alineados a la derecha, en la misma fila de filtros -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="4"
+                              GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM">
                             <children>
-                                <Button fx:id="btnReset"  text="Reset"  onAction="#onReset" mnemonicParsing="false"
-                                        styleClass="btn-soft-neutral"/>
-                                <Button fx:id="btnSearch" text="Buscar" onAction="#onSearch" mnemonicParsing="false"
-                                        defaultButton="true" styleClass="btn-soft-primary"/>
+                                <!-- Bloque de ubicación + sububicación alineado a la izquierda -->
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label text="Ubicación"/>
+                                        <ComboBox fx:id="cmbUbicPrincipal" prefWidth="130"/>
+
+                                        <Label text="Sub"/>
+                                        <ComboBox fx:id="cmbSububicacion" prefWidth="130"/>
+                                    </children>
+                                </HBox>
+
+                                <!-- Separador flexible: empuja los botones a la derecha -->
+                                <Pane HBox.hgrow="ALWAYS"/>
+
+                                <!-- Botones Reset / Buscar alineados a la derecha -->
+                                <HBox spacing="8" alignment="CENTER_RIGHT">
+                                    <children>
+                                        <Button fx:id="btnReset"  text="Reset"
+                                                onAction="#onReset" mnemonicParsing="false"
+                                                styleClass="btn-soft-neutral"/>
+                                        <Button fx:id="btnSearch" text="Buscar"
+                                                onAction="#onSearch" mnemonicParsing="false"
+                                                defaultButton="true"
+                                                styleClass="btn-soft-primary"/>
+                                    </children>
+                                </HBox>
                             </children>
                         </HBox>
-
-                        <!-- Row 3: Buttons aligned right across all columns -->
-                        <Label text="Ubicación" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <ComboBox fx:id="cmbUbicPrincipal" prefWidth="200" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                        <Label text="Sub" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
-                        <ComboBox fx:id="cmbSububicacion" GridPane.rowIndex="3" GridPane.columnIndex="3" prefWidth="200"/>
-
                     </GridPane>
                 </VBox>
             </content>
