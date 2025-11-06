@@ -37,7 +37,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
                 FROM detecciones_tags dt
                 LEFT JOIN tags_uhf t  ON t.epc = dt.epc
                 LEFT JOIN empleados e ON e.tag_id = t.id
-                LEFT JOIN equipment eq ON eq.tag_id = t.id
+                LEFT JOIN product eq ON eq.tag_id = t.id
                 WHERE dt.created_at BETWEEN ?1 AND ?2
                   AND (
                       (?3 = 'EMPLOYEE'  AND e.id IS NOT NULL) OR
@@ -82,7 +82,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
                 FROM detecciones_tags dt
                 LEFT JOIN tags_uhf t  ON t.epc = dt.epc
                 LEFT JOIN empleados e ON e.tag_id = t.id
-                LEFT JOIN equipment eq ON eq.tag_id = t.id
+                LEFT JOIN product eq ON eq.tag_id = t.id
                 LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
                 WHERE dt.created_at BETWEEN ?1 AND ?2
                   AND (
@@ -181,7 +181,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
             FROM detecciones_tags dt
             LEFT JOIN tags_uhf t ON t.epc = dt.epc
             LEFT JOIN empleados e ON e.tag_id = t.id
-            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE dt.created_at BETWEEN :s AND :e
               AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
               """ + inClause + """
@@ -240,7 +240,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
             LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
             LEFT JOIN tags_uhf t ON t.epc = dt.epc
             LEFT JOIN empleados e ON e.tag_id = t.id
-            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE dt.created_at BETWEEN :s AND :e
               AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
               """ + inClause + """

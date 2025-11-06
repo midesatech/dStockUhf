@@ -4,8 +4,8 @@ package infrastructure.adapter.database.mysql.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "equipment")
-public class EquipmentEntity {
+@Table(name = "product")
+public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

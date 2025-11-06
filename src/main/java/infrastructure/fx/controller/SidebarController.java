@@ -19,7 +19,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class SidebarController {
 
@@ -125,7 +124,7 @@ public class SidebarController {
             catRoot.getChildren().add(
                     makeMenuItem("Lectores", "/infrastructure/fx/view/catalog/reader.fxml", Icons.ANTENNA)
             );
-            catRoot.getChildren().add(makeMenuItem("Equipos", "/infrastructure/fx/view/catalog/equipment.fxml", Icons.BOX));
+            catRoot.getChildren().add(makeMenuItem("Productos", "/infrastructure/fx/view/catalog/product.fxml", Icons.BOX));
             catRoot.getChildren().add(makeMenuItem("Empleados", "/infrastructure/fx/view/catalog/employee.fxml", Icons.USER));
         }
         rootItem.getChildren().add(catRoot);

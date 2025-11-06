@@ -3,11 +3,11 @@ package infrastructure.fx.controller.catalog;
 
 import app.config.AppBootstrap;
 import domain.model.Category;
+import domain.model.Product;
 import domain.model.Ubicacion;
-import domain.model.Equipment;
 import domain.usecase.CategoriaUseCase;
 import domain.usecase.LocationUseCase;
-import domain.usecase.EquipmentUseCase;
+import domain.usecase.ProductUseCase;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -15,9 +15,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-public class EquipmentController {
+public class ProductController {
     @FXML
-    private TableView<Equipment> tbl;
+    private TableView<Product> tbl;
     @FXML
     private TextField txtSku;
     @FXML
@@ -27,15 +27,15 @@ public class EquipmentController {
     @FXML
     private ComboBox<Ubicacion> cmbUbicacion;
     @FXML
-    private TableColumn<Equipment, Long> colId;
+    private TableColumn<Product, Long> colId;
     @FXML
-    private TableColumn<Equipment, String> colSku;
+    private TableColumn<Product, String> colSku;
     @FXML
-    private TableColumn<Equipment, String> colNombre;
+    private TableColumn<Product, String> colNombre;
     @FXML
-    private TableColumn<Equipment, String> colCategoria;
+    private TableColumn<Product, String> colCategoria;
     @FXML
-    private TableColumn<Equipment, String> colUbicacion;
+    private TableColumn<Product, String> colUbicacion;
     @FXML
     private TextField filtroSku;
     @FXML
@@ -43,15 +43,15 @@ public class EquipmentController {
     @FXML
     private ComboBox<Category> filtroCategoria;
 
-    private final ObservableList<Equipment> data = FXCollections.observableArrayList();
+    private final ObservableList<Product> data = FXCollections.observableArrayList();
     private final ObservableList<Category> cats = FXCollections.observableArrayList();
     private final ObservableList<Ubicacion> ubic = FXCollections.observableArrayList();
-    private final EquipmentUseCase equipmentUseCase;
+    private final ProductUseCase productUseCase;
     private final CategoriaUseCase useCat;
     private final LocationUseCase useUb;
 
-    public EquipmentController(EquipmentUseCase equipmentUseCase, CategoriaUseCase useCat, LocationUseCase useUb) {
-        this.equipmentUseCase = equipmentUseCase;
+    public ProductController(ProductUseCase productUseCase, CategoriaUseCase useCat, LocationUseCase useUb) {
+        this.productUseCase = productUseCase;
         this.useCat = useCat;
         this.useUb = useUb;
     }
@@ -101,7 +101,7 @@ public class EquipmentController {
         data.clear();
         cats.clear();
         ubic.clear();
-        data.addAll(equipmentUseCase.listar());
+        data.addAll(productUseCase.listar());
         cats.addAll(useCat.listar());
         ubic.addAll(useUb.listar());
     }
@@ -118,19 +118,19 @@ public class EquipmentController {
     @FXML
     public void guardar() {
         try {
-            if (equipmentUseCase == null) throw new IllegalStateException("Use JPA mode");
+            if (productUseCase == null) throw new IllegalStateException("Use JPA mode");
 
             // 1. Obtener el elemento seleccionado de la tabla
-            Equipment seleccionado = tbl.getSelectionModel().getSelectedItem();
+            Product seleccionado = tbl.getSelectionModel().getSelectedItem();
 
             if (seleccionado == null) {
                 // --- Lógica para CREAR un nuevo Equipment ---
-                Equipment nuevo = new Equipment();
+                Product nuevo = new Product();
                 nuevo.setSku(txtSku.getText());
                 nuevo.setNombre(txtNombre.getText());
                 nuevo.setCategoria(cmbCategoria.getValue());
                 nuevo.setUbicacion(cmbUbicacion.getValue());
-                equipmentUseCase.crear(nuevo);
+                productUseCase.crear(nuevo);
                 new Alert(Alert.AlertType.INFORMATION, "Equipo creado correctamente").showAndWait();
             } else {
                 // --- Lógica para ACTUALIZAR el Equipment seleccionado ---
@@ -138,7 +138,7 @@ public class EquipmentController {
                 seleccionado.setNombre(txtNombre.getText());
                 seleccionado.setCategoria(cmbCategoria.getValue());
                 seleccionado.setUbicacion(cmbUbicacion.getValue());
-                equipmentUseCase.actualizar(seleccionado); // Asumo que tienes un método actualizar(Equipment)
+                productUseCase.actualizar(seleccionado); // Asumo que tienes un método actualizar(Equipment)
                 new Alert(Alert.AlertType.INFORMATION, "Equipo actualizado correctamente").showAndWait();
             }
 
@@ -153,13 +153,13 @@ public class EquipmentController {
 
     @FXML
     public void eliminar() {
-        Equipment sel = tbl.getSelectionModel().getSelectedItem();
+        Product sel = tbl.getSelectionModel().getSelectedItem();
         if (sel == null) {
             new Alert(Alert.AlertType.INFORMATION, "Seleccione").showAndWait();
             return;
         }
         try {
-            equipmentUseCase.eliminar(sel.getId());
+            productUseCase.eliminar(sel.getId());
             refreshAll();
             new Alert(Alert.AlertType.INFORMATION, "Eliminado").showAndWait();
         } catch (Exception ex) {
@@ -174,7 +174,7 @@ public class EquipmentController {
         Category cat = filtroCategoria.getValue();
 
         data.clear();
-        data.addAll(equipmentUseCase.buscar(sku, nombre, cat));
+        data.addAll(productUseCase.buscar(sku, nombre, cat));
     }
 
     @FXML

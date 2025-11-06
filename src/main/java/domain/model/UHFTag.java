@@ -8,7 +8,28 @@ public class UHFTag {
     private boolean activo;
 
     public enum Tipo {
-        EMPLEADO, EQUIPMENT
+        EMPLOYEE("EMPLEADO", true),
+        EQUIPMENT("EQUIPO", false),
+        PRODUCT("PRODUCTO", true);
+
+        private final String label;
+        private final boolean isEnabled;
+
+        // Constructor that accepts the label and the status
+        Tipo(String label, boolean isEnabled) {
+            this.label = label;
+            this.isEnabled = isEnabled;
+        }
+
+
+        // Getter methods
+        public String getLabel() {
+            return label;
+        }
+
+        public boolean isEnabled() {
+            return isEnabled;
+        }
     }
 
     public UHFTag(Long id, String epc, Tipo tipo, boolean activo) {

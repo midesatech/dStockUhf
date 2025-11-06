@@ -51,7 +51,7 @@
                                              toggleGroup="$grpTipo" selected="true"
                                              mnemonicParsing="false" contentDisplay="LEFT"
                                              wrapText="true" maxWidth="Infinity"/>
-                                <RadioButton fx:id="rbEquipment" text="Equipment"
+                                <RadioButton fx:id="rbEquipment" text="Product"
                                              toggleGroup="$grpTipo" mnemonicParsing="false"
                                              contentDisplay="LEFT" wrapText="true" maxWidth="Infinity"/>
                             </children>

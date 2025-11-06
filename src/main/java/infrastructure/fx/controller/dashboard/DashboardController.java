@@ -316,7 +316,7 @@ public class DashboardController {
         title.getStyleClass().add("card-title");
         Label emp = new Label("Personas: 0");
         emp.getStyleClass().add("card-metric");
-        Label eq  = new Label("Equipos: 0");
+        Label eq  = new Label("Productos: 0");
         eq.getStyleClass().add("card-metric");
         box.getChildren().addAll(title, emp, eq);
         return box;

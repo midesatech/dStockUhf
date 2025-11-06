@@ -50,14 +50,14 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
             return new ReaderController(AppBootstrap.lectorUHFUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
-        if (type == EquipmentController.class) {
-            return new EquipmentController(AppBootstrap.equipmentUseCase(), AppBootstrap.categoriaUseCase(), AppBootstrap.ubicacionUseCase());
+        if (type == ProductController.class) {
+            return new ProductController(AppBootstrap.productUseCase(), AppBootstrap.categoriaUseCase(), AppBootstrap.ubicacionUseCase());
         }
 
         if (type == UHFTagController.class) {
             return new UHFTagController(AppBootstrap.tagUhfUsecase(),
                     AppBootstrap.employeeUseCase(),
-                    AppBootstrap.equipmentUseCase(),
+                    AppBootstrap.productUseCase(),
                     AppBootstrap.readTagUseCase());
         }
 
@@ -66,7 +66,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
                     AppBootstrap.scanUseCase(),
                     AppBootstrap.tagUhfUsecase(),
                     AppBootstrap.employeeUseCase(),
-                    AppBootstrap.equipmentUseCase(),
+                    AppBootstrap.productUseCase(),
                     AppBootstrap.ubicacionUseCase()
             );
         }

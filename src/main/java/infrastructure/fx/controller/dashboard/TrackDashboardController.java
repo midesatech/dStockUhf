@@ -270,7 +270,7 @@ public class TrackDashboardController {
     }
 
     private void updateSubtitle() {
-        String subject = rbEquipment.isSelected() ? "Equipment" : "Employee";
+        String subject = rbEquipment.isSelected() ? "Product" : "Employee";
         LocalDateTime start = buildStart();
         LocalDateTime end   = buildEnd();
         lblSubtitle.setText("Tipo: " + subject + "  •  Rango: " + start.format(TS_FMT) + " → " + end.format(TS_FMT));

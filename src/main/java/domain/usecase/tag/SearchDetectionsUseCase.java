@@ -17,8 +17,8 @@ public class SearchDetectionsUseCase {
     private static String norm(String subject) {
         if (subject == null) subject = "EMPLOYEE";
         subject = subject.toUpperCase();
-        if (!subject.equals("EMPLOYEE") && !subject.equals("EQUIPMENT"))
-            throw new IllegalArgumentException("subject must be EMPLOYEE or EQUIPMENT");
+        if (!subject.equals("EMPLOYEE") && !subject.equals("PRODUCT"))
+            throw new IllegalArgumentException("subject must be EMPLOYEE or PRODUCT");
         return subject;
     }
     private static void validateRange(LocalDateTime start, LocalDateTime end) {

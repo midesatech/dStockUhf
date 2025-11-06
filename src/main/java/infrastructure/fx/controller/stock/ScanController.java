@@ -1,11 +1,11 @@
 package infrastructure.fx.controller.stock;
 import domain.model.Employee;
-import domain.model.Equipment;
+import domain.model.Product;
 import domain.model.Ubicacion;
 import domain.model.tag.TagScan;
 import domain.model.tag.TagScanFilter;
 import domain.usecase.EmployeeUseCase;
-import domain.usecase.EquipmentUseCase;
+import domain.usecase.ProductUseCase;
 import domain.usecase.LocationUseCase;
 import domain.usecase.TagUHFUseCase;
 import domain.usecase.tag.ScanUseCase;
@@ -59,18 +59,18 @@ public class ScanController {
     private final ScanUseCase scanUseCase;
     private final TagUHFUseCase tagUHFUseCase;
     private final EmployeeUseCase employeeUseCase;
-    private final EquipmentUseCase equipmentUseCase;
+    private final ProductUseCase productUseCase;
     private final LocationUseCase locationUseCase;
 
     public ScanController(ScanUseCase scanUseCase,
                           TagUHFUseCase tagUHFUseCase,
                           EmployeeUseCase employeeUseCase,
-                          EquipmentUseCase equipmentUseCase,
+                          ProductUseCase productUseCase,
                           LocationUseCase locationUseCase) {
         this.scanUseCase = scanUseCase;
         this.tagUHFUseCase = tagUHFUseCase;
         this.employeeUseCase = employeeUseCase;
-        this.equipmentUseCase = equipmentUseCase;
+        this.productUseCase = productUseCase;
         this.locationUseCase = locationUseCase;
     }
 
@@ -177,9 +177,9 @@ public class ScanController {
             lblAsignado.setText("Empleado: " + e.getFullName() + " " + e.getLastName());
             return;
         }
-        Optional<Equipment> eq = equipmentUseCase.findByEpc(epc);
+        Optional<Product> eq = productUseCase.findByEpc(epc);
         if (eq.isPresent()) {
-            Equipment e = eq.get();
+            Product e = eq.get();
             lblAsignado.setText("Equipo: " + e.getNombre() + " (SKU: " + nonNull(e.getSku()) + ")");
             return;
         }
@@ -202,9 +202,9 @@ public class ScanController {
             Employee e = emp.get();
             asignado = "Empleado: " + nonNull(e.getFullName()) + " " + nonNull(e.getLastName());
         } else {
-            Optional<Equipment> eq = equipmentUseCase.findByEpc(s.getEpc());
+            Optional<Product> eq = productUseCase.findByEpc(s.getEpc());
             if (eq.isPresent()) {
-                Equipment e = eq.get();
+                Product e = eq.get();
                 asignado = "Equipo: " + nonNull(e.getNombre()) + (e.getSku()!=null ? " (SKU: " + e.getSku() + ")" : "");
             }
         }

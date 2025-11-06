@@ -1,9 +1,9 @@
 
 package infrastructure.adapter.database.jpa;
 
-import domain.gateway.EquipmentGateway;
+import domain.gateway.ProductGateway;
 import domain.model.Category;
-import domain.model.Equipment;
+import domain.model.Product;
 import infrastructure.adapter.database.mysql.entity.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityManager;
@@ -13,45 +13,45 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class EquipmentRepositoryAdapter implements EquipmentGateway {
+public class ProductRepositoryAdapter implements ProductGateway {
     private final EntityManagerFactory emf;
 
-    public EquipmentRepositoryAdapter(EntityManagerFactory emf) {
+    public ProductRepositoryAdapter(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
     @Override
-    public Equipment save(Equipment equipment) {
+    public Product save(Product product) {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
 
-            EquipmentEntity e = (equipment.getId() != null)
-                    ? em.find(EquipmentEntity.class, equipment.getId())
-                    : new EquipmentEntity();
+            ProductEntity e = (product.getId() != null)
+                    ? em.find(ProductEntity.class, product.getId())
+                    : new ProductEntity();
 
-            e.setSku(equipment.getSku());
-            e.setNombre(equipment.getNombre());
+            e.setSku(product.getSku());
+            e.setNombre(product.getNombre());
 
-            if (equipment.getCategoria() != null) {
-                CategoryEntity ce = em.find(CategoryEntity.class, equipment.getCategoria().getId());
+            if (product.getCategoria() != null) {
+                CategoryEntity ce = em.find(CategoryEntity.class, product.getCategoria().getId());
                 e.setCategoria(ce);
             } else {
                 e.setCategoria(null);
             }
 
-            if (equipment.getUbicacion() != null) {
-                LocationEntity ue = em.find(LocationEntity.class, equipment.getUbicacion().getId());
+            if (product.getUbicacion() != null) {
+                LocationEntity ue = em.find(LocationEntity.class, product.getUbicacion().getId());
                 e.setUbicacion(ue);
             } else {
                 e.setUbicacion(null);
             }
 
             // EPC -> TagUHFEntity (TIPO = EQUIPMENT)
-            if (equipment.getEpc() != null && !equipment.getEpc().isBlank()) {
+            if (product.getEpc() != null && !product.getEpc().isBlank()) {
                 UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
-                        em, equipment.getEpc().trim(), UHFTagEntity.Tipo.EQUIPMENT
+                        em, product.getEpc().trim(), UHFTagEntity.Tipo.PRODUCT
                 );
                 e.setTag(tag);
             } else {
@@ -75,13 +75,13 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
     }
 
     @Override
-    public List<Equipment> findAll() {
+    public List<Product> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT p FROM EquipmentEntity p", EquipmentEntity.class)
+            return em.createQuery("SELECT p FROM ProductEntity p", ProductEntity.class)
                     .getResultList()
                     .stream()
-                    .map(EquipmentRepositoryAdapter::toDomain)
+                    .map(ProductRepositoryAdapter::toDomain)
                     .collect(Collectors.toList());
         } finally {
             em.close();
@@ -94,7 +94,7 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            EquipmentEntity e = em.find(EquipmentEntity.class, id);
+            ProductEntity e = em.find(ProductEntity.class, id);
             if (e != null) em.remove(e);
             tx.commit();
         } catch (RuntimeException ex) {
@@ -106,10 +106,10 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
     }
 
     @Override
-    public Optional<Equipment> findById(Long id) {
+    public Optional<Product> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            EquipmentEntity e = em.find(EquipmentEntity.class, id);
+            ProductEntity e = em.find(ProductEntity.class, id);
             return Optional.ofNullable(e == null ? null : toDomain(e));
         } finally {
             em.close();
@@ -117,21 +117,21 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
     }
 
     @Override
-    public List<Equipment> buscar(String sku, String nombre, Category cat) {
+    public List<Product> buscar(String sku, String nombre, Category cat) {
         EntityManager em = emf.createEntityManager();
         try {
-            String jpql = "SELECT e FROM EquipmentEntity e WHERE 1=1";
+            String jpql = "SELECT e FROM ProductEntity e WHERE 1=1";
             if (sku != null && !sku.isBlank()) jpql += " AND e.sku LIKE :sku";
             if (nombre != null && !nombre.isBlank()) jpql += " AND e.nombre LIKE :nombre";
             if (cat != null) jpql += " AND e.categoria.id = :catId";
 
-            var q = em.createQuery(jpql, EquipmentEntity.class);
+            var q = em.createQuery(jpql, ProductEntity.class);
             if (sku != null && !sku.isBlank()) q.setParameter("sku", "%" + sku + "%");
             if (nombre != null && !nombre.isBlank()) q.setParameter("nombre", "%" + nombre + "%");
             if (cat != null) q.setParameter("catId", cat.getId());
 
             return q.getResultList().stream()
-                    .map(EquipmentRepositoryAdapter::toDomain)
+                    .map(ProductRepositoryAdapter::toDomain)
                     .collect(Collectors.toList());
         } finally {
             em.close();
@@ -139,26 +139,26 @@ public class EquipmentRepositoryAdapter implements EquipmentGateway {
     }
 
     @Override
-    public Optional<Equipment> findByEpc(String epc) {
+    public Optional<Product> findByEpc(String epc) {
         EntityManager em = emf.createEntityManager();
         try {
             var query = em.createQuery(
-                    "SELECT e FROM EquipmentEntity e " +
+                    "SELECT e FROM ProductEntity e " +
                             "JOIN e.tag t " +
                             "WHERE t.epc = :epc",
-                    EquipmentEntity.class);
+                    ProductEntity.class);
             query.setParameter("epc", epc);
-            List<EquipmentEntity> result = query.getResultList();
+            List<ProductEntity> result = query.getResultList();
             return query.getResultStream()
                     .findFirst()
-                    .map(EquipmentRepositoryAdapter::toDomain);
+                    .map(ProductRepositoryAdapter::toDomain);
         } finally {
             em.close();
         }
     }
 
-    private static Equipment toDomain(EquipmentEntity e) {
-        Equipment p = new Equipment(e.getId(), e.getSku(), e.getNombre());
+    private static Product toDomain(ProductEntity e) {
+        Product p = new Product(e.getId(), e.getSku(), e.getNombre());
         if (e.getCategoria() != null)
             p.setCategoria(new Category(e.getCategoria().getId(), e.getCategoria().getNombre()));
         if (e.getUbicacion() != null)

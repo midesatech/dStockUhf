@@ -48,13 +48,13 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
                 p.id AS principal_id,
                 p.nombre AS principal_name,
                 COALESCE(SUM(CASE WHEN e.id  IS NOT NULL THEN 1 ELSE 0 END), 0) AS employees,
-                COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS equipment
+                COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS product
             FROM ubicaciones p
             LEFT JOIN loc_map m ON m.principal_id = p.id
             LEFT JOIN last_seen ls ON ls.ubicacion_id = m.id
             LEFT JOIN tags_uhf t ON t.epc = ls.epc
             LEFT JOIN empleados e ON e.tag_id = t.id
-            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE p.parent_id IS NULL
             GROUP BY p.id, p.nombre
             ORDER BY p.nombre ASC
@@ -94,12 +94,12 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
                 u.id   AS location_id,
                 u.nombre AS location_name,
                 COALESCE(SUM(CASE WHEN e.id  IS NOT NULL THEN 1 ELSE 0 END), 0) AS employees,
-                COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS equipment
+                COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS product
             FROM ubicaciones u
             LEFT JOIN last_seen ls ON ls.ubicacion_id = u.id
             LEFT JOIN tags_uhf t ON t.epc = ls.epc
             LEFT JOIN empleados e ON e.tag_id = t.id
-            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE (u.parent_id = ?1) OR (u.id = ?1)  -- incluye principal si tiene detecciones directas
             GROUP BY u.id, u.nombre
             ORDER BY u.nombre ASC
@@ -139,14 +139,14 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
                 GROUP BY dt.epc
             )
             SELECT
-               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
+               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
                t.epc,
                COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.name) AS nombre,
                ls.last_ts
             FROM last_seen ls
             JOIN tags_uhf t ON t.epc = ls.epc
             LEFT JOIN empleados e ON e.tag_id = t.id
-            LEFT JOIN equipment eq ON eq.tag_id = t.id
+            LEFT JOIN product eq ON eq.tag_id = t.id
             ORDER BY ls.last_ts DESC
         """;
             var q = em.createNativeQuery(sql);
@@ -180,7 +180,7 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
     public int totalEquipment() {
         EntityManager em = emf.createEntityManager();
         try {
-            Number n = (Number) em.createNativeQuery("SELECT COUNT(*) FROM equipment").getSingleResult();
+            Number n = (Number) em.createNativeQuery("SELECT COUNT(*) FROM product").getSingleResult();
             return n.intValue();
         } finally {
             em.close();

@@ -1,7 +1,7 @@
 
 package domain.model;
 
-public class Equipment {
+public class Product {
     private Long id;
     private String sku;
     private String nombre;
@@ -9,10 +9,10 @@ public class Equipment {
     private Ubicacion ubicacion;
     private String epc;
 
-    public Equipment() {
+    public Product() {
     }
 
-    public Equipment(Long id, String sku, String nombre) {
+    public Product(Long id, String sku, String nombre) {
         this.id = id;
         this.sku = sku;
         this.nombre = nombre;

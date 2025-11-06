@@ -23,7 +23,7 @@
                     <Label text="Código:"/>
                     <TextField fx:id="filtroCodigo" prefWidth="120"/>
                     <Label text="Ubicación:"/>
-                    <ComboBox fx:id="filtroUbicacion" prefWidth="150"/>
+                    <ComboBox fx:id="filtroUbicacion" prefWidth="160"/>
                     <Button text="Buscar" onAction="#buscar"/>
                     <Button text="Limpiar" onAction="#limpiarFiltros"/>
                 </HBox>
@@ -44,7 +44,7 @@
                 <TextField fx:id="txtDescripcion"/>
 
                 <Label text="Ubicación"/>
-                <ComboBox fx:id="cmbUbicacion"/>
+                <ComboBox fx:id="cmbUbicacion" prefWidth="160"/>
             </VBox>
         </TitledPane>
     </left>

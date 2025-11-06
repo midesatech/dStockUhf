@@ -22,7 +22,7 @@
             <Label text="Nombre"/>
             <TextField fx:id="txtNombre"/>
             <Label text="Ubicación padre (opcional)"/>
-            <ComboBox fx:id="cmbPadre"/>
+            <ComboBox fx:id="cmbPadre" prefWidth="190"/>
 
             <Label text="Nota: déjalo vacío para crear una ubicación principal." style="-fx-font-size:11; -fx-text-fill:#666;"/>
 
