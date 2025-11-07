@@ -32,7 +32,7 @@
                     <ComboBox fx:id="cmbTipo" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="200"/>
 
                     <!-- Selección de entidad dinámica -->
-                    <Label text="Entidad:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <Label text="Item:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                     <ComboBox fx:id="cmbAsignacion" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="250"/>
 
                     <!-- Estado activo -->

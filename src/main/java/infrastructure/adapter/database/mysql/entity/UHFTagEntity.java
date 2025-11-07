@@ -20,7 +20,7 @@ public class UHFTagEntity {
     private boolean activo = true;
 
     public enum Tipo {
-        EMPLEADO, EQUIPMENT, PRODUCT
+        EMPLOYEE, EQUIPMENT, PRODUCT
     }
 
     // Getters & Setters

@@ -267,23 +267,43 @@ public class DashboardController {
 
     private void renderFromCache() {
         final List<LocationPresence> base = this.lastAllData;
-        final List<LocationPresence> data =
-                (!filterFromCombo || selectedLocationId == null)
-                        ? base
-                        : base.stream().filter(lp -> lp.getLocationId() == selectedLocationId).toList();
+        final List<LocationPresence> data;
 
+        if (!filterFromCombo || selectedLocationId == null) {
+            // Sin filtro desde el combo: usamos el dataset principal tal cual (ubicaciones padre agregadas)
+            data = base;
+        } else {
+            // Con filtro: si la ubicación seleccionada en el combo es una ubicación padre,
+            // queremos mostrar su propio widget + el de cada sub-ubicación.
+            List<LocationPresence> expanded;
+            try {
+                // Breakdown padre + sub-ubicaciones a partir del repositorio de dashboard
+                expanded = dashboard.fetchPresenceBySubOf(selectedLocationId, buildSince());
+            } catch (Exception ex) {
+                // Si algo falla al consultar el breakdown, degradamos al comportamiento anterior
+                expanded = base.stream()
+                        .filter(lp -> lp.getLocationId() == selectedLocationId)
+                        .toList();
+            }
+            data = expanded;
+        }
+
+        // Renderizado de tiles
         ensureCards(data.size());
         for (int i = 0; i < data.size(); i++) {
             LocationPresence lp = data.get(i);
             VBox card = (VBox) tiles.getChildren().get(i);
             updateCard(card, lp, i);
         }
+
+        // Elimina tarjetas sobrantes si redujimos el número
         while (tiles.getChildren().size() > data.size()) {
             int last = tiles.getChildren().size() - 1;
             tiles.getChildren().remove(last);
             cardPool.remove(last);
         }
     }
+
 
     private void updateKpisFrom(List<LocationPresence> allData) {
         int presentEmpAll = allData.stream().mapToInt(LocationPresence::getEmployees).sum();

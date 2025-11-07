@@ -200,7 +200,7 @@ public class TrackDashboardController {
     }
 
     @FXML public void onSearch() {
-        String subject = rbEquipment.isSelected() ? "EQUIPMENT" : "EMPLOYEE";
+        String subject = rbEquipment.isSelected() ? "PRODUCT" : "EMPLOYEE";
         LocalDateTime start = buildStart();
         LocalDateTime end   = buildEnd();
         updateSubtitle();

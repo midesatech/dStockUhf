@@ -101,12 +101,45 @@ public class UHFTagController {
                 Arrays.stream(UHFTag.Tipo.values()).filter(UHFTag.Tipo::isEnabled).toList()));
         tabla.setItems(data);
 
+        // 2. Define the Cell Factory for the dropdown list items
+        cmbTipo.setCellFactory(lv -> new ListCell<UHFTag.Tipo>() {
+            @Override
+            protected void updateItem(UHFTag.Tipo item, boolean empty) {
+                super.updateItem(item, empty);
+                // If the item is null (empty cell), display nothing
+                setText(empty || item == null ? null : item.getLabel());
+            }
+        });
+
+        // 3. Define the Button Cell for the currently selected item
+        cmbTipo.setButtonCell(new ListCell<UHFTag.Tipo>() {
+            @Override
+            protected void updateItem(UHFTag.Tipo item, boolean empty) {
+                super.updateItem(item, empty);
+                // If the item is null (no selection), display nothing
+                setText(empty || item == null ? null : item.getLabel());
+            }
+        });
+
         cmbTipo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            // 1. Check for null selection first for safety
+            if (newVal == null) {
+                cmbAsignacion.getItems().clear();
+                return; // Exit the listener
+            }
+
+            // 2. Use the exact constant names: EMPLOYEE and PRODUCT
             if (newVal == UHFTag.Tipo.EMPLOYEE) {
+                // Load data specific to an employee
                 cmbAsignacion.setItems(FXCollections.observableArrayList(employeeUseCase.listar()));
+
             } else if (newVal == UHFTag.Tipo.PRODUCT) {
+                // Load data specific to a product
                 cmbAsignacion.setItems(FXCollections.observableArrayList(productUseCase.listar()));
+
             } else {
+                // This 'else' correctly handles the 'EQUIPMENT' type (or any other type not handled above)
+                // by clearing the assignment combo box.
                 cmbAsignacion.getItems().clear();
             }
         });
@@ -202,7 +235,7 @@ public class UHFTagController {
         // Persistir el Tag
         UHFTag saved = (seleccionado == null) ? useCase.save(tag) : useCase.update(tag);
 
-// Asignación según tipo
+        // Asignación según tipo
         if (tipo == UHFTag.Tipo.EMPLOYEE) {
             employeeUseCase.asignarEpc(((Employee) asignacion).getId(), epc);
         } else {

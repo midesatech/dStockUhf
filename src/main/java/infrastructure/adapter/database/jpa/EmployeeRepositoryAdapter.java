@@ -45,7 +45,7 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
             // 🔹 EPC -> TagUHFEntity (TIPO = EMPLEADO)
             if (e.getEpc() != null && !e.getEpc().isBlank()) {
                 UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
-                        em, e.getEpc().trim(), UHFTagEntity.Tipo.EMPLEADO
+                        em, e.getEpc().trim(), UHFTagEntity.Tipo.EMPLOYEE
                 );                entity.setTag(tag);
             } else {
                 entity.setTag(null);

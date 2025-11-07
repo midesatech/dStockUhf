@@ -141,7 +141,7 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
             SELECT
                CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
                t.epc,
-               COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.name) AS nombre,
+               COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre) AS nombre,
                ls.last_ts
             FROM last_seen ls
             JOIN tags_uhf t ON t.epc = ls.epc

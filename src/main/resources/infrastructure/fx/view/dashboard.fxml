@@ -111,21 +111,21 @@
                         </TitledPane>
                     </items>
                 </SplitPane>
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="8" right="8" bottom="8" left="8"/>
+                    </padding>
+                    <Label text="Detalle por sububicación" style="-fx-font-size:12; -fx-text-fill:#666;" />
+                    <TableView fx:id="tblSubs">
+                        <columns>
+                            <TableColumn fx:id="colSubNombre" text="Sububicación" prefWidth="240"/>
+                            <TableColumn fx:id="colSubEmp" text="Employees" prefWidth="100"/>
+                            <TableColumn fx:id="colSubEq" text="Equipment" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
             </items>
         </SplitPane>
-        <VBox spacing="8">
-            <padding>
-                <Insets top="8" right="8" bottom="8" left="8"/>
-            </padding>
-            <Label text="Detalle por sububicación" style="-fx-font-size:12; -fx-text-fill:#666;" />
-            <TableView fx:id="tblSubs">
-                <columns>
-                    <TableColumn fx:id="colSubNombre" text="Sububicación" prefWidth="240"/>
-                    <TableColumn fx:id="colSubEmp" text="Employees" prefWidth="100"/>
-                    <TableColumn fx:id="colSubEq" text="Equipment" prefWidth="100"/>
-                </columns>
-            </TableView>
-        </VBox>
     </center>
     <stylesheets>
         <URL value="@/infrastructure/fx/styles/dashboard.css"/>
