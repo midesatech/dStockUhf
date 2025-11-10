@@ -25,11 +25,20 @@ public class ScansRepositoryAdapter implements ScanRepository {
     }
 
     // --- mapping helpers ---
+    private static Ubicacion toDomain(LocationEntity e) {
+        if (e == null) return null;
+        LocationEntity parent = e.getParent();
+        return new Ubicacion(
+                e.getId(),
+                e.getNombre(),
+                parent != null ? parent.getId() : null,
+                parent != null ? parent.getNombre() : null
+        );
+    }
+
     private static UHFReader toDomain(UHFReaderEntity e) {
         if (e == null) return null;
-        Ubicacion u = (e.getUbicacion() != null)
-                ? new Ubicacion(e.getUbicacion().getId(), e.getUbicacion().getNombre())
-                : null;
+        Ubicacion u = toDomain(e.getUbicacion());
         return new UHFReader(
                 e.getId(),
                 e.getCodigo(),
@@ -39,9 +48,7 @@ public class ScansRepositoryAdapter implements ScanRepository {
     }
 
     private static TagScan toDomain(TagDetectionEntity e) {
-        Ubicacion u = (e.getUbicacion() != null)
-                ? new Ubicacion(e.getUbicacion().getId(), e.getUbicacion().getNombre())
-                : null;
+        Ubicacion u = toDomain(e.getUbicacion());
         return new TagScan(
                 e.getId(),
                 toDomain(e.getLector()),

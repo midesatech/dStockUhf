@@ -11,7 +11,7 @@
     <top>
         <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
             <HBox spacing="10" styleClass="header">
-                <Label text="Seguimiento UHF (Employee / Equipment)" styleClass="title"/>
+                <Label text="Seguimiento UHF (Employee / Product)" styleClass="title"/>
                 <Label fx:id="lblSubtitle" styleClass="subtitle"/>
             </HBox><TitledPane text="Filtros" expanded="false">
             <content>

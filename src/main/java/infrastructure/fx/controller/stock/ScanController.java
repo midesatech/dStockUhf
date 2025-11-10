@@ -62,6 +62,7 @@ public class ScanController {
     private final ProductUseCase productUseCase;
     private final LocationUseCase locationUseCase;
 
+
     public ScanController(ScanUseCase scanUseCase,
                           TagUHFUseCase tagUHFUseCase,
                           EmployeeUseCase employeeUseCase,
@@ -91,9 +92,7 @@ public class ScanController {
         );
         colUbicacion.setCellValueFactory(cd ->
                 new SimpleStringProperty(
-                        cd.getValue().getUbicacion() != null ? cd.getValue().getUbicacion().getNombre()
-                                : (cd.getValue().getLector()!=null && cd.getValue().getLector().getUbicacion()!=null
-                                ? cd.getValue().getLector().getUbicacion().getNombre() : "")
+                        formatUbicacionForTable(cd.getValue())
                 )
         );
         colEpc.setCellValueFactory(new PropertyValueFactory<>("epc"));
@@ -144,8 +143,7 @@ public class ScanController {
         for (TagScan s : data) {
             String fecha = (s.getCreatedAt()!=null) ? s.getCreatedAt().toString() : "";
             String lector = (s.getLector()!=null) ? nonNull(s.getLector().getCodigo()) : "";
-            String ubi = s.getUbicacion()!=null ? nonNull(s.getUbicacion().getNombre())
-                    : (s.getLector()!=null && s.getLector().getUbicacion()!=null ? nonNull(s.getLector().getUbicacion().getNombre()) : "");
+            String ubi = formatUbicacionForCsv(s);
             sb.append(String.join(",",
                     csv(fecha), csv(lector), csv(ubi), csv(nonNull(s.getEpc())),
                     csv(s.getRssi()!=null ? s.getRssi().toString() : ""), csv(nonNull(s.getMachine()))
@@ -165,8 +163,7 @@ public class ScanController {
             return;
         }
         String epc = s.getEpc();
-        String ubic = s.getUbicacion()!=null ? s.getUbicacion().getNombre()
-                : (s.getLector()!=null && s.getLector().getUbicacion()!=null ? s.getLector().getUbicacion().getNombre() : "—");
+        String ubic = formatUbicacion(resolveUbicacion(s));
         lblResumen.setText("EPC: " + epc + " | Lector: " + (s.getLector()!=null ? s.getLector().getCodigo() : "—")
                 + " | Ubicación: " + ubic);
 
@@ -189,8 +186,51 @@ public class ScanController {
     private static String textOrNull(TextField tf) {
         return (tf.getText() == null || tf.getText().isBlank()) ? null : tf.getText().trim();
     }
-    private static String csv(String s) { return "\"" + s.replace("\"","\"\"") + "\""; }
-    private static String nonNull(String s) { return s != null ? s : ""; }
+    private static String csv(String s) {
+        return "\"" + s.replace("\"","\"\"") + "\"";
+    }
+    private static String nonNull(String s) {
+        return s != null ? s : "";
+    }
+
+    private Ubicacion resolveUbicacion(TagScan s) {
+        if (s == null) return null;
+        Ubicacion u = s.getUbicacion();
+        if (u == null && s.getLector() != null) {
+            u = s.getLector().getUbicacion();
+        }
+        return u;
+    }
+
+    /**
+     * Texto de ubicación para tablas (vacío si no hay ubicación).
+     */
+    private String formatUbicacionForTable(TagScan s) {
+        Ubicacion u = resolveUbicacion(s);
+        if (u == null) return "";
+        String full = u.toString();      // usa parentName + nombre si hay padre
+        return full != null ? full : "";
+    }
+
+    /**
+     * Texto de ubicación para CSV (sin guiones, solo vacío).
+     */
+    private String formatUbicacionForCsv(TagScan s) {
+        Ubicacion u = resolveUbicacion(s);
+        if (u == null) return "";
+        String full = u.toString();
+        return full != null ? full : "";
+    }
+
+    /**
+     * Texto para widgets/detalles (si no hay ubicación muestra "—").
+     */
+    private String formatUbicacion(Ubicacion u) {
+        if (u == null) return "—";
+        String full = u.toString();
+        return (full != null && !full.isBlank()) ? full : "—";
+    }
+
 
     private void showFloatingWidget(TagScan s) {
         if (s == null) return;
@@ -251,8 +291,7 @@ public class ScanController {
         int r = 0;
         grid.add(kvLabel("Fecha/Hora:"), 0, r); grid.add(kvValue(s.getCreatedAt()!=null ? s.getCreatedAt().toString() : "—"), 1, r++);
 
-        String ubic = (s.getUbicacion()!=null ? nonNull(s.getUbicacion().getNombre())
-                : (s.getLector()!=null && s.getLector().getUbicacion()!=null ? nonNull(s.getLector().getUbicacion().getNombre()) : "—"));
+        String ubic = formatUbicacion(resolveUbicacion(s));
 
         grid.add(kvLabel("Ubicación:"), 0, r); grid.add(kvValue(ubic), 1, r++);
         grid.add(kvLabel("Lector:"), 0, r);    grid.add(kvValue(s.getLector()!=null ? nonNull(s.getLector().getCodigo()) : "—"), 1, r++);
