@@ -32,3 +32,4 @@ To use DB on startup, in src/main/java/app/MainApp.java set AppBootstrap.init(tr
  export DB_USER=mdt_user
  export DB_PASS=mdt_pass
 ```
+

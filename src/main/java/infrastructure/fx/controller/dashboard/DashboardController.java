@@ -179,10 +179,10 @@ public class DashboardController {
 
         cmbPrincipal.setButtonCell(new javafx.scene.control.ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
         cmbPrincipal.setCellFactory(cb -> new javafx.scene.control.ListCell<>(){ @Override protected void updateItem(domain.model.Ubicacion it, boolean e){ super.updateItem(it,e); setText(e||it==null? "" : it.getNombre()); }});
-        colSubNombre.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyStringWrapper(c.getValue().getLocationName()));
-        colSubEmp.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyObjectWrapper<>(c.getValue().getEmployees()));
-        colSubEq.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyObjectWrapper<>(c.getValue().getEquipment()));
-        tblSubs.setItems(subsData);
+        //colSubNombre.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyStringWrapper(c.getValue().getLocationName()));
+        //colSubEmp.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyObjectWrapper<>(c.getValue().getEmployees()));
+        //colSubEq.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyObjectWrapper<>(c.getValue().getEquipment()));
+        //tblSubs.setItems(subsData);
 
         // cargar principales (usa tu LocationUseCase vía factory/DI)
         principals = locationUseCase.principales();

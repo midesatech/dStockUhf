@@ -43,7 +43,7 @@
                                     </VBox>
 
                                     <VBox styleClass="kpi-card" alignment="CENTER_LEFT">
-                                        <Label text="Equipment" styleClass="kpi-title"/>
+                                        <Label text="Products" styleClass="kpi-title"/>
                                         <Label fx:id="lblTotalEquipment" text="0" styleClass="kpi-number"/>
                                     </VBox>
 
@@ -53,7 +53,7 @@
                                     </VBox>
 
                                     <VBox fx:id="kpiPresentEqpCard" styleClass="kpi-card accent" alignment="CENTER_LEFT">
-                                        <Label text="Presentes (Equipment)" styleClass="kpi-title"/>
+                                        <Label text="Presentes (Products)" styleClass="kpi-title"/>
                                         <Label fx:id="lblPresentEquipment" text="0" styleClass="kpi-number"/>
                                     </VBox>
                                 </HBox>
@@ -111,6 +111,7 @@
                         </TitledPane>
                     </items>
                 </SplitPane>
+                <!--
                 <VBox spacing="8">
                     <padding>
                         <Insets top="8" right="8" bottom="8" left="8"/>
@@ -123,7 +124,7 @@
                             <TableColumn fx:id="colSubEq" text="Equipment" prefWidth="100"/>
                         </columns>
                     </TableView>
-                </VBox>
+                </VBox> -->
             </items>
         </SplitPane>
     </center>

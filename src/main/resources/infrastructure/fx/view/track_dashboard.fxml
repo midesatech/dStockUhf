@@ -12,8 +12,8 @@
         <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
             <HBox spacing="10" styleClass="header">
                 <Label text="Seguimiento UHF (Employee / Equipment)" styleClass="title"/>
-                <Label fx:id="lblSubtitle" text="" styleClass="subtitle"/>
-            </HBox><TitledPane text="Filtros" expanded="false" animated="true">
+                <Label fx:id="lblSubtitle" styleClass="subtitle"/>
+            </HBox><TitledPane text="Filtros" expanded="false">
             <content>
                 <VBox spacing="10">
                     <padding>
