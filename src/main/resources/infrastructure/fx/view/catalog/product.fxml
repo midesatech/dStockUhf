@@ -49,9 +49,9 @@
             <columns>
                 <TableColumn fx:id="colId" text="ID"/>
                 <TableColumn fx:id="colSku" text="SKU"/>
-                <TableColumn fx:id="colNombre" text="Nombre"/>
-                <TableColumn fx:id="colCategoria" text="Categoría"/>
-                <TableColumn fx:id="colUbicacion" text="Ubicación"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="210"/>
+                <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="180"/>
+                <TableColumn fx:id="colUbicacion" text="Ubicación" prefWidth="210"/>
             </columns>
         </TableView>
     </center>

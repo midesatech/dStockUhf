@@ -65,7 +65,7 @@ public class UHFReaderRepositoryAdapter implements UHFReaderRepository {
             List<UHFReaderEntity> list =
                     em.createQuery("select l from UHFReaderEntity l", UHFReaderEntity.class)
                             .getResultList();
-            return list.stream().map(this::toDomain).collect(Collectors.toList());
+            return list.stream().map(this::toDomain).toList();
         } finally {
             em.close();
         }
@@ -150,8 +150,19 @@ public class UHFReaderRepositoryAdapter implements UHFReaderRepository {
 
     private UHFReader toDomain(UHFReaderEntity e) {
         LocationEntity ue = e.getUbicacion();
-        Ubicacion u = (ue == null) ? null : new Ubicacion(ue.getId(), ue.getNombre());
+        Ubicacion u = (ue == null) ? null : toDomain(ue);
         return new UHFReader(e.getId(), e.getCodigo(), e.getDescripcion(), u);
+    }
+
+    private Ubicacion toDomain(LocationEntity e) {
+        if (e == null) return null;
+        LocationEntity parent = e.getParent();
+        return new Ubicacion(
+                e.getId(),
+                e.getNombre(),
+                parent != null ? parent.getId() : null,
+                parent != null ? parent.getNombre() : null
+        );
     }
 
     @Override

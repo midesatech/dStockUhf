@@ -26,7 +26,7 @@
         <TableView fx:id="tbl">
             <columns>
                 <TableColumn fx:id="colId" text="ID"/>
-                <TableColumn fx:id="colNombre" text="Nombre"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="205"/>
             </columns>
         </TableView>
     </center>

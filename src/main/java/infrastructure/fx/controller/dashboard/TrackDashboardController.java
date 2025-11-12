@@ -421,7 +421,6 @@ public class TrackDashboardController {
         return badge;
     }
 
-
     private Node makeArrowWithDelta(String deltaText) {
         Label arrow = new Label("→");
         arrow.getStyleClass().add("route-arrow");

@@ -53,8 +53,8 @@
             <columns>
                 <TableColumn fx:id="colId" text="ID"/>
                 <TableColumn fx:id="colCodigo" text="Código" prefWidth="90"/>
-                <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="170"/>
-                <TableColumn fx:id="colUbicacion" text="Ubicación" prefWidth="170"/>
+                <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="180"/>
+                <TableColumn fx:id="colUbicacion" text="Ubicación" prefWidth="210"/>
             </columns>
         </TableView>
     </center>

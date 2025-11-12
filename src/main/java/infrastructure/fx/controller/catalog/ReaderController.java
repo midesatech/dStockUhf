@@ -7,6 +7,7 @@ import domain.usecase.UHFReaderUseCase;
 import domain.usecase.LocationUseCase;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -54,8 +55,10 @@ public class ReaderController {
             colId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId()));
             colCodigo.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getCodigo()));
             colDescripcion.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getDescripcion()));
-            colUbicacion.setCellValueFactory(c ->
-                    new ReadOnlyStringWrapper(c.getValue().getUbicacion() != null ? c.getValue().getUbicacion().getNombre() : "")
+            colUbicacion.setCellValueFactory(cd ->
+                    new SimpleStringProperty(
+                            formatUbicacionForTable(cd.getValue())
+                    )
             );
 
             tbl.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -74,6 +77,22 @@ public class ReaderController {
         }
 
         refresh();
+    }
+
+    private String formatUbicacionForTable(UHFReader value) {
+        Ubicacion u = resolveUbicacion(value);
+        if (u == null) return "";
+        String full = u.toString();      // usa parentName + nombre si hay padre
+        return full != null ? full : "";
+    }
+
+    private Ubicacion resolveUbicacion(UHFReader value) {
+        if (value == null) return null;
+        Ubicacion u = value.getUbicacion();
+        if (u == null) {
+            u = value.getUbicacion();
+        }
+        return u;
     }
 
     @FXML
