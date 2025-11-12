@@ -223,39 +223,33 @@ public class SearchRepositoryAdapter implements SearchRepository {
         var em = emf.createEntityManager();
         var rows = new java.util.ArrayList<domain.model.DetectionRecord>();
         try {
-            String scope = (ubicacionId == null) ? "" : """
-            WITH target AS (
-                SELECT id FROM ubicaciones WHERE id = :uid
-                UNION ALL
-                SELECT id FROM ubicaciones WHERE parent_id = :uid
-            )
-        """;
-            // Si filtras por ubicación, restringe a target; si no, usa todo.
-            String inClause = (ubicacionId == null) ? "" : "AND dt.ubicacion_id IN (SELECT id FROM target)";
+            String inScope = (ubicacionId == null)
+                    ? ""
+                    : "AND (u.id = :uid OR u.parent_id = :uid)";
 
-            // NOTA: agregamos u.id AS ubicacion_id y un "source" string (placeholder vacío '')
-            String sql = scope + """
-             SELECT
+            String sql = """
+               SELECT
                 CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
                 dt.epc,
                 COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre, CONCAT('EPC ', dt.epc)) AS nombre,
                 u.id AS ubicacion_id,
-                CASE
-                  WHEN up.id IS NOT NULL THEN CONCAT(up.nombre, ' / ', u.nombre)
-                  ELSE u.nombre
-                END AS source,
+                CASE WHEN up.id IS NOT NULL THEN CONCAT(up.nombre, ' / ', u.nombre) ELSE u.nombre END AS location_name,
                 dt.created_at
-             FROM detecciones_tags dt
-             LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
-             LEFT JOIN ubicaciones up ON up.id = u.parent_id
-             LEFT JOIN tags_uhf t ON t.epc = dt.epc
-             LEFT JOIN empleados e ON e.tag_id = t.id
-             LEFT JOIN product eq ON eq.tag_id = t.id
-             WHERE dt.created_at BETWEEN :s AND :e
-               AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
-            """ + inClause + """
-             ORDER BY dt.created_at DESC
-            """;
+               FROM detecciones_tags dt
+               LEFT JOIN ubicaciones u  ON u.id = dt.ubicacion_id
+               LEFT JOIN ubicaciones up ON up.id = u.parent_id
+               LEFT JOIN tags_uhf t     ON t.epc = dt.epc
+               LEFT JOIN empleados e    ON e.tag_id = t.id
+               LEFT JOIN product eq     ON eq.tag_id = t.id
+               WHERE dt.created_at BETWEEN :s AND :e
+                 AND (
+                    (:subject = 'EMPLOYEE' AND e.id IS NOT NULL)
+                 OR (:subject = 'PRODUCT'  AND eq.id IS NOT NULL)
+                 )
+               """ + inScope + """
+                ORDER BY dt.created_at DESC
+               """;
+
 
             var q = em.createNativeQuery(sql);
             q.setParameter("s", java.sql.Timestamp.valueOf(start));
@@ -269,18 +263,18 @@ public class SearchRepositoryAdapter implements SearchRepository {
             for (Object[] r : rs) {
                 String tipo = (String) r[0];
                 String epc = (String) r[1];
-                String ubiNombre = (String) r[2];
+                String nombre = (String) r[2];
                 Long ubiId = (r[3] == null) ? null : ((Number) r[3]).longValue();
-                String source = (String) r[4]; // placeholder: '' (vacío) por ahora
+                String loc = (String) r[4]; // placeholder: '' (vacío) por ahora
                 java.sql.Timestamp ts = (java.sql.Timestamp) r[5];
                 java.time.LocalDateTime when = (ts == null) ? null : ts.toLocalDateTime();
 
                 rows.add(new domain.model.DetectionRecord(
                         tipo,           // String
                         epc,            // String
-                        ubiNombre,      // String
+                        nombre,      // String
                         ubiId,          // Long
-                        source,         // String
+                        loc,         // String
                         when            // LocalDateTime
                 ));
             }
