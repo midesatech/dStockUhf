@@ -30,7 +30,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
         try {
             String sql = """
                 SELECT
-                   CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
+                   CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
                    dt.epc,
                    COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre, CONCAT('EPC ', dt.epc)) AS nombre,
                    MAX(dt.created_at) AS last_seen
@@ -41,7 +41,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
                 WHERE dt.created_at BETWEEN ?1 AND ?2
                   AND (
                       (?3 = 'EMPLOYEE'  AND e.id IS NOT NULL) OR
-                      (?3 = 'EQUIPMENT' AND eq.id IS NOT NULL)
+                      (?3 = 'PRODUCT' AND eq.id IS NOT NULL)
                   )
                 GROUP BY tipo, dt.epc, nombre
                 ORDER BY last_seen DESC
@@ -72,25 +72,31 @@ public class SearchRepositoryAdapter implements SearchRepository {
         try {
 
             String sql = """
-                SELECT
-                  CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
-                  dt.epc,
-                  COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre, CONCAT('EPC ', dt.epc)) AS nombre,
-                  u.id AS location_id,
-                  u.nombre AS location_name,
-                  dt.created_at
-                FROM detecciones_tags dt
-                LEFT JOIN tags_uhf t  ON t.epc = dt.epc
-                LEFT JOIN empleados e ON e.tag_id = t.id
-                LEFT JOIN product eq ON eq.tag_id = t.id
-                LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
-                WHERE dt.created_at BETWEEN ?1 AND ?2
-                  AND (
-                      (?3 = 'EMPLOYEE'  AND e.id IS NOT NULL) OR
-                      (?3 = 'EQUIPMENT' AND eq.id IS NOT NULL)
-                  )
-                ORDER BY dt.created_at DESC
-            """;
+               SELECT
+               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
+               dt.epc,
+               COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre, CONCAT('EPC ', dt.epc)) AS nombre,
+               u.id AS location_id,
+                 /* Build "Parent / Child" when parent exists, otherwise just child name */
+                CASE
+                 WHEN up.id IS NOT NULL THEN CONCAT(up.nombre, ' / ', u.nombre)
+                 ELSE u.nombre
+                END AS location_name,
+               dt.created_at
+               FROM detecciones_tags dt
+               LEFT JOIN tags_uhf t  ON t.epc = dt.epc
+               LEFT JOIN empleados e ON e.tag_id = t.id
+               LEFT JOIN product eq  ON eq.tag_id = t.id
+               LEFT JOIN ubicaciones u  ON u.id = dt.ubicacion_id
+               LEFT JOIN ubicaciones up ON up.id = u.parent_id
+               WHERE dt.created_at BETWEEN ?1 AND ?2
+               AND (
+                  (?3 = 'EMPLOYEE' AND e.id IS NOT NULL) OR
+                  (?3 = 'PRODUCT'  AND eq.id IS NOT NULL)
+               )
+               ORDER BY dt.created_at DESC
+           """;
+
             Query q = em.createNativeQuery(sql);
             q.setParameter(1, Timestamp.valueOf(start));
             q.setParameter(2, Timestamp.valueOf(end));
@@ -174,7 +180,7 @@ public class SearchRepositoryAdapter implements SearchRepository {
 
             String sql = scope + """
             SELECT
-               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
+               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
                dt.epc,
                COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.name) AS nombre,
                MAX(dt.created_at) as last_ts
@@ -229,23 +235,27 @@ public class SearchRepositoryAdapter implements SearchRepository {
 
             // NOTA: agregamos u.id AS ubicacion_id y un "source" string (placeholder vacío '')
             String sql = scope + """
-            SELECT
-               CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'EQUIPMENT' END AS tipo,
-               dt.epc,
-               COALESCE(u.nombre, '(Sin ubicación)') AS ubicacion,
-               u.id AS ubicacion_id,
-               '' AS source,            -- ajusta aquí si tienes un campo de origen (lector/dispositivo)
-               dt.created_at
-            FROM detecciones_tags dt
-            LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
-            LEFT JOIN tags_uhf t ON t.epc = dt.epc
-            LEFT JOIN empleados e ON e.tag_id = t.id
-            LEFT JOIN product eq ON eq.tag_id = t.id
-            WHERE dt.created_at BETWEEN :s AND :e
-              AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
-              """ + inClause + """
-            ORDER BY dt.created_at DESC
-        """;
+             SELECT
+                CASE WHEN e.id IS NOT NULL THEN 'EMPLOYEE' ELSE 'PRODUCT' END AS tipo,
+                dt.epc,
+                COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre, CONCAT('EPC ', dt.epc)) AS nombre,
+                u.id AS ubicacion_id,
+                CASE
+                  WHEN up.id IS NOT NULL THEN CONCAT(up.nombre, ' / ', u.nombre)
+                  ELSE u.nombre
+                END AS source,
+                dt.created_at
+             FROM detecciones_tags dt
+             LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
+             LEFT JOIN ubicaciones up ON up.id = u.parent_id
+             LEFT JOIN tags_uhf t ON t.epc = dt.epc
+             LEFT JOIN empleados e ON e.tag_id = t.id
+             LEFT JOIN product eq ON eq.tag_id = t.id
+             WHERE dt.created_at BETWEEN :s AND :e
+               AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
+            """ + inClause + """
+             ORDER BY dt.created_at DESC
+            """;
 
             var q = em.createNativeQuery(sql);
             q.setParameter("s", java.sql.Timestamp.valueOf(start));

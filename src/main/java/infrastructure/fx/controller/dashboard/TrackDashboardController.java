@@ -132,11 +132,7 @@ public class TrackDashboardController {
 
         // Default layout: linear
         setRouteLayout(false);
-
-
         updateSubtitle();
-
-
     }
 
     // helper
@@ -163,7 +159,6 @@ public class TrackDashboardController {
             renderRouteLinear(currentEpc, currentHops);
         }
     }
-
 
     private void setupSpinner(Spinner<Integer> sp, int min, int max) {
         sp.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, 0));
@@ -441,7 +436,6 @@ public class TrackDashboardController {
         return box;
     }
 
-
     /** Keep nodes at their preferred width; never shrink or stretch in routeFlow. */
     private static void keepPrefWidth(Region... rs) {
         for (Region r : rs) {
@@ -482,7 +476,6 @@ public class TrackDashboardController {
         if (mins > 0) return String.format("%dm %02ds", mins, secs);
         return String.format("%ds", secs);
     }
-
 
     public static class DetectionRow {
         private final String when, tipo, epc, nombre, ubicacion, delta;
