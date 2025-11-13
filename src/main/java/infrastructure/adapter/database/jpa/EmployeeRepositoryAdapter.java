@@ -42,6 +42,12 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
             entity.setEmail(e.getEmail());
             entity.setPhone(e.getPhone());
 
+            if (e.getPeopleType()==null || e.getPeopleType().getId()==null)
+                throw new IllegalArgumentException("Tipo de persona es requerido");
+            PeopleTypeEntity tipo = em.find(PeopleTypeEntity.class, e.getPeopleType().getId());
+            if (tipo==null) throw new IllegalArgumentException("Tipo de empleado inválido");
+            entity.setPeopleType(tipo);
+
             // 🔹 EPC -> TagUHFEntity (TIPO = EMPLEADO)
             if (e.getEpc() != null && !e.getEpc().isBlank()) {
                 UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
@@ -180,6 +186,8 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
         e.setBloodType(entity.getBloodType());
         e.setEmail(entity.getEmail());
         e.setPhone(entity.getPhone());
+        if (entity.getPeopleType()!=null)
+            e.setPeopleType(new domain.model.PeopleType(entity.getPeopleType().getId(), entity.getPeopleType().getNombre()));
         if (entity.getTag() != null)
             e.setEpc(entity.getTag().getEpc());
         return e;

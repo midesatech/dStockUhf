@@ -56,6 +56,10 @@ public class EmployeeEntity {
     )
     private UHFTagEntity tag;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "people_id", nullable = false)
+    private PeopleTypeEntity peopleType;
+
     // getters/setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -77,4 +81,12 @@ public class EmployeeEntity {
     public void setPhone(String phone) { this.phone = phone; }
     public UHFTagEntity getTag() { return tag; }
     public void setTag(UHFTagEntity tag) { this.tag = tag; }
+
+    public PeopleTypeEntity getPeopleType() {
+        return peopleType;
+    }
+
+    public void setPeopleType(PeopleTypeEntity peopleType) {
+        this.peopleType = peopleType;
+    }
 }

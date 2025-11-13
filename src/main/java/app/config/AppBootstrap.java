@@ -39,6 +39,7 @@ public class AppBootstrap {
     private static ScanRepository scanRepo;
     private static DashboardRepository dashboardRepository;
     private static SearchRepository searchRepository;
+    private static PeopleTypeRepository peopleTypeRepository;
 
     //Repositories adapters
     private static RoleRepositoryAdapter roleRepo;
@@ -65,6 +66,7 @@ public class AppBootstrap {
     private static ScanUseCase scanUseCase;
     private static DashboardUseCase dashboardUseCase;
     private static SearchDetectionsUseCase searchDetectionsUseCase;
+    private static PeopleTypeUseCase peopleTypeUseCase;
 
     public static void init(boolean useJpa) {
         jpaMode = useJpa;
@@ -86,6 +88,7 @@ public class AppBootstrap {
             permRepo = new PermissionRepositoryAdapter(JPAUtil.getEmf());
             lectorUHFRepo = new UHFReaderRepositoryAdapter(JPAUtil.getEmf());
             searchRepository = new SearchRepositoryAdapter(JPAUtil.getEmf());
+            peopleTypeRepository = new PeopleTypeRepositoryAdapter(JPAUtil.getEmf());
 
 
             categoriaUseCase = new CategoriaUseCase(new CategoryRepositoryAdapter(JPAUtil.getEmf()));
@@ -128,6 +131,7 @@ public class AppBootstrap {
         dashboardRepository = new DashboardRepositoryAdapter(JPAUtil.getEmf());
         dashboardUseCase = new DashboardUseCase(dashboardRepository);
         searchDetectionsUseCase = new SearchDetectionsUseCase(searchRepository);
+        peopleTypeUseCase = new PeopleTypeUseCase(peopleTypeRepository);
     }
 
     private static Optional<AppConfig> loadProperties() {
@@ -255,5 +259,7 @@ public class AppBootstrap {
     public static DashboardUseCase dashboardUseCase() { return dashboardUseCase; }
 
     public static SearchDetectionsUseCase searchDetectionsUseCase() { return searchDetectionsUseCase; }
+
+    public static PeopleTypeUseCase peopleTypeUseCase() { return peopleTypeUseCase; }
 
 }

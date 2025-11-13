@@ -37,6 +37,9 @@
                 <Label text="Número:"/>
                 <TextField fx:id="filtroNumDoc" prefWidth="120"/>
 
+                <Label text="Tipo de Persona"/>
+                <ComboBox fx:id="filtroTipoPersona" prefWidth="120"/>
+
                 <Button text="Buscar" onAction="#buscar"/>
                 <Button text="Limpiar" onAction="#limpiarFiltros"/>
             </HBox>
@@ -50,6 +53,9 @@
 
             <Label text="Código (TAG UHF)"/>
             <TextField fx:id="txtCodigo"/>
+
+            <Label text="Tipo de Persona"/>
+            <ComboBox fx:id="cmbPeopleType"/>
 
             <Label text="Nombre"/>
             <TextField fx:id="txtNombre"/>
@@ -82,6 +88,7 @@
         <TableView fx:id="tbl" prefWidth="700" prefHeight="400">
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="81"/>
+                <TableColumn fx:id="colPeopleId" text="Tipo" prefWidth="100"/>
                 <TableColumn fx:id="colCodigo" text="Código" prefWidth="200"/>
                 <TableColumn fx:id="colNombre" text="Nombre" prefWidth="165"/>
                 <TableColumn fx:id="colApellido" text="Apellido" prefWidth="165"/>

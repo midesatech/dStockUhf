@@ -39,7 +39,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
         }
 
         if (type == EmployeeController.class) {
-            return new EmployeeController(AppBootstrap.employeeUseCase());
+            return new EmployeeController(AppBootstrap.employeeUseCase(), AppBootstrap.peopleTypeUseCase());
         }
 
         if (type == UbicacionesController.class) {
@@ -81,6 +81,10 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
 
         if (type == DbConfigController.class) {
             return new DbConfigController();
+        }
+
+        if (type == PeopleTypeController.class) {
+            return new PeopleTypeController(AppBootstrap.peopleTypeUseCase());
         }
 
         // otros controladores que necesiten dependencias

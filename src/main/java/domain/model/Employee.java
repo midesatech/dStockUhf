@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 public class Employee {
     private Long id;
+    private PeopleType peopleType;
     private String epc;              // TAG UHF (opcional)
     private String fullName;            // requerido
     private String lastName;            // requerido
@@ -25,7 +26,7 @@ public class Employee {
     public Employee(Long id, String epc, String fullName, String lastName,
                     TipoDocumento docType, String docNumber,
                     LocalDate birthDate, TipoSangre bloodType,
-                    String email, String phone) {
+                    String email, String phone, PeopleType peopleType) {
         this.id = id;
         this.epc = epc;
         this.fullName = fullName;
@@ -36,6 +37,7 @@ public class Employee {
         this.bloodType = bloodType;
         this.email = email;
         this.phone = phone;
+        this.peopleType = peopleType;
     }
 
     // getters/setters
@@ -62,6 +64,14 @@ public class Employee {
     @Override
     public String toString() {
         return fullName.concat(" ").concat(lastName);
+    }
+
+    public PeopleType getPeopleType() {
+        return peopleType;
+    }
+
+    public void setPeopleType(PeopleType peopleType) {
+        this.peopleType = peopleType;
     }
 }
 

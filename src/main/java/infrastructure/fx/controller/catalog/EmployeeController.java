@@ -3,9 +3,11 @@ package infrastructure.fx.controller.catalog;
 
 import domain.exception.DuplicateFieldException;
 import domain.model.Employee;
+import domain.model.PeopleType;
 import domain.model.TipoDocumento;
 import domain.model.TipoSangre;
 import domain.usecase.EmployeeUseCase;
+import domain.usecase.PeopleTypeUseCase;
 import infrastructure.fx.component.YearPickerDate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,6 +22,8 @@ public class EmployeeController {
     private TableView<Employee> tbl;
     @FXML
     private TableColumn<Employee, Long> colId;
+    @FXML
+    private TableColumn<Employee, PeopleType> colPeopleId;
     @FXML
     private TableColumn<Employee, String> colCodigo;
     @FXML
@@ -41,6 +45,8 @@ public class EmployeeController {
 
     @FXML
     private TextField txtCodigo;
+    @FXML
+    private ComboBox<PeopleType> cmbPeopleType;
     @FXML
     private TextField txtNombre;
     @FXML
@@ -68,13 +74,17 @@ public class EmployeeController {
     private ComboBox<TipoDocumento> filtroDocType;
     @FXML
     private TextField filtroNumDoc;
+    @FXML
+    private ComboBox<PeopleType> filtroTipoPersona;
 
     private final ObservableList<Employee> data = FXCollections.observableArrayList();
     private final EmployeeUseCase useCase;
+    private final PeopleTypeUseCase peopleTypeUseCase;
 
     // Inyectado vía ControllerFactory/AppBootstrap
-    public EmployeeController(EmployeeUseCase useCase) {
+    public EmployeeController(EmployeeUseCase useCase, PeopleTypeUseCase peopleTypeUseCase) {
         this.useCase = useCase;
+        this.peopleTypeUseCase = peopleTypeUseCase;
     }
 
     @FXML
@@ -82,9 +92,11 @@ public class EmployeeController {
         // Combos
         cmbDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
         cmbBloodType.setItems(FXCollections.observableArrayList(TipoSangre.values()));
+        cmbPeopleType.setItems(FXCollections.observableArrayList(peopleTypeUseCase.listar()));
         filtroDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
         // Tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colPeopleId.setCellValueFactory(new PropertyValueFactory<>("peopleType"));
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("epc"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         colApellido.setCellValueFactory(new PropertyValueFactory<>("lastName"));
@@ -116,6 +128,7 @@ public class EmployeeController {
         cmbBloodType.setValue(e.getBloodType());
         txtEmail.setText(nullToEmpty(e.getEmail()));
         txtTelefono.setText(nullToEmpty(e.getPhone()));
+        cmbPeopleType.setValue(e.getPeopleType());
     }
 
     private String nullToEmpty(String s) {
@@ -126,6 +139,7 @@ public class EmployeeController {
     public void nuevo() {
         tbl.getSelectionModel().clearSelection();
         txtCodigo.clear();
+        cmbPeopleType.getSelectionModel().clearSelection();
         txtNombre.clear();
         txtApellido.clear();
         cmbDocType.getSelectionModel().clearSelection();
@@ -144,6 +158,7 @@ public class EmployeeController {
 
             Employee e = new Employee();
             e.setId(id);
+            e.setPeopleType(cmbPeopleType.getValue());
             e.setEpc(blankToNull(txtCodigo.getText()));
             e.setFullName(txtNombre.getText());
             e.setLastName(txtApellido.getText());
@@ -231,6 +246,7 @@ public class EmployeeController {
         filtroApellido.clear();
         filtroDocType.getSelectionModel().clearSelection();
         filtroNumDoc.clear();
+        filtroTipoPersona.getSelectionModel().clearSelection();
         tbl.getItems().setAll(useCase.listar()); // volver a cargar todo
     }
 }

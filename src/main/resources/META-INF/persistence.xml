@@ -9,6 +9,7 @@
     <!-- Inventario -->
     <class>infrastructure.adapter.database.mysql.entity.CategoryEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.LocationEntity</class>
+    <class>infrastructure.adapter.database.mysql.entity.PeopleTypeEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.EmployeeEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.ProductEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.UHFTagEntity</class>
