@@ -38,8 +38,8 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
             return new ChangePasswordController();
         }
 
-        if (type == EmployeeController.class) {
-            return new EmployeeController(AppBootstrap.employeeUseCase(), AppBootstrap.peopleTypeUseCase());
+        if (type == PeopleController.class) {
+            return new PeopleController(AppBootstrap.employeeUseCase(), AppBootstrap.peopleTypeUseCase());
         }
 
         if (type == UbicacionesController.class) {

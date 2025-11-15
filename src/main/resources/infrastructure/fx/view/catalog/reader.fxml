@@ -17,7 +17,7 @@
             </ToolBar>
 
             <!-- Barra de filtros -->
-            <TitledPane text="Filtros de búsqueda" expanded="true">
+            <TitledPane text="Filtros de búsqueda">
                 <HBox spacing="8" alignment="CENTER_LEFT">
                     <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
                     <Label text="Código:"/>

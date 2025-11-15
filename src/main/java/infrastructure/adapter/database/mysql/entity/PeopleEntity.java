@@ -15,7 +15,7 @@ import java.time.LocalDate;
                 @Index(name = "idx_empleados_doc_type",  columnList = "doc_type")
         }
 )
-public class EmployeeEntity {
+public class PeopleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

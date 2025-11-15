@@ -50,7 +50,7 @@ public class AppBootstrap {
     // UseCases
     private static CategoriaUseCase categoriaUseCase;
     private static LocationUseCase locationUseCase;
-    private static EmployeeUseCase employeeUseCase;
+    private static PeopleUseCase peopleUseCase;
     private static ProductUseCase productUseCase;
     private static RoleUseCase roleUseCase;
     private static PermissionUseCase permissionUseCase;
@@ -93,7 +93,7 @@ public class AppBootstrap {
 
             categoriaUseCase = new CategoriaUseCase(new CategoryRepositoryAdapter(JPAUtil.getEmf()));
             locationUseCase = new LocationUseCase(new LocationRepositoryAdapter(JPAUtil.getEmf()));
-            employeeUseCase = new EmployeeUseCase(new EmployeeRepositoryAdapter(JPAUtil.getEmf()));
+            peopleUseCase = new PeopleUseCase(new PeopleRepositoryAdapter(JPAUtil.getEmf()));
             productUseCase = new ProductUseCase(new ProductRepositoryAdapter(JPAUtil.getEmf()));
 
             roleUseCase = new RoleUseCase(roleRepo);
@@ -218,8 +218,8 @@ public class AppBootstrap {
         return locationUseCase;
     }
 
-    public static EmployeeUseCase employeeUseCase() {
-        return employeeUseCase;
+    public static PeopleUseCase employeeUseCase() {
+        return peopleUseCase;
     }
 
     public static ProductUseCase productUseCase() {

@@ -2,11 +2,11 @@
 package infrastructure.fx.controller.catalog;
 
 import domain.exception.DuplicateFieldException;
-import domain.model.Employee;
+import domain.model.People;
 import domain.model.PeopleType;
 import domain.model.TipoDocumento;
 import domain.model.TipoSangre;
-import domain.usecase.EmployeeUseCase;
+import domain.usecase.PeopleUseCase;
 import domain.usecase.PeopleTypeUseCase;
 import infrastructure.fx.component.YearPickerDate;
 import javafx.collections.FXCollections;
@@ -17,31 +17,31 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDate;
 
-public class EmployeeController {
+public class PeopleController {
     @FXML
-    private TableView<Employee> tbl;
+    private TableView<People> tbl;
     @FXML
-    private TableColumn<Employee, Long> colId;
+    private TableColumn<People, Long> colId;
     @FXML
-    private TableColumn<Employee, PeopleType> colPeopleId;
+    private TableColumn<People, PeopleType> colPeopleId;
     @FXML
-    private TableColumn<Employee, String> colCodigo;
+    private TableColumn<People, String> colCodigo;
     @FXML
-    private TableColumn<Employee, String> colNombre;
+    private TableColumn<People, String> colNombre;
     @FXML
-    private TableColumn<Employee, String> colApellido;
+    private TableColumn<People, String> colApellido;
     @FXML
-    private TableColumn<Employee, TipoDocumento> colDocType;
+    private TableColumn<People, TipoDocumento> colDocType;
     @FXML
-    private TableColumn<Employee, String> colNumDoc;
+    private TableColumn<People, String> colNumDoc;
     @FXML
-    private TableColumn<Employee, LocalDate> colNacimiento;
+    private TableColumn<People, LocalDate> colNacimiento;
     @FXML
-    private TableColumn<Employee, TipoSangre> colBlood;
+    private TableColumn<People, TipoSangre> colBlood;
     @FXML
-    private TableColumn<Employee, String> colEmail;
+    private TableColumn<People, String> colEmail;
     @FXML
-    private TableColumn<Employee, String> colTelefono;
+    private TableColumn<People, String> colTelefono;
 
     @FXML
     private TextField txtCodigo;
@@ -77,12 +77,12 @@ public class EmployeeController {
     @FXML
     private ComboBox<PeopleType> filtroTipoPersona;
 
-    private final ObservableList<Employee> data = FXCollections.observableArrayList();
-    private final EmployeeUseCase useCase;
+    private final ObservableList<People> data = FXCollections.observableArrayList();
+    private final PeopleUseCase useCase;
     private final PeopleTypeUseCase peopleTypeUseCase;
 
     // Inyectado vía ControllerFactory/AppBootstrap
-    public EmployeeController(EmployeeUseCase useCase, PeopleTypeUseCase peopleTypeUseCase) {
+    public PeopleController(PeopleUseCase useCase, PeopleTypeUseCase peopleTypeUseCase) {
         this.useCase = useCase;
         this.peopleTypeUseCase = peopleTypeUseCase;
     }
@@ -94,6 +94,7 @@ public class EmployeeController {
         cmbBloodType.setItems(FXCollections.observableArrayList(TipoSangre.values()));
         cmbPeopleType.setItems(FXCollections.observableArrayList(peopleTypeUseCase.listar()));
         filtroDocType.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
+        filtroTipoPersona.setItems(FXCollections.observableArrayList(peopleTypeUseCase.listar()));
         // Tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colPeopleId.setCellValueFactory(new PropertyValueFactory<>("peopleType"));
@@ -114,7 +115,7 @@ public class EmployeeController {
         tbl.getSelectionModel().selectedItemProperty().addListener((obs, o, sel) -> loadForm(sel));
     }
 
-    private void loadForm(Employee e) {
+    private void loadForm(People e) {
         if (e == null) {
             nuevo();
             return;
@@ -153,10 +154,10 @@ public class EmployeeController {
     @FXML
     public void guardar() {
         try {
-            Employee sel = tbl.getSelectionModel().getSelectedItem();
+            People sel = tbl.getSelectionModel().getSelectedItem();
             Long id = sel != null ? sel.getId() : null;
 
-            Employee e = new Employee();
+            People e = new People();
             e.setId(id);
             e.setPeopleType(cmbPeopleType.getValue());
             e.setEpc(blankToNull(txtCodigo.getText()));
@@ -169,7 +170,7 @@ public class EmployeeController {
             e.setEmail(blankToNull(txtEmail.getText()));
             e.setPhone(blankToNull(txtTelefono.getText()));
 
-            Employee saved = useCase.save(e);
+            People saved = useCase.save(e);
 
             if (id == null) data.add(saved); // si es nuevo, añade a la tabla
             refresh(); // asegura sincronía
@@ -189,7 +190,7 @@ public class EmployeeController {
 
     @FXML
     public void eliminar() {
-        Employee sel = tbl.getSelectionModel().getSelectedItem();
+        People sel = tbl.getSelectionModel().getSelectedItem();
         if (sel == null) {
             show("Seleccione un empleado");
             return;
@@ -230,6 +231,7 @@ public class EmployeeController {
     @FXML
     private void buscar() {
         var results = useCase.buscar(
+                filtroTipoPersona.getValue(),
                 filtroDocType.getValue(),
                 filtroNumDoc.getText(),
                 filtroNombre.getText(),

@@ -1,8 +1,9 @@
 
 package infrastructure.adapter.database.jpa;
 
-import domain.gateway.EmployeeRepository;
-import domain.model.Employee;
+import domain.gateway.PeopleRepository;
+import domain.model.People;
+import domain.model.PeopleType;
 import domain.model.TipoDocumento;
 import infrastructure.adapter.database.mysql.entity.*;
 import jakarta.persistence.EntityManager;
@@ -14,23 +15,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class EmployeeRepositoryAdapter implements EmployeeRepository {
+public class PeopleRepositoryAdapter implements PeopleRepository {
     private final EntityManagerFactory emf;
 
-    public EmployeeRepositoryAdapter(EntityManagerFactory emf) {
+    public PeopleRepositoryAdapter(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
     @Override
-    public Employee save(Employee e) {
+    public People save(People e) {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
 
-            EmployeeEntity entity = (e.getId() != null)
-                    ? em.find(EmployeeEntity.class, e.getId())
-                    : new EmployeeEntity();
+            PeopleEntity entity = (e.getId() != null)
+                    ? em.find(PeopleEntity.class, e.getId())
+                    : new PeopleEntity();
 
             // 🔹 mapeo de atributos directos
             entity.setFullName(e.getFullName());
@@ -74,13 +75,13 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
     }
 
     @Override
-    public List<Employee> findAll() {
+    public List<People> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT e FROM EmployeeEntity e", EmployeeEntity.class)
+            return em.createQuery("SELECT e FROM EmployeeEntity e", PeopleEntity.class)
                     .getResultList()
                     .stream()
-                    .map(EmployeeRepositoryAdapter::toDomain)
+                    .map(PeopleRepositoryAdapter::toDomain)
                     .collect(Collectors.toList());
         } finally {
             em.close();
@@ -93,7 +94,7 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            EmployeeEntity entity = em.find(EmployeeEntity.class, id);
+            PeopleEntity entity = em.find(PeopleEntity.class, id);
             if (entity != null) em.remove(entity);
             tx.commit();
         } catch (RuntimeException ex) {
@@ -105,10 +106,10 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
     }
 
     @Override
-    public Optional<Employee> findById(Long id) {
+    public Optional<People> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            EmployeeEntity entity = em.find(EmployeeEntity.class, id);
+            PeopleEntity entity = em.find(PeopleEntity.class, id);
             return Optional.ofNullable(entity == null ? null : toDomain(entity));
         } finally {
             em.close();
@@ -116,12 +117,22 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
     }
 
     @Override
-    public List<Employee> search(TipoDocumento tipoDocumento, String numeroDocumento,
-                                 String nombre, String apellido, String epc) {
+    public List<People> search(PeopleType peopleType, TipoDocumento tipoDocumento, String numeroDocumento,
+                               String nombre, String apellido, String epc) {
         EntityManager em = emf.createEntityManager();
         try {
-            StringBuilder jpql = new StringBuilder("SELECT e FROM EmployeeEntity e LEFT JOIN FETCH e.tag t WHERE 1=1");
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT e FROM EmployeeEntity e " +
+                            "LEFT JOIN FETCH e.tag t " +
+                            "LEFT JOIN FETCH e.peopleType pt WHERE 1=1");
+
             List<Object[]> params = new ArrayList<>();
+
+            // 🔹 Filtro por tipo de persona (si viene)
+            if (peopleType != null && peopleType.getId() != null) {
+                jpql.append(" AND pt.id = :ptId");
+                params.add(new Object[]{"ptId", peopleType.getId()});
+            }
 
             if (tipoDocumento != null) {
                 jpql.append(" AND e.docType = :td");
@@ -144,11 +155,11 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
                 params.add(new Object[]{"epc", "%" + epc + "%"});
             }
 
-            var q = em.createQuery(jpql.toString(), EmployeeEntity.class);
+            var q = em.createQuery(jpql.toString(), PeopleEntity.class);
             for (Object[] p : params) q.setParameter((String)p[0], p[1]);
 
             return q.getResultList().stream()
-                    .map(EmployeeRepositoryAdapter::toDomain)
+                    .map(PeopleRepositoryAdapter::toDomain)
                     .collect(Collectors.toList());
         } finally {
             em.close();
@@ -156,27 +167,27 @@ public class EmployeeRepositoryAdapter implements EmployeeRepository {
     }
 
     @Override
-    public Optional<Employee> findByEpc(String epc) {
+    public Optional<People> findByEpc(String epc) {
         EntityManager em = emf.createEntityManager();
         try {
             var query = em.createQuery(
                     "SELECT e FROM EmployeeEntity e " +
                             "JOIN e.tag t " +
                             "WHERE t.epc = :epc",
-                    EmployeeEntity.class);
+                    PeopleEntity.class);
             query.setParameter("epc", epc);
             return query.getResultStream()
                     .findFirst()
-                    .map(EmployeeRepositoryAdapter::toDomain);
+                    .map(PeopleRepositoryAdapter::toDomain);
         } finally {
             em.close();
         }
     }
 
     // 🔹 Mapper Entity -> Domain
-    private static Employee toDomain(EmployeeEntity entity) {
+    private static People toDomain(PeopleEntity entity) {
         if (entity == null) return null;
-        Employee e = new Employee();
+        People e = new People();
         e.setId(entity.getId());
         e.setFullName(entity.getFullName());
         e.setLastName(entity.getLastName());

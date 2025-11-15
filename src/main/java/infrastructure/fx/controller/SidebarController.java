@@ -14,6 +14,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
@@ -38,6 +39,7 @@ public class SidebarController {
         ThemeManager.UiTheme theme = ThemeManager.getTheme();
         menuTree.getStyleClass().removeAll("ocean-soft", "green-soft", "dark-menu", "obsidian-menu");
         menuTree.getStyleClass().add(ThemeManager.cssClassFor(theme));
+        menuTree.setFixedCellSize(32);
         // Estado inicial expandido
         root.setPrefWidth(EXPANDED_WIDTH);
         menuWrapper.setVisible(true);
@@ -126,7 +128,7 @@ public class SidebarController {
             );
             catRoot.getChildren().add(makeMenuItem("Productos", "/infrastructure/fx/view/catalog/product.fxml", Icons.BOX));
             catRoot.getChildren().add(makeMenuItem("Tipos de Persona", "/infrastructure/fx/view/catalog/peopletype.fxml", Icons.KEY));
-            catRoot.getChildren().add(makeMenuItem("Personas", "/infrastructure/fx/view/catalog/employee.fxml", Icons.USER));
+            catRoot.getChildren().add(makeMenuItem("Personas", "/infrastructure/fx/view/catalog/people.fxml", Icons.USER));
         }
         rootItem.getChildren().add(catRoot);
 
@@ -194,18 +196,13 @@ public class SidebarController {
     }
 
     private TreeItem<String> makeMenuCategory(String label, String svgPath) {
-        SVGPath icon = new SVGPath();
-        icon.setContent(svgPath);
-        icon.setFill(Color.DARKSLATEGRAY);
-        icon.setScaleX(0.6);
-        icon.setScaleY(0.6);
+        Node iconNode = buildIconNode(svgPath, Color.DARKSLATEGRAY);
 
         Label text = new Label(label);
         text.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
 
-        HBox box = new HBox(8, icon, text);
+        HBox box = new HBox(8, iconNode, text);
         box.setAlignment(Pos.CENTER_LEFT);
-        // category root typically has no fxml userData (not clickable), so NO setUserData
 
         // IMPORTANT: use null for value to avoid double text
         return new TreeItem<>(null, box);
@@ -216,18 +213,15 @@ public class SidebarController {
     }
 
     private TreeItem<String> makeMenuItem(String label, String fxmlPath, String svgPath, boolean isLogout) {
-        SVGPath icon = new SVGPath();
-        icon.setContent(svgPath);
-        icon.setFill(isLogout ? Color.DARKRED : Color.DIMGRAY);
-        icon.setScaleX(0.6);
-        icon.setScaleY(0.6);
+        Color fill = isLogout ? Color.DARKRED : Color.DIMGRAY;
+        Node iconNode = buildIconNode(svgPath, fill);
 
         Label text = new Label(label);
         text.setStyle(isLogout
                 ? "-fx-font-size: 13px; -fx-text-fill: #b71c1c; -fx-font-weight: bold;"
                 : "-fx-font-size: 13px; -fx-text-fill: #333;");
 
-        HBox box = new HBox(8, icon, text);
+        HBox box = new HBox(8, iconNode, text);
         box.setAlignment(Pos.CENTER_LEFT);
         if (fxmlPath != null) {
             box.setUserData(fxmlPath);
@@ -262,4 +256,27 @@ public class SidebarController {
         // Llamamos al MainController, que ya sabe reiniciar la sesión
         MainController.getInstance().logout();
     }
+
+    private Node buildIconNode(String svgPath, Color fill) {
+        SVGPath icon = new SVGPath();
+        icon.setContent(svgPath);
+        icon.setFill(fill);
+        icon.setScaleX(0.6);
+        icon.setScaleY(0.6);
+
+        // Contenedor de tamaño fijo: "columna" del icono
+        StackPane wrapper = new StackPane(icon);
+        wrapper.setMinWidth(24);
+        wrapper.setPrefWidth(24);
+        wrapper.setMaxWidth(24);
+
+        wrapper.setMinHeight(24);
+        wrapper.setPrefHeight(24);
+        wrapper.setMaxHeight(24);
+
+        wrapper.setAlignment(Pos.CENTER); // icono centrado en su cuadrito
+
+        return wrapper;
+    }
+
 }

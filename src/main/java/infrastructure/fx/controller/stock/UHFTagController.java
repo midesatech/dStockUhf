@@ -1,13 +1,13 @@
 package infrastructure.fx.controller.stock;
 
-import domain.model.Employee;
+import domain.model.People;
 import domain.model.Product;
 import domain.model.UHFTag;
 import domain.model.tag.ESerialMode;
 import domain.model.tag.ErrorCode;
 import domain.model.tag.ReadWriteResult;
 import domain.model.tag.RxDto;
-import domain.usecase.EmployeeUseCase;
+import domain.usecase.PeopleUseCase;
 import domain.usecase.ProductUseCase;
 import domain.usecase.TagUHFUseCase;
 import domain.usecase.tag.ReadTagUseCase;
@@ -42,7 +42,7 @@ public class UHFTagController {
 
     private final ObservableList<UHFTag> data = FXCollections.observableArrayList();
     private final TagUHFUseCase useCase;
-    private final EmployeeUseCase employeeUseCase;
+    private final PeopleUseCase peopleUseCase;
     private final ProductUseCase productUseCase;
     private final ReadTagUseCase readTagUseCase;
 
@@ -55,11 +55,11 @@ public class UHFTagController {
     private static final Logger logger = LogManager.getLogger(UHFTagController.class);
 
     public UHFTagController(TagUHFUseCase useCase,
-                            EmployeeUseCase employeeUseCase,
+                            PeopleUseCase peopleUseCase,
                             ProductUseCase productUseCase,
                             ReadTagUseCase readTagUseCase) {
         this.useCase = useCase;
-        this.employeeUseCase = employeeUseCase;
+        this.peopleUseCase = peopleUseCase;
         this.productUseCase = productUseCase;
         this.readTagUseCase = readTagUseCase;
     }
@@ -76,7 +76,7 @@ public class UHFTagController {
             String display = "";
             try {
                 if (tag.getTipo() == UHFTag.Tipo.EMPLOYEE) {
-                    display = employeeUseCase.findByEpc(epc)
+                    display = peopleUseCase.findByEpc(epc)
                             .map(emp -> emp.getFullName() + " " + emp.getLastName())
                             .orElse("");
                 } else if (tag.getTipo() == UHFTag.Tipo.PRODUCT) {
@@ -131,7 +131,7 @@ public class UHFTagController {
             // 2. Use the exact constant names: EMPLOYEE and PRODUCT
             if (newVal == UHFTag.Tipo.EMPLOYEE) {
                 // Load data specific to an employee
-                cmbAsignacion.setItems(FXCollections.observableArrayList(employeeUseCase.listar()));
+                cmbAsignacion.setItems(FXCollections.observableArrayList(peopleUseCase.listar()));
 
             } else if (newVal == UHFTag.Tipo.PRODUCT) {
                 // Load data specific to a product
@@ -152,8 +152,8 @@ public class UHFTagController {
                 chkActivo.setSelected(newSel.isActivo());
                 // 🔹 Seleccionar en cmbAsignacion según el tipo
                 if (newSel.getTipo() == UHFTag.Tipo.EMPLOYEE) {
-                    cmbAsignacion.setItems(FXCollections.observableArrayList(employeeUseCase.listar()));
-                    employeeUseCase.findByEpc(newSel.getEpc()).ifPresent(emp -> cmbAsignacion.setValue(emp));
+                    cmbAsignacion.setItems(FXCollections.observableArrayList(peopleUseCase.listar()));
+                    peopleUseCase.findByEpc(newSel.getEpc()).ifPresent(emp -> cmbAsignacion.setValue(emp));
                 } else if (newSel.getTipo() == UHFTag.Tipo.PRODUCT) {
                     cmbAsignacion.setItems(FXCollections.observableArrayList(productUseCase.listar()));
                     productUseCase.findByEpc(newSel.getEpc()).ifPresent(eq -> cmbAsignacion.setValue(eq));
@@ -237,7 +237,7 @@ public class UHFTagController {
 
         // Asignación según tipo
         if (tipo == UHFTag.Tipo.EMPLOYEE) {
-            employeeUseCase.asignarEpc(((Employee) asignacion).getId(), epc);
+            peopleUseCase.asignarEpc(((People) asignacion).getId(), epc);
         } else {
             productUseCase.asignarEpc(((Product) asignacion).getId(), epc);
         }

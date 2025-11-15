@@ -1,10 +1,10 @@
 package infrastructure.fx.controller.stock;
-import domain.model.Employee;
+import domain.model.People;
 import domain.model.Product;
 import domain.model.Ubicacion;
 import domain.model.tag.TagScan;
 import domain.model.tag.TagScanFilter;
-import domain.usecase.EmployeeUseCase;
+import domain.usecase.PeopleUseCase;
 import domain.usecase.ProductUseCase;
 import domain.usecase.LocationUseCase;
 import domain.usecase.TagUHFUseCase;
@@ -58,19 +58,19 @@ public class ScanController {
 
     private final ScanUseCase scanUseCase;
     private final TagUHFUseCase tagUHFUseCase;
-    private final EmployeeUseCase employeeUseCase;
+    private final PeopleUseCase peopleUseCase;
     private final ProductUseCase productUseCase;
     private final LocationUseCase locationUseCase;
 
 
     public ScanController(ScanUseCase scanUseCase,
                           TagUHFUseCase tagUHFUseCase,
-                          EmployeeUseCase employeeUseCase,
+                          PeopleUseCase peopleUseCase,
                           ProductUseCase productUseCase,
                           LocationUseCase locationUseCase) {
         this.scanUseCase = scanUseCase;
         this.tagUHFUseCase = tagUHFUseCase;
-        this.employeeUseCase = employeeUseCase;
+        this.peopleUseCase = peopleUseCase;
         this.productUseCase = productUseCase;
         this.locationUseCase = locationUseCase;
     }
@@ -168,9 +168,9 @@ public class ScanController {
                 + " | Ubicación: " + ubic);
 
         // Resolver dueño por EPC (Empleado / Equipo)
-        Optional<Employee> emp = employeeUseCase.findByEpc(epc);
+        Optional<People> emp = peopleUseCase.findByEpc(epc);
         if (emp.isPresent()) {
-            Employee e = emp.get();
+            People e = emp.get();
             lblAsignado.setText("Empleado: " + e.getFullName() + " " + e.getLastName());
             return;
         }
@@ -237,9 +237,9 @@ public class ScanController {
 
         // Resolver dueño (Empleado/Equipo) igual que en el panel inferior
         String asignado = "No asignado";
-        Optional<Employee> emp = employeeUseCase.findByEpc(s.getEpc());
+        Optional<People> emp = peopleUseCase.findByEpc(s.getEpc());
         if (emp.isPresent()) {
-            Employee e = emp.get();
+            People e = emp.get();
             asignado = "Empleado: " + nonNull(e.getFullName()) + " " + nonNull(e.getLastName());
         } else {
             Optional<Product> eq = productUseCase.findByEpc(s.getEpc());

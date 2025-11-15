@@ -1,21 +1,22 @@
 
 package domain.usecase;
 
-import domain.gateway.EmployeeRepository;
-import domain.model.Employee;
+import domain.gateway.PeopleRepository;
+import domain.model.People;
+import domain.model.PeopleType;
 import domain.model.TipoDocumento;
 
 import java.util.List;
 import java.util.Optional;
 
-public class EmployeeUseCase {
-    private final EmployeeRepository repo;
+public class PeopleUseCase {
+    private final PeopleRepository repo;
 
-    public EmployeeUseCase(EmployeeRepository repo) {
+    public PeopleUseCase(PeopleRepository repo) {
         this.repo = repo;
     }
 
-    public Employee save(Employee e) {
+    public People save(People e) {
         if (e.getFullName() == null || e.getFullName().isBlank())
             throw new IllegalArgumentException("Nombre requerido");
 
@@ -41,16 +42,18 @@ public class EmployeeUseCase {
         return repo.save(e);
     }
 
-    public List<Employee> listar() { return repo.findAll(); }
+    public List<People> listar() { return repo.findAll(); }
 
     public void eliminar(Long id) { repo.deleteById(id); }
 
-    public List<Employee> buscar(TipoDocumento tipoDocumento, String numeroDocumento, String nombre, String apellido, String codigo) {
-        return repo.search(tipoDocumento, numeroDocumento, nombre, apellido, codigo);
+    public List<People> buscar(PeopleType peopleType, TipoDocumento tipoDocumento,
+                               String numeroDocumento, String nombre, String apellido,
+                               String codigo) {
+        return repo.search(peopleType, tipoDocumento, numeroDocumento, nombre, apellido, codigo);
     }
 
-    public Employee asignarEpc(Long empleadoId, String epc) {
-        Employee e = repo.findById(empleadoId)
+    public People asignarEpc(Long empleadoId, String epc) {
+        People e = repo.findById(empleadoId)
                 .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado"));
 
         if (e.getEpc() != null && !e.getEpc().isBlank()) {
@@ -61,7 +64,7 @@ public class EmployeeUseCase {
         return repo.save(e);
     }
 
-    public Optional<Employee> findByEpc(String epc) {
+    public Optional<People> findByEpc(String epc) {
         return repo.findByEpc(epc);
     }
 

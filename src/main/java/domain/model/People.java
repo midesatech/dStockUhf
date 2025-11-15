@@ -3,7 +3,7 @@ package domain.model;
 
 import java.time.LocalDate;
 
-public class Employee {
+public class People {
     private Long id;
     private PeopleType peopleType;
     private String epc;              // TAG UHF (opcional)
@@ -16,17 +16,17 @@ public class Employee {
     private String email;               // opcional
     private String phone;            // opcional
 
-    public Employee() {}
+    public People() {}
 
-    public Employee(Long id, String epc, String fullName, String lastName) {
+    public People(Long id, String epc, String fullName, String lastName) {
         this.id = id; this.epc = epc; this.fullName = fullName; this.lastName = lastName;
     }
 
     // Constructor completo (útil para tests)
-    public Employee(Long id, String epc, String fullName, String lastName,
-                    TipoDocumento docType, String docNumber,
-                    LocalDate birthDate, TipoSangre bloodType,
-                    String email, String phone, PeopleType peopleType) {
+    public People(Long id, String epc, String fullName, String lastName,
+                  TipoDocumento docType, String docNumber,
+                  LocalDate birthDate, TipoSangre bloodType,
+                  String email, String phone, PeopleType peopleType) {
         this.id = id;
         this.epc = epc;
         this.fullName = fullName;
