@@ -32,28 +32,28 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
             /* Suma por ubicación principal: principal + sub */
             WITH last_seen AS (
                 SELECT dt.ubicacion_id, dt.epc
-                FROM detecciones_tags dt
+                FROM uhf_detection dt
                 JOIN (
                     SELECT epc, MAX(created_at) AS last_ts
-                    FROM detecciones_tags
+                    FROM uhf_detection
                     GROUP BY epc
                 ) x ON x.epc = dt.epc AND x.last_ts = dt.created_at
                 WHERE dt.created_at >= ?1
             ),
             loc_map AS (
                 SELECT u.id AS id, COALESCE(u.parent_id, u.id) AS principal_id
-                FROM ubicaciones u
+                FROM location u
             )
             SELECT
                 p.id AS principal_id,
                 p.nombre AS principal_name,
                 COALESCE(SUM(CASE WHEN e.id  IS NOT NULL THEN 1 ELSE 0 END), 0) AS employees,
                 COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS product
-            FROM ubicaciones p
+            FROM location p
             LEFT JOIN loc_map m ON m.principal_id = p.id
             LEFT JOIN last_seen ls ON ls.ubicacion_id = m.id
-            LEFT JOIN tags_uhf t ON t.epc = ls.epc
-            LEFT JOIN empleados e ON e.tag_id = t.id
+            LEFT JOIN uhf_tag t ON t.epc = ls.epc
+            LEFT JOIN poeple e ON e.tag_id = t.id
             LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE p.parent_id IS NULL
             GROUP BY p.id, p.nombre
@@ -82,10 +82,10 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
             String sql = """
             WITH last_seen AS (
                 SELECT dt.ubicacion_id, dt.epc
-                FROM detecciones_tags dt
+                FROM uhf_detection dt
                 JOIN (
                     SELECT epc, MAX(created_at) AS last_ts
-                    FROM detecciones_tags
+                    FROM uhf_detection
                     GROUP BY epc
                 ) x ON x.epc = dt.epc AND x.last_ts = dt.created_at
                 WHERE dt.created_at >= ?2
@@ -95,10 +95,10 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
                 u.nombre AS location_name,
                 COALESCE(SUM(CASE WHEN e.id  IS NOT NULL THEN 1 ELSE 0 END), 0) AS employees,
                 COALESCE(SUM(CASE WHEN eq.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS product
-            FROM ubicaciones u
+            FROM location u
             LEFT JOIN last_seen ls ON ls.ubicacion_id = u.id
-            LEFT JOIN tags_uhf t ON t.epc = ls.epc
-            LEFT JOIN empleados e ON e.tag_id = t.id
+            LEFT JOIN uhf_tag t ON t.epc = ls.epc
+            LEFT JOIN people e ON e.tag_id = t.id
             LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE (u.parent_id = ?1) OR (u.id = ?1)  -- incluye principal si tiene detecciones directas
             GROUP BY u.id, u.nombre
@@ -126,15 +126,15 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
         try {
             String sql = """
             /* Última detección por EPC en la ubicación indicada (sea principal o sub),
-               incluyendo sububicaciones si se selecciona una principal */
+               incluyendo sublocation si se selecciona una principal */
             WITH target AS (
-                SELECT id FROM ubicaciones WHERE id = ?1
+                SELECT id FROM location WHERE id = ?1
                 UNION ALL
-                SELECT id FROM ubicaciones WHERE parent_id = ?1
+                SELECT id FROM location WHERE parent_id = ?1
             ),
             last_seen AS (
                 SELECT dt.epc, MAX(dt.created_at) AS last_ts
-                FROM detecciones_tags dt
+                FROM uhf_detection dt
                 WHERE dt.ubicacion_id IN (SELECT id FROM target)
                 GROUP BY dt.epc
             )
@@ -144,8 +144,8 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
                COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre) AS nombre,
                ls.last_ts
             FROM last_seen ls
-            JOIN tags_uhf t ON t.epc = ls.epc
-            LEFT JOIN empleados e ON e.tag_id = t.id
+            JOIN uhf_tag t ON t.epc = ls.epc
+            LEFT JOIN people e ON e.tag_id = t.id
             LEFT JOIN product eq ON eq.tag_id = t.id
             ORDER BY ls.last_ts DESC
         """;
@@ -169,7 +169,7 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
     public int totalEmployees() {
         EntityManager em = emf.createEntityManager();
         try {
-            Number n = (Number) em.createNativeQuery("SELECT COUNT(*) FROM empleados").getSingleResult();
+            Number n = (Number) em.createNativeQuery("SELECT COUNT(*) FROM people").getSingleResult();
             return n.intValue();
         } finally {
             em.close();

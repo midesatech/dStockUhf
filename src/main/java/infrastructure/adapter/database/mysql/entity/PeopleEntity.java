@@ -6,13 +6,13 @@ import java.time.LocalDate;
 
 @Entity
 @Table(
-        name = "empleados",
+        name = "people",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_empleados_doc_number", columnNames = "doc_number")
+                @UniqueConstraint(name = "uk_people_doc", columnNames = {"doc_type", "doc_number"})
         },
         indexes = {
-                @Index(name = "idx_empleados_last_name", columnList = "last_name"),
-                @Index(name = "idx_empleados_doc_type",  columnList = "doc_type")
+                @Index(name = "idx_people_last_name", columnList = "last_name"),
+                @Index(name = "idx_people_doc_type",  columnList = "doc_type")
         }
 )
 public class PeopleEntity {
@@ -30,7 +30,7 @@ public class PeopleEntity {
     @Column(name = "doc_type", nullable = false, length = 20)
     private domain.model.TipoDocumento docType;
 
-    @Column(name = "doc_number", nullable = false, length = 30, unique = true)
+    @Column(name = "doc_number", nullable = false, length = 30)
     private String docNumber;
 
     @Column(name = "birth_date", nullable = false)
@@ -52,12 +52,13 @@ public class PeopleEntity {
     @JoinColumn(
             name = "tag_id",
             unique = true,
-            foreignKey = @ForeignKey(name = "fk_empleados_tag") // DDL for ON DELETE below in SQL
+            foreignKey = @ForeignKey(name = "fk_people_tag") // DDL for ON DELETE below in SQL
     )
     private UHFTagEntity tag;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "people_id", nullable = false)
+    @JoinColumn(name = "people_type_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_people_type_id"))
     private PeopleTypeEntity peopleType;
 
     // getters/setters

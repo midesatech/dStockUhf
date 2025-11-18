@@ -4,7 +4,7 @@ package infrastructure.adapter.database.mysql.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "ubicaciones")
+@Table(name = "location")
 public class LocationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

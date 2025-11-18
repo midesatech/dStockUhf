@@ -5,14 +5,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "detecciones_tags",
+        name = "uhf_detection",
         indexes = {
-                @Index(name = "idx_detecciones_epc", columnList = "epc"),
-                @Index(name = "idx_detecciones_created", columnList = "created_at"),
-                @Index(name = "idx_detecciones_lector_created", columnList = "lector_id, created_at")
+                @Index(name = "idx_detection_epc", columnList = "epc"),
+                @Index(name = "idx_detection_created", columnList = "created_at"),
+                @Index(name = "idx_detection_reader_created", columnList = "lector_id, created_at"),
+                @Index(name = "idx_detection_epc_created", columnList = "epc, created_at"),
+                @Index(name = "idx_detection_location_created", columnList = "ubicacion_id, created_at")
         }
 )
-public class TagDetectionEntity {
+public class UHFDetectionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

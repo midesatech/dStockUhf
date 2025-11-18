@@ -75,4 +75,20 @@ public final class PropertyConfigService {
     public static String get(String key, String defVal) {
         return load().getProperty(key, defVal);
     }
+
+    public static String getUrl() {
+        return String.format(
+                "jdbc:mariadb://%s:%s/%s",
+                get(KEY_DB_HOST, "localhost"),
+                get(KEY_DB_PORT, "3306"),
+                get(KEY_DB_DATABASE, "inventario")
+        );
+    }
+
+    public static String getUser() {
+        return get(KEY_DB_USER, "root");
+    }
+    public static String getPassword() {
+        return get(KEY_DB_PASSWORD, "root");
+    }
 }

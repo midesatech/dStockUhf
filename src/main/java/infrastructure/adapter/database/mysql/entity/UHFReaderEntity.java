@@ -3,7 +3,7 @@ package infrastructure.adapter.database.mysql.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "lectores_uhf")
+@Table(name = "uhf_reader")
 public class UHFReaderEntity {
 
     @Id

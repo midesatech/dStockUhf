@@ -14,7 +14,7 @@
     <class>infrastructure.adapter.database.mysql.entity.ProductEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.UHFTagEntity</class>
     <class>infrastructure.adapter.database.mysql.entity.UHFReaderEntity</class>
-    <class>infrastructure.adapter.database.mysql.entity.TagDetectionEntity</class>
+    <class>infrastructure.adapter.database.mysql.entity.UHFDetectionEntity</class>
 
     <properties>
       <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
@@ -22,7 +22,7 @@
       <property name="jakarta.persistence.jdbc.user" value="root"/>
       <property name="jakarta.persistence.jdbc.password" value=""/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
-      <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.hbm2ddl.auto" value="validate"/>
       <property name="hibernate.show_sql" value="false"/>
       <property name="hibernate.format_sql" value="true"/>
       <property name="hibernate.hikari.maximumPoolSize" value="10"/>

@@ -25,12 +25,13 @@ dependencies {
     // If you keep these, they're fine, but the plugin already supplies them:
     // implementation 'org.openjfx:javafx-controls:21.0.3'
     // implementation 'org.openjfx:javafx-fxml:21.0.3'
-
+    implementation 'org.flywaydb:flyway-core:10.20.0'
+    implementation 'org.flywaydb:flyway-mysql:10.20.0'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     implementation 'org.hibernate.orm:hibernate-core:6.4.4.Final'
     implementation 'com.zaxxer:HikariCP:5.1.0'
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
     implementation 'org.slf4j:slf4j-simple:2.0.12'
     implementation 'com.fazecast:jSerialComm:2.11.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.24.3'

@@ -6,7 +6,7 @@ import domain.model.Ubicacion;
 import domain.model.tag.TagScan;
 import domain.model.tag.TagScanFilter;
 import infrastructure.adapter.database.mysql.entity.LocationEntity;
-import infrastructure.adapter.database.mysql.entity.TagDetectionEntity;
+import infrastructure.adapter.database.mysql.entity.UHFDetectionEntity;
 import infrastructure.adapter.database.mysql.entity.UHFReaderEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -47,7 +47,7 @@ public class ScansRepositoryAdapter implements ScanRepository {
         );
     }
 
-    private static TagScan toDomain(TagDetectionEntity e) {
+    private static TagScan toDomain(UHFDetectionEntity e) {
         Ubicacion u = toDomain(e.getUbicacion());
         return new TagScan(
                 e.getId(),
@@ -105,7 +105,7 @@ public class ScansRepositoryAdapter implements ScanRepository {
         try {
             tx.begin();
 
-            TagDetectionEntity e = new TagDetectionEntity();
+            UHFDetectionEntity e = new UHFDetectionEntity();
 
             // lector (obligatorio)
             UHFReaderEntity lector = em.createQuery(
@@ -142,7 +142,7 @@ public class ScansRepositoryAdapter implements ScanRepository {
         EntityManager em = emf.createEntityManager();
         try {
             StringBuilder jpql = new StringBuilder(
-                    "SELECT d FROM TagDetectionEntity d " +
+                    "SELECT d FROM UHFDetectionEntity d " +
                             "JOIN d.lector l " +
                             "LEFT JOIN d.ubicacion u " +
                             "LEFT JOIN l.ubicacion lu "
@@ -150,7 +150,7 @@ public class ScansRepositoryAdapter implements ScanRepository {
             List<Object[]> params = new ArrayList<>();
             applyFilters(jpql, params, f);
 
-            TypedQuery<TagDetectionEntity> q = em.createQuery(jpql.toString(), TagDetectionEntity.class);
+            TypedQuery<UHFDetectionEntity> q = em.createQuery(jpql.toString(), UHFDetectionEntity.class);
             for (Object[] p : params) q.setParameter((String)p[0], p[1]);
             q.setMaxResults((f != null && f.limit > 0) ? f.limit : 500);
 

@@ -12,6 +12,7 @@ import infrastructure.adapter.security.SimpleAuthServiceAdapter;
 import infrastructure.adapter.serial.SerialFactory;
 import infrastructure.adapter.serial.SerialPortRepositoryAdapter;
 import infrastructure.adapter.serial.TagOperationsAdapter;
+import infrastructure.persistence.DatabaseCreator;
 import infrastructure.persistence.JPAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,11 +77,23 @@ public class AppBootstrap {
         Optional<AppConfig> appConfig = loadProperties();
 
         if (useJpa) {
-            // ensure DB exists (uses defaults from persistence.xml)
-            infrastructure.persistence.DatabaseCreator.ensureDatabaseExists(
-                                        DbConfig.jdbcUrl(),
-                                        DbConfig.username(),
-                                        DbConfig.password());
+
+            if (PropertyConfigService.exists()) {
+                DatabaseCreator.ensureDatabaseExists(
+                        PropertyConfigService.getUrl(),
+                        PropertyConfigService.getUser(),
+                        PropertyConfigService.getPassword()
+                );
+            } else {
+                // ensure DB exists (uses defaults from persistence.xml)
+                DatabaseCreator.ensureDatabaseExists(
+                        DbConfig.jdbcUrl(),
+                        DbConfig.username(),
+                        DbConfig.password()
+                );
+            }
+
+            DatabaseMigrator.migrate();
 
             JPAUtil.init();
             userRepository = new UserRepositoryAdapter(JPAUtil.getEmf(), encoder);

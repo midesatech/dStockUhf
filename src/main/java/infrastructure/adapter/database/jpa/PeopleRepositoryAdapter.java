@@ -78,7 +78,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
     public List<People> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT e FROM EmployeeEntity e", PeopleEntity.class)
+            return em.createQuery("SELECT e FROM PeopleEntity e", PeopleEntity.class)
                     .getResultList()
                     .stream()
                     .map(PeopleRepositoryAdapter::toDomain)
@@ -122,7 +122,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
         EntityManager em = emf.createEntityManager();
         try {
             StringBuilder jpql = new StringBuilder(
-                    "SELECT e FROM EmployeeEntity e " +
+                    "SELECT e FROM PeopleEntity e " +
                             "LEFT JOIN FETCH e.tag t " +
                             "LEFT JOIN FETCH e.peopleType pt WHERE 1=1");
 
@@ -171,7 +171,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
         EntityManager em = emf.createEntityManager();
         try {
             var query = em.createQuery(
-                    "SELECT e FROM EmployeeEntity e " +
+                    "SELECT e FROM PeopleEntity e " +
                             "JOIN e.tag t " +
                             "WHERE t.epc = :epc",
                     PeopleEntity.class);

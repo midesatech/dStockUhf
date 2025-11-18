@@ -6,7 +6,7 @@ DROP TRIGGER IF EXISTS bu_product_tag_guard;
 
 DROP TABLE IF EXISTS people;
 DROP TABLE IF EXISTS product;
-DROP TABLE IF EXISTS tags_uhf;
+DROP TABLE IF EXISTS uhf_tag;
 DROP TABLE IF EXISTS location;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS users;
@@ -14,7 +14,8 @@ DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS roles_permissions;
 DROP TABLE IF EXISTS user_roles;
-DROP TABLE IF EXISTS uhf_detections;
+DROP TABLE IF EXISTS uhf_detection;
+DROP TABLE IF EXISTS uhf_reader;
 
 CREATE TABLE roles (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50) NOT NULL UNIQUE);
 CREATE TABLE permissions (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80) NOT NULL UNIQUE);
@@ -23,15 +24,41 @@ CREATE TABLE users (id BIGINT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(60) N
 CREATE TABLE user_roles (user_id BIGINT NOT NULL, role_id BIGINT NOT NULL, PRIMARY KEY (user_id, role_id));
 
 CREATE TABLE category (id BIGINT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(255) NOT NULL);
-CREATE TABLE location (id BIGINT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(150) NOT NULL UNIQUE);
 
-CREATE TABLE tags_uhf (
+CREATE TABLE location (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT,
+ nombre VARCHAR(150) NOT NULL UNIQUE,
+ parent_id BIGINT NULL,
+ CONSTRAINT fk_location_parent
+     FOREIGN KEY (parent_id) REFERENCES location(id)
+     ON DELETE SET NULL;
+);
+
+CREATE UNIQUE INDEX uq_location_parent_nombre
+  ON location (COALESCE(parent_id, 0), nombre);
+
+
+CREATE TABLE people_type (id bigint(20) NOT NULL AUTO_INCREMENT, nombre varchar(60) NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT uk_nombre_pt UNIQUE KEY (nombre)
+);
+
+CREATE TABLE uhf_reader (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  codigo VARCHAR(64) NOT NULL UNIQUE,
+  descripcion VARCHAR(255),
+  ubicacion_id BIGINT NOT NULL,
+  CONSTRAINT fk_readers_location
+    FOREIGN KEY (ubicacion_id) REFERENCES location(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE uhf_tag (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   epc VARCHAR(64) NOT NULL,
-  tipo ENUM('EMPLOYEE','EQUIPMENT', 'PRODUCT') NOT NULL,
+  tipo VARCHAR(32) NOT NULL,
   activo BOOLEAN NOT NULL DEFAULT 1,
   CONSTRAINT uk_taguhf_epc UNIQUE KEY (epc)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE people (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -44,10 +71,17 @@ CREATE TABLE people (
   email      VARCHAR(120),
   phone      VARCHAR(25),
   tag_id     BIGINT NULL,
-  CONSTRAINT uk_people_doc_number UNIQUE KEY (doc_number),
+  people_type_id  bigint(20) NOT NULL,
+  CONSTRAINT uk_people_doc UNIQUE KEY (doc_type, doc_number),
   CONSTRAINT uk_people_tag UNIQUE KEY (tag_id),
-  CONSTRAINT fk_people_tag FOREIGN KEY (tag_id) REFERENCES tags_uhf(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_people_type_id FOREIGN KEY (people_type_id) REFERENCES people_type (id),
+  CONSTRAINT fk_people_tag FOREIGN KEY (tag_id) REFERENCES uhf_tag(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Índices para búsquedas frecuentes
+CREATE INDEX idx_people_last_name ON people (last_name);
+CREATE INDEX idx_people_doc_type  ON people (doc_type);
+
 
 CREATE TABLE product (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -57,10 +91,10 @@ CREATE TABLE product (
   estado  VARCHAR(30),
   tag_id  BIGINT NULL,
   CONSTRAINT uk_product_tag UNIQUE KEY (tag_id),
-  CONSTRAINT fk_product_tag FOREIGN KEY (tag_id) REFERENCES tags_uhf(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_product_tag FOREIGN KEY (tag_id) REFERENCES uhf_tag(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE uhf_detections (
+CREATE TABLE uhf_detection (
   id            BIGINT PRIMARY KEY AUTO_INCREMENT,
   lector_id     BIGINT NOT NULL,
   ubicacion_id  BIGINT NULL,
@@ -69,20 +103,17 @@ CREATE TABLE uhf_detections (
   machine       VARCHAR(100) NULL,
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_detections_reader
+  CONSTRAINT fk_detection_reader
     FOREIGN KEY (lector_id) REFERENCES lectores_uhf(id) ON DELETE RESTRICT,
-  CONSTRAINT fk_detections_location
+  CONSTRAINT fk_detection_location
     FOREIGN KEY (ubicacion_id) REFERENCES location(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE INDEX idx_detecciones_epc              ON uhf_detections (epc);
-CREATE INDEX idx_detecciones_created          ON uhf_detections (created_at);
-CREATE INDEX idx_detecciones_lector_created   ON uhf_detections (lector_id, created_at);
-CREATE INDEX idx_detecciones_epc_created
-    ON uhf_detections (epc, created_at);
-
-CREATE INDEX idx_detections_location_created
-    ON uhf_detections (ubicacion_id, created_at);
+CREATE INDEX idx_detection_epc              ON uhf_detection (epc);
+CREATE INDEX idx_detection_created          ON uhf_detection (created_at);
+CREATE INDEX idx_detection_reader_created   ON uhf_detection (lector_id, created_at);
+CREATE INDEX idx_detection_epc_created      ON uhf_detection (epc, created_at);
+CREATE INDEX idx_detection_location_created ON uhf_detection (ubicacion_id, created_at);
 
 DELIMITER $$
 

@@ -34,9 +34,9 @@ public class SearchRepositoryAdapter implements SearchRepository {
                    dt.epc,
                    COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.nombre, CONCAT('EPC ', dt.epc)) AS nombre,
                    MAX(dt.created_at) AS last_seen
-                FROM detecciones_tags dt
-                LEFT JOIN tags_uhf t  ON t.epc = dt.epc
-                LEFT JOIN empleados e ON e.tag_id = t.id
+                FROM uhf_detection dt
+                LEFT JOIN uhf_tag t  ON t.epc = dt.epc
+                LEFT JOIN people e ON e.tag_id = t.id
                 LEFT JOIN product eq ON eq.tag_id = t.id
                 WHERE dt.created_at BETWEEN ?1 AND ?2
                   AND (
@@ -83,12 +83,12 @@ public class SearchRepositoryAdapter implements SearchRepository {
                  ELSE u.nombre
                 END AS location_name,
                dt.created_at
-               FROM detecciones_tags dt
-               LEFT JOIN tags_uhf t  ON t.epc = dt.epc
-               LEFT JOIN empleados e ON e.tag_id = t.id
+               FROM uhf_detection dt
+               LEFT JOIN uhf_tag t  ON t.epc = dt.epc
+               LEFT JOIN people e ON e.tag_id = t.id
                LEFT JOIN product eq  ON eq.tag_id = t.id
-               LEFT JOIN ubicaciones u  ON u.id = dt.ubicacion_id
-               LEFT JOIN ubicaciones up ON up.id = u.parent_id
+               LEFT JOIN location u  ON u.id = dt.ubicacion_id
+               LEFT JOIN location up ON up.id = u.parent_id
                WHERE dt.created_at BETWEEN ?1 AND ?2
                AND (
                   (?3 = 'EMPLOYEE' AND e.id IS NOT NULL) OR
@@ -129,8 +129,8 @@ public class SearchRepositoryAdapter implements SearchRepository {
         try {
             String sql = """
                 SELECT u.id AS location_id, u.nombre AS location_name, dt.created_at
-                FROM detecciones_tags dt
-                LEFT JOIN ubicaciones u ON u.id = dt.ubicacion_id
+                FROM uhf_detection dt
+                LEFT JOIN location u ON u.id = dt.ubicacion_id
                 WHERE dt.epc = ?1
                   AND dt.created_at BETWEEN ?2 AND ?3
                 ORDER BY dt.created_at ASC
@@ -171,9 +171,9 @@ public class SearchRepositoryAdapter implements SearchRepository {
         try {
             String scope = (ubicacionId == null) ? "" : """
             WITH target AS (
-                SELECT id FROM ubicaciones WHERE id = :uid
+                SELECT id FROM location WHERE id = :uid
                 UNION ALL
-                SELECT id FROM ubicaciones WHERE parent_id = :uid
+                SELECT id FROM location WHERE parent_id = :uid
             )
         """;
             String inClause = (ubicacionId == null) ? "" : "AND dt.ubicacion_id IN (SELECT id FROM target)";
@@ -184,9 +184,9 @@ public class SearchRepositoryAdapter implements SearchRepository {
                dt.epc,
                COALESCE(NULLIF(TRIM(CONCAT(COALESCE(e.full_name,''),' ',COALESCE(e.last_name,''))), ''), eq.name) AS nombre,
                MAX(dt.created_at) as last_ts
-            FROM detecciones_tags dt
-            LEFT JOIN tags_uhf t ON t.epc = dt.epc
-            LEFT JOIN empleados e ON e.tag_id = t.id
+            FROM uhf_detection dt
+            LEFT JOIN uhf_tag t ON t.epc = dt.epc
+            LEFT JOIN people e ON e.tag_id = t.id
             LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE dt.created_at BETWEEN :s AND :e
               AND (CASE WHEN :subject = 'EMPLOYEE' THEN e.id IS NOT NULL ELSE eq.id IS NOT NULL END)
@@ -235,11 +235,11 @@ public class SearchRepositoryAdapter implements SearchRepository {
                 u.id AS ubicacion_id,
                 CASE WHEN up.id IS NOT NULL THEN CONCAT(up.nombre, ' / ', u.nombre) ELSE u.nombre END AS location_name,
                 dt.created_at
-               FROM detecciones_tags dt
-               LEFT JOIN ubicaciones u  ON u.id = dt.ubicacion_id
-               LEFT JOIN ubicaciones up ON up.id = u.parent_id
-               LEFT JOIN tags_uhf t     ON t.epc = dt.epc
-               LEFT JOIN empleados e    ON e.tag_id = t.id
+               FROM uhf_detection dt
+               LEFT JOIN location u  ON u.id = dt.ubicacion_id
+               LEFT JOIN location up ON up.id = u.parent_id
+               LEFT JOIN uhf_tag t     ON t.epc = dt.epc
+               LEFT JOIN people e    ON e.tag_id = t.id
                LEFT JOIN product eq     ON eq.tag_id = t.id
                WHERE dt.created_at BETWEEN :s AND :e
                  AND (
