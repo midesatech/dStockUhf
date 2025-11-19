@@ -47,7 +47,7 @@
                               GridPane.valignment="TOP">
                             <children>
                                 <!-- Tipo (radios) -->
-                                <RadioButton fx:id="rbEmployee" text="Employees"
+                                <RadioButton fx:id="rbEmployee" text="People"
                                              toggleGroup="$grpTipo" selected="true"
                                              mnemonicParsing="false" contentDisplay="LEFT"
                                              wrapText="true" maxWidth="Infinity"/>

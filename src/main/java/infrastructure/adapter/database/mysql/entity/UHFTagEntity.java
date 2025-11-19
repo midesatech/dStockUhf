@@ -13,15 +13,11 @@ public class UHFTagEntity {
     @Column(nullable = false, unique = true, length = 64)
     private String epc;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Tipo tipo;
+    private String tipo;
 
     private boolean activo = true;
 
-    public enum Tipo {
-        EMPLOYEE, EQUIPMENT, PRODUCT
-    }
 
     // Getters & Setters
     public Long getId() {
@@ -40,11 +36,11 @@ public class UHFTagEntity {
         this.epc = epc;
     }
 
-    public Tipo getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(Tipo tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 

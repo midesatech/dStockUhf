@@ -59,7 +59,7 @@ public class Seeds {
         if (userRepository.count() == 0) {
             User adminUser = new User("admin", "admin123");
 
-            Role adminRole = roleUseCase.findByName("ADMIN")
+            Role adminRole = roleUseCase.findByName("ADMINISTRATOR")
                     .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
 
             adminUser.addRole(adminRole);

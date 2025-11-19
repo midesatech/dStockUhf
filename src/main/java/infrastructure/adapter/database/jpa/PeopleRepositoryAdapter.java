@@ -2,9 +2,7 @@
 package infrastructure.adapter.database.jpa;
 
 import domain.gateway.PeopleRepository;
-import domain.model.People;
-import domain.model.PeopleType;
-import domain.model.TipoDocumento;
+import domain.model.*;
 import infrastructure.adapter.database.mysql.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -36,10 +34,10 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
             // 🔹 mapeo de atributos directos
             entity.setFullName(e.getFullName());
             entity.setLastName(e.getLastName());
-            entity.setDocType(e.getDocType());
+            entity.setDocType(e.getDocType().toString());
             entity.setDocNumber(e.getDocNumber());
             entity.setBirthDate(e.getBirthDate());
-            entity.setBloodType(e.getBloodType());
+            entity.setBloodType(e.getBloodType().toString());
             entity.setEmail(e.getEmail());
             entity.setPhone(e.getPhone());
 
@@ -52,7 +50,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
             // 🔹 EPC -> TagUHFEntity (TIPO = EMPLEADO)
             if (e.getEpc() != null && !e.getEpc().isBlank()) {
                 UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
-                        em, e.getEpc().trim(), UHFTagEntity.Tipo.EMPLOYEE
+                        em, e.getEpc().trim(), UHFTag.Tipo.EMPLOYEE.toString()
                 );                entity.setTag(tag);
             } else {
                 entity.setTag(null);
@@ -136,7 +134,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
 
             if (tipoDocumento != null) {
                 jpql.append(" AND e.docType = :td");
-                params.add(new Object[]{"td", tipoDocumento});
+                params.add(new Object[]{"td", tipoDocumento.toString()});
             }
             if (numeroDocumento != null && !numeroDocumento.isBlank()) {
                 jpql.append(" AND e.docNumber LIKE :nd");
@@ -191,10 +189,10 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
         e.setId(entity.getId());
         e.setFullName(entity.getFullName());
         e.setLastName(entity.getLastName());
-        e.setDocType(entity.getDocType());
+        e.setDocType(TipoDocumento.valueOf(entity.getDocType()));
         e.setDocNumber(entity.getDocNumber());
         e.setBirthDate(entity.getBirthDate());
-        e.setBloodType(entity.getBloodType());
+        e.setBloodType(TipoSangre.valueOf(entity.getBloodType()));
         e.setEmail(entity.getEmail());
         e.setPhone(entity.getPhone());
         if (entity.getPeopleType()!=null)

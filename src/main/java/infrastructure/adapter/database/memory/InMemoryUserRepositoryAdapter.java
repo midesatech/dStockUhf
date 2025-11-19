@@ -14,7 +14,7 @@ public class InMemoryUserRepositoryAdapter implements UserRepository {
 
     public InMemoryUserRepositoryAdapter() {
         User admin = new User(seq.getAndIncrement(), "ADMIN", "$2a$10$Mz0YG/R7GWLhbVAqS0mUp.ODJH0Demopefek12XKk5PA3QHt3dgzu", true);
-        admin.getRoles().add(new Role(1L, "ADMINISTRADOR"));
+        admin.getRoles().add(new Role(1L, "ADMINISTRATOR"));
         data.put(admin.getId(), admin);
     }
 

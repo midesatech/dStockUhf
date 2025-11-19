@@ -27,11 +27,11 @@ public class UHFTagRepositoryAdapter implements TagUHFRepository {
             tx.begin();
             UHFTagEntity e = new UHFTagEntity();
             e.setEpc(tag.getEpc());
-            e.setTipo(UHFTagEntity.Tipo.valueOf(tag.getTipo().name()));
+            e.setTipo(tag.getTipo().name());
             e.setActivo(tag.isActivo());
             em.persist(e);
             tx.commit();
-            return new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo().name()), e.isActivo());
+            return new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo()), e.isActivo());
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
             throw ex;
@@ -47,7 +47,7 @@ public class UHFTagRepositoryAdapter implements TagUHFRepository {
             List<UHFTagEntity> list = em.createQuery("select t from UHFTagEntity t", UHFTagEntity.class)
                     .getResultList();
             return list.stream()
-                    .map(e -> new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo().name()), e.isActivo()))
+                    .map(e -> new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo()), e.isActivo()))
                     .collect(Collectors.toList());
         } finally {
             em.close();
@@ -77,7 +77,7 @@ public class UHFTagRepositoryAdapter implements TagUHFRepository {
         try {
             UHFTagEntity e = em.find(UHFTagEntity.class, id);
             return Optional.ofNullable(e == null ? null :
-                    new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo().name()), e.isActivo()));
+                    new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo()), e.isActivo()));
         } finally {
             em.close();
         }
@@ -94,7 +94,7 @@ public class UHFTagRepositoryAdapter implements TagUHFRepository {
             List<UHFTagEntity> result = query.getResultList();
             return result.isEmpty() ? Optional.empty() :
                     Optional.of(
-                    new UHFTag(result.get(0).getId(), result.get(0).getEpc(), UHFTag.Tipo.valueOf(result.get(0).getTipo().name()), result.get(0).isActivo()));
+                    new UHFTag(result.get(0).getId(), result.get(0).getEpc(), UHFTag.Tipo.valueOf(result.get(0).getTipo()), result.get(0).isActivo()));
         } finally {
             em.close();
         }
@@ -111,11 +111,11 @@ public class UHFTagRepositoryAdapter implements TagUHFRepository {
                 throw new IllegalArgumentException("Tag no encontrado con id " + tag.getId());
             }
             e.setEpc(tag.getEpc());
-            e.setTipo(UHFTagEntity.Tipo.valueOf(tag.getTipo().name()));
+            e.setTipo(tag.getTipo().name());
             e.setActivo(tag.isActivo());
             em.merge(e);
             tx.commit();
-            return new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo().name()), e.isActivo());
+            return new UHFTag(e.getId(), e.getEpc(), UHFTag.Tipo.valueOf(e.getTipo()), e.isActivo());
         } catch (RuntimeException ex) {
             if (tx.isActive()) tx.rollback();
             throw ex;

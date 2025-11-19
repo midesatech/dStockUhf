@@ -6,7 +6,7 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 
 public class UHFTagRepositoryHelper {
-    public static UHFTagEntity findOrCreateByEpc(EntityManager em, String epc, UHFTagEntity.Tipo tipo) {
+    public static UHFTagEntity findOrCreateByEpc(EntityManager em, String epc, String tipo) {
         List<UHFTagEntity> list = em.createQuery(
                         "SELECT t FROM UHFTagEntity t WHERE t.epc = :epc", UHFTagEntity.class)
                 .setParameter("epc", epc)

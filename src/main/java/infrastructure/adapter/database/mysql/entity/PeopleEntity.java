@@ -26,9 +26,8 @@ public class PeopleEntity {
     @Column(name = "last_name", nullable = false, length = 150)
     private String lastName;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "doc_type", nullable = false, length = 20)
-    private domain.model.TipoDocumento docType;
+    private String docType;
 
     @Column(name = "doc_number", nullable = false, length = 30)
     private String docNumber;
@@ -36,9 +35,8 @@ public class PeopleEntity {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "blood_type", nullable = false, length = 4)
-    private domain.model.TipoSangre bloodType;
+    private String bloodType;
 
     @Column(length = 120)
     private String email;
@@ -68,14 +66,14 @@ public class PeopleEntity {
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
-    public domain.model.TipoDocumento getDocType() { return docType; }
-    public void setDocType(domain.model.TipoDocumento docType) { this.docType = docType; }
+    public String getDocType() { return docType; }
+    public void setDocType(String docType) { this.docType = docType; }
     public String getDocNumber() { return docNumber; }
     public void setDocNumber(String docNumber) { this.docNumber = docNumber; }
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
-    public domain.model.TipoSangre getBloodType() { return bloodType; }
-    public void setBloodType(domain.model.TipoSangre bloodType) { this.bloodType = bloodType; }
+    public String getBloodType() { return bloodType; }
+    public void setBloodType(String bloodType) { this.bloodType = bloodType; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPhone() { return phone; }

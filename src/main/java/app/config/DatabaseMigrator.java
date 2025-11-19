@@ -1,6 +1,5 @@
 package app.config;
 
-import app.config.DbConfig;
 import org.flywaydb.core.Flyway;
 
 public final class DatabaseMigrator {
@@ -8,13 +7,13 @@ public final class DatabaseMigrator {
     private DatabaseMigrator() {}
 
     public static void migrate() {
-        String url = DbConfig.jdbcUrl();
-        String user = DbConfig.username();
-        String pass = DbConfig.password();
+        String url = PropertyConfigService.getUrl();
+        String user = PropertyConfigService.getUser();
+        String pass = PropertyConfigService.getPassword();
 
         Flyway flyway = Flyway.configure()
                 .dataSource(url, user, pass)
-                .locations("classpath:db/migration")
+                .locations("classpath:db/migrations")
                 .baselineOnMigrate(true) // si ya tienes una BD con tablas existentes
                 .load();
 

@@ -4,6 +4,7 @@ package infrastructure.adapter.database.jpa;
 import domain.gateway.ProductGateway;
 import domain.model.Category;
 import domain.model.Product;
+import domain.model.UHFTag;
 import infrastructure.adapter.database.mysql.entity.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityManager;
@@ -51,7 +52,7 @@ public class ProductRepositoryAdapter implements ProductGateway {
             // EPC -> TagUHFEntity (TIPO = EQUIPMENT)
             if (product.getEpc() != null && !product.getEpc().isBlank()) {
                 UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
-                        em, product.getEpc().trim(), UHFTagEntity.Tipo.PRODUCT
+                        em, product.getEpc().trim(), UHFTag.Tipo.PRODUCT.toString()
                 );
                 e.setTag(tag);
             } else {

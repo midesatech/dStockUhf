@@ -14,7 +14,7 @@ public class UserEntity {
     private Long id;
     @Column(nullable = false, unique = true, length = 64)
     private String username;
-    @Column(name = "password_hash", nullable = false, length = 100)
+    @Column(name = "password", nullable = false, length = 100)
     private String passwordHash;
     @Column(name = "system_user", nullable = false)
     private boolean systemUser;
