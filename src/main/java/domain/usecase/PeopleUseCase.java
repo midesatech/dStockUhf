@@ -68,4 +68,27 @@ public class PeopleUseCase {
         return repo.findByEpc(epc);
     }
 
+    public java.util.List<People> buscarBasico(String nombre,
+                                               String apellido,
+                                               String numeroDocumento,
+                                               String email) {
+        return repo.findAll().stream()
+                .filter(p -> likeContainsIgnoreCase(p.getFullName(), nombre))
+                .filter(p -> likeContainsIgnoreCase(p.getLastName(), apellido))
+                .filter(p -> likeContainsIgnoreCase(p.getDocNumber(), numeroDocumento))
+                .filter(p -> likeContainsIgnoreCase(p.getEmail(), email))
+                .toList();
+    }
+
+    private boolean likeContainsIgnoreCase(String value, String filtro) {
+        if (filtro == null || filtro.isBlank()) {
+            return true; // si no hay filtro, no limita
+        }
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+        return value.toLowerCase().contains(filtro.toLowerCase());
+    }
+
+
 }

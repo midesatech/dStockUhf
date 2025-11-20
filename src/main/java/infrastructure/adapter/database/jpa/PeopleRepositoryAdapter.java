@@ -37,7 +37,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
             entity.setDocType(e.getDocType().toString());
             entity.setDocNumber(e.getDocNumber());
             entity.setBirthDate(e.getBirthDate());
-            entity.setBloodType(e.getBloodType().toString());
+            entity.setBloodType(e.getBloodType().name());
             entity.setEmail(e.getEmail());
             entity.setPhone(e.getPhone());
 
@@ -50,7 +50,7 @@ public class PeopleRepositoryAdapter implements PeopleRepository {
             // 🔹 EPC -> TagUHFEntity (TIPO = EMPLEADO)
             if (e.getEpc() != null && !e.getEpc().isBlank()) {
                 UHFTagEntity tag = UHFTagRepositoryHelper.findOrCreateByEpc(
-                        em, e.getEpc().trim(), UHFTag.Tipo.EMPLOYEE.toString()
+                        em, e.getEpc().trim(), UHFTag.Tipo.PEOPLE.toString()
                 );                entity.setTag(tag);
             } else {
                 entity.setTag(null);

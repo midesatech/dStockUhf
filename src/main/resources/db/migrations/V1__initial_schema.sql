@@ -71,7 +71,7 @@ CREATE TABLE people (
   doc_type   VARCHAR(20)  NOT NULL,
   doc_number VARCHAR(30)  NOT NULL,
   birth_date DATE         NOT NULL,
-  blood_type VARCHAR(4)   NOT NULL,
+  blood_type VARCHAR(6)   NOT NULL,
   email      VARCHAR(120),
   phone      VARCHAR(25),
   tag_id     BIGINT NULL,

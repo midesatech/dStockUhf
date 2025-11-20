@@ -53,4 +53,9 @@ public class ProductUseCase {
     public Optional<Product> findByEpc(String epc) {
         return repo.findByEpc(epc);
     }
+
+    public java.util.List<Product> buscar(String sku, String nombre) {
+        return repo.buscar(sku, nombre, (Category) null);
+    }
+
 }

@@ -53,7 +53,7 @@ public class DashboardRepositoryAdapter implements DashboardRepository {
             LEFT JOIN loc_map m ON m.principal_id = p.id
             LEFT JOIN last_seen ls ON ls.ubicacion_id = m.id
             LEFT JOIN uhf_tag t ON t.epc = ls.epc
-            LEFT JOIN poeple e ON e.tag_id = t.id
+            LEFT JOIN people e ON e.tag_id = t.id
             LEFT JOIN product eq ON eq.tag_id = t.id
             WHERE p.parent_id IS NULL
             GROUP BY p.id, p.nombre

@@ -8,7 +8,7 @@ public class UHFTag {
     private boolean activo;
 
     public enum Tipo {
-        EMPLOYEE("EMPLEADO", true),
+        PEOPLE("PERSONA", true),
         EQUIPMENT("EQUIPO", false),
         PRODUCT("PRODUCTO", true);
 
@@ -20,8 +20,6 @@ public class UHFTag {
             this.label = label;
             this.isEnabled = isEnabled;
         }
-
-
         // Getter methods
         public String getLabel() {
             return label;
