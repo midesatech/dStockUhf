@@ -266,12 +266,12 @@ public class UHFTagController {
             return;
         }
 
-        UHFTag tag = (seleccionado == null)
-                ? new UHFTag(null, epc, tipo, activo)
-                : new UHFTag(seleccionado.getId(), epc, tipo, activo);
+        //UHFTag tag = (seleccionado == null)
+        //        ? new UHFTag(null, epc, tipo, activo)
+        //        : new UHFTag(seleccionado.getId(), epc, tipo, activo);
 
         // Persistir el Tag
-        UHFTag saved = (seleccionado == null) ? useCase.save(tag) : useCase.update(tag);
+        //UHFTag saved = (seleccionado == null) ? useCase.save(tag) : useCase.update(tag);
 
         // Asignación según tipo
         if (tipo == UHFTag.Tipo.PEOPLE) {
