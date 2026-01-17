@@ -111,7 +111,7 @@
                         </TitledPane>
                     </items>
                 </SplitPane>
-                <!--
+
                 <VBox spacing="8">
                     <padding>
                         <Insets top="8" right="8" bottom="8" left="8"/>
@@ -124,7 +124,7 @@
                             <TableColumn fx:id="colSubEq" text="Equipment" prefWidth="100"/>
                         </columns>
                     </TableView>
-                </VBox> -->
+                </VBox>
             </items>
         </SplitPane>
     </center>
